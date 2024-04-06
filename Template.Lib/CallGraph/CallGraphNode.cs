@@ -11,5 +11,9 @@ namespace Template.Lib.CallGraph
 
         public Literal Literal { get; set; }
 
+        public CallGraphNode(Literal literal)
+        {
+            Literal = literal ?? throw new ArgumentNullException(nameof(Literal), "Literal can not be null!");
+        }
     }
 }

@@ -7,12 +7,84 @@ using System.Threading.Tasks;
 
 namespace Template.Lib.CallGraph
 {
+    /// <summary>
+    /// Represents a CallGraph. A CallGraph is a directed graph that represents the calls between Literals.
+    /// </summary>
     public class CallGraph
     {
 
-        private CallGraphNode? Root { get; set; }
+        public CallGraphNode? Root { get; set; } // private or public?; made them public for now for testing purposes
+        public List<CallGraphNode> Nodes { get; set; } // Nodes contains Root Element
+        public List<CallGraphEdge> Edges { get; set; } // Edges are directional
 
+        /// <summary>
+        /// Initializes a new instance of the CallGraph class.
+        /// </summary>
+        public CallGraph()
+        {
+            Nodes = new List<CallGraphNode>();
+            Edges = new List<CallGraphEdge>();
+        }
 
+        /// <summary>
+        /// Adds a Node to the CallGraph. If the Root is not set, the Node will be set as the Root.
+        /// </summary>
+        /// <param name="node">The Node that will be added onto the CallGraph.</param>
+        /// <exception cref="ArgumentNullException">Thrown when the Node is null.</exception>
+        public void AddNode(CallGraphNode node)
+        {
+            if (node == null)
+            {
+                throw new ArgumentNullException(nameof(node), "Node can not be null!");
+            }
 
+            if (Nodes.Contains(node))
+            {
+                throw new ArgumentException("Node already exists in the Graph!");
+            }
+
+            if (Root == null)
+            {
+                Root = node;
+            }
+
+            // Add Check if Literal already exists inside Graph?
+            Nodes.Add(node);
+        }
+
+        /// <summary>
+        /// Adds an Edge to the CallGraph.
+        /// </summary>
+        /// <param name="edge">The Edge that will be added.</param>
+        /// <exception cref="ArgumentNullException">Thrown when the Edge is null.</exception>
+        public void AddEdge(CallGraphEdge edge)
+        {
+            if (edge == null)
+            {
+                throw new ArgumentNullException(nameof(edge), "Edge can not be null!");
+            }
+
+            if (Edges.Contains(edge))
+            {
+                throw new ArgumentException("Edge already exists in the Graph!");
+            }
+
+            if (!Nodes.Contains(edge.Source) || !Nodes.Contains(edge.Target))
+            {
+                throw new ArgumentException("Source or Target Node of Edge is not part of the Graph!");
+            }
+
+            Edges.Add(edge);
+        }
+
+        /// <summary>
+        /// Returns the Node that represents the given Literal. If the Node does not exist, null will be returned.
+        /// </summary>
+        /// <param name="literal">The Literal that should be looked for in the Graph.</param>
+        /// <returns>The Node if given Literal was found; Null if given Literal is not found.</returns>
+        public CallGraphNode GetNode(Literal literal)
+        {
+            return Nodes.Find(node => node.Literal.Equals(literal));
+        }
     }
 }
