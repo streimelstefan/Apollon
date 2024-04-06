@@ -24,7 +24,7 @@ namespace Template.Lib
         }
 
 
-        public bool Equals(Atom other)
+        public bool Equals(Atom? other)
         {
             if (other == null) return false;
 

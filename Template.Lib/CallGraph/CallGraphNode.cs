@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Template.Lib.CallGraph
+namespace Template.Lib.Graph
 {
     public class CallGraphNode
     {

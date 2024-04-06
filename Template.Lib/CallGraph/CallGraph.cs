@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Template.Lib.CallGraph
+namespace Template.Lib.Graph
 {
     /// <summary>
     /// Represents a CallGraph. A CallGraph is a directed graph that represents the calls between Literals.

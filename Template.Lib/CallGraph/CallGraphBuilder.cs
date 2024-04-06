@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Template.Lib.CallGraph;
+namespace Template.Lib.Graph;
 
 /// <summary>
 /// This class is responsible for building the CallGraph from a given Program.

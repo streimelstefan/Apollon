@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Template.Lib;
-using Template.Lib.CallGraph;
+using Template.Lib.Graph;
 
 namespace Template.Test;
 
