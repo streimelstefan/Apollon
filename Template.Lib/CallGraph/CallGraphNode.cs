@@ -13,7 +13,7 @@ namespace Template.Lib.CallGraph
 
         public CallGraphNode(Literal literal)
         {
-            Literal = literal ?? throw new ArgumentNullException(nameof(Literal), "Literal can not be null!");
+            Literal = literal;
         }
     }
 }

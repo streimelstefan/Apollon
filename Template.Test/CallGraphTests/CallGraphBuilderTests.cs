@@ -11,40 +11,12 @@ namespace Template.Test;
 
 public class CallGraphBuilderTests
 {
-    private CallGraphBuilder _callGraphBuilder;
+    private CallGraphBuilder? _callGraphBuilder;
 
     [SetUp]
     public void Setup()
     {
         _callGraphBuilder = new CallGraphBuilder();
-    }
-
-    [Test]
-    public void ShouldThrowIfProgramIsNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => _callGraphBuilder.BuildCallGraph(null));
-    }
-
-    [Test]
-    public void ShouldThrowIfHeadWasNotFound()
-    {
-        var literal = new Literal(new Atom("reached", new Term[] { new Term("V") }), false, false);
-        var literal2 = new Literal(new Atom("reached", new Term[] { new Term("V") }), true, false);
-        var fakeliteral = new Literal(new Atom("fake", new Term[] { new Term("V") }), false, false);
-
-        var program = new Program(new Literal[] {literal, literal2}, new Rule[] {new Rule(fakeliteral, literal2)});
-        Assert.Throws<ArgumentException>(() => _callGraphBuilder.BuildCallGraph(program));
-    }
-
-    [Test]
-    public void ShouldThrowIfBodyWasNotFound()
-    {
-        var literal = new Literal(new Atom("reached", new Term[] { new Term("V") }), false, false);
-        var literal2 = new Literal(new Atom("reached", new Term[] { new Term("V") }), true, false);
-        var fakeliteral = new Literal(new Atom("fake", new Term[] { new Term("V") }), true, false);
-
-        var program = new Program(new Literal[] { literal, literal2 }, new Rule[] { new Rule(literal, fakeliteral) });
-        Assert.Throws<ArgumentException>(() => _callGraphBuilder.BuildCallGraph(program));
     }
 
     [Test]
@@ -54,11 +26,63 @@ public class CallGraphBuilderTests
         var literal2 = new Literal(new Atom("informatiker", new Term[] { new Term("V") }), false, false);
 
         var program = new Program(new Literal[] { literal, literal2 }, new Rule[] { new Rule(literal, literal2) });
-        var graph = _callGraphBuilder.BuildCallGraph(program);
+        var graph = _callGraphBuilder?.BuildCallGraph(program);
 
         //Assert.AreEqual(new List<CallGraphNode> { new CallGraphNode(literal), new CallGraphNode(literal2)}, graph.Nodes);
         //Assert.AreEqual(new List<CallGraphEdge> { new CallGraphEdge(new CallGraphNode(literal), new CallGraphNode(literal2), 1, new Rule(literal, literal2)) }, graph.Edges);
-        Assert.AreEqual(graph.Nodes.Count, 2);
-        Assert.AreEqual(graph.Edges.Count, 1);
+        Assert.AreEqual(graph?.Nodes.Count, 2);
+        Assert.AreEqual(graph?.Edges.Count, 1);
+    }
+
+    [Test]
+    public void ShouldBuildCallGraphCorrectly()
+    {
+        var literals = new Literal[] { new Literal(new Atom("atom", new Term[] { }), false, false) };
+        var rules = new Rule[] { new Rule(new Literal(new Atom("atom", new Term[] { new Term("V") }), false, false), new Literal[] { new Literal(new Atom("atom", new Term[] { }), false, false) }) };
+        var prgram = new Program(literals, rules);
+
+        var graph = _callGraphBuilder?.BuildCallGraph(prgram);
+
+        Assert.AreEqual(graph?.Nodes.Count, 2);
+        Assert.AreEqual(graph?.Edges.Count, 1);
+
+        var testLiteral = new Literal(new Atom("atom", new Term[] { }), false, false);
+        var testLiteral2 = new Literal(new Atom("atom", new Term[] { new Term("V") }), false, false);
+        Assert.NotNull(graph?.GetNode(testLiteral));
+        Assert.NotNull(graph?.GetNode(testLiteral2));
+
+        var edge = graph?.Edges.First();
+
+        Assert.NotNull(edge);
+        Assert.IsFalse(edge?.IsNAF);
+        Assert.AreEqual(edge?.CreatorRule, rules[0]);
+        Assert.IsTrue(edge?.Source.Literal.Equals(testLiteral2));
+        Assert.IsTrue(edge?.Target.Literal.Equals(testLiteral));
+    }
+
+    [Test]
+    public void ShouldBuildCallGraphCorrectlyWithNAF()
+    {
+        var literals = new Literal[] { new Literal(new Atom("atom", new Term[] { }), false, false) };
+        var rules = new Rule[] { new Rule(new Literal(new Atom("atom", new Term[] { new Term("V") }), false, false), new Literal[] { new Literal(new Atom("atom", new Term[] { }), true, false) }) };
+        var prgram = new Program(literals, rules);
+
+        var graph = _callGraphBuilder?.BuildCallGraph(prgram);
+
+        Assert.AreEqual(graph?.Nodes.Count, 2);
+        Assert.AreEqual(graph?.Edges.Count, 1);
+
+        var testLiteral = new Literal(new Atom("atom", new Term[] { }), false, false);
+        var testLiteral2 = new Literal(new Atom("atom", new Term[] { new Term("V") }), false, false);
+        Assert.NotNull(graph?.GetNode(testLiteral));
+        Assert.NotNull(graph?.GetNode(testLiteral2));
+
+        var edge = graph?.Edges.First();
+
+        Assert.NotNull(edge);
+        Assert.IsTrue(edge?.IsNAF);
+        Assert.AreEqual(edge?.CreatorRule, rules[0]);
+        Assert.IsTrue(edge?.Source.Literal.Equals(testLiteral2));
+        Assert.IsTrue(edge?.Target.Literal.Equals(testLiteral));
     }
 }

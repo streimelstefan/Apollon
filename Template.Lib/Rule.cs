@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Template.Lib
 {
-    public class Rule
+    public class Rule : IEquatable<Rule>
     {
 
         public Literal Head {  get; set; }
@@ -27,8 +27,13 @@ namespace Template.Lib
             return $"{Head} :- {String.Join(", ", Body.Select(literal => literal.ToString()))}";
         }
 
-        public bool Equals(Rule other)
+        public bool Equals(Rule? other)
         {
+            if (other == null)
+            {
+                return false;
+            }
+
             if (!other.Head.Equals(Head) || other.Body.Length != Body.Length)
             {
                 return false;

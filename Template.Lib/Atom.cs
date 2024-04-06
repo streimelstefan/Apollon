@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Template.Lib
 {
-    public class Atom
+    public class Atom : IEquatable<Atom>
     {
         public string Name { get; set; }
 
@@ -26,6 +26,8 @@ namespace Template.Lib
 
         public bool Equals(Atom other)
         {
+            if (other == null) return false;
+
             if (Name != other.Name || TermList.Length != other.TermList.Length)
             {
                 return false;

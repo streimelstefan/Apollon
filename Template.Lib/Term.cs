@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Template.Lib
 {
-    public class Term
+    public class Term : IEquatable<Term>
     {
 
         public bool IsVariable {  
@@ -29,8 +29,10 @@ namespace Template.Lib
         }
 
 
-        public bool Equals(Term other)
+        public bool Equals(Term? other)
         {
+            if (other == null) return false;
+
             return Value == other.Value;
         }
 

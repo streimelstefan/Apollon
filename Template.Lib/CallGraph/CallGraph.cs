@@ -30,14 +30,8 @@ namespace Template.Lib.CallGraph
         /// Adds a Node to the CallGraph. If the Root is not set, the Node will be set as the Root.
         /// </summary>
         /// <param name="node">The Node that will be added onto the CallGraph.</param>
-        /// <exception cref="ArgumentNullException">Thrown when the Node is null.</exception>
-        public void AddNode(CallGraphNode node)
+        public CallGraphNode AddNode(CallGraphNode node)
         {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node), "Node can not be null!");
-            }
-
             if (Nodes.Contains(node))
             {
                 throw new ArgumentException("Node already exists in the Graph!");
@@ -50,20 +44,20 @@ namespace Template.Lib.CallGraph
 
             // Add Check if Literal already exists inside Graph?
             Nodes.Add(node);
+            return node;
+        }
+
+        public CallGraphNode AddNode(Literal node)
+        {
+            return this.AddNode(new CallGraphNode(node));
         }
 
         /// <summary>
         /// Adds an Edge to the CallGraph.
         /// </summary>
         /// <param name="edge">The Edge that will be added.</param>
-        /// <exception cref="ArgumentNullException">Thrown when the Edge is null.</exception>
-        public void AddEdge(CallGraphEdge edge)
+        public CallGraphEdge AddEdge(CallGraphEdge edge)
         {
-            if (edge == null)
-            {
-                throw new ArgumentNullException(nameof(edge), "Edge can not be null!");
-            }
-
             if (Edges.Contains(edge))
             {
                 throw new ArgumentException("Edge already exists in the Graph!");
@@ -75,14 +69,26 @@ namespace Template.Lib.CallGraph
             }
 
             Edges.Add(edge);
+            return edge;
         }
+
+        public CallGraphEdge AddEdge(CallGraphNode source, CallGraphNode target, bool isNaf, Rule creatorRule)
+        {
+            return this.AddEdge(new CallGraphEdge(source, target, isNaf, creatorRule));
+        }
+
+        public IEnumerable<CallGraphEdge> getEdgesOfNode(CallGraphNode node)
+        {
+            return Edges.Where(edge => edge.Source.Equals(node));
+        }
+
 
         /// <summary>
         /// Returns the Node that represents the given Literal. If the Node does not exist, null will be returned.
         /// </summary>
         /// <param name="literal">The Literal that should be looked for in the Graph.</param>
         /// <returns>The Node if given Literal was found; Null if given Literal is not found.</returns>
-        public CallGraphNode GetNode(Literal literal)
+        public CallGraphNode? GetNode(Literal literal)
         {
             return Nodes.Find(node => node.Literal.Equals(literal));
         }

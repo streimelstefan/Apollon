@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Template.Lib
 {
-    public class Literal
+    public class Literal : IEquatable<Literal>
     {
         public Atom Atom { get; set; }
 
@@ -29,8 +29,10 @@ namespace Template.Lib
         }
 
 
-        public bool Equals(Literal other)
+        public bool Equals(Literal? other)
         {
+            if (other == null) return false;
+
             return IsNAF == other.IsNAF && IsNegative == other.IsNegative && Atom.Equals(other.Atom);
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -61,10 +62,7 @@ public class CallGraphBuilder
     {
         foreach(var literal in literalList)
         {
-            if (!literal.IsNAF)
-            {
-                CallGraph.AddNode(new CallGraphNode (literal));
-            } // not really sure what to do with the negated literals
+            FindOrAddNodeOfLiteral(literal);
         }
     }
 
@@ -78,17 +76,33 @@ public class CallGraphBuilder
     {
         foreach(var rule in ruleList)
         {
-            var head = CallGraph.GetNode(rule.Head) ?? throw new ArgumentException("Rule is not valid since Head was not found.");
+            var head = FindOrAddNodeOfLiteral(rule.Head);
 
-            foreach(var literal in rule.Body)
+            foreach (var literal in rule.Body)
             {
-                int weight = literal.IsNAF ? 1 : 0;
-                var target = CallGraph.GetNode(literal) ?? throw new ArgumentException("Rule is not valid since Body was not found.");
+                var target = FindOrAddNodeOfLiteral(literal);
 
-
-                CallGraph.AddEdge(new CallGraphEdge(head, target, weight, rule));
+                CallGraph.AddEdge(head, target, literal.IsNAF, rule);
             }
         }
+    }
+
+    private CallGraphNode FindOrAddNodeOfLiteral(Literal literal)
+    {
+        Literal useLiteral = literal;
+        if (useLiteral.IsNAF)
+        {
+            useLiteral = new Literal(literal.Atom, false, literal.IsNegative);
+        }
+
+        var node = CallGraph.GetNode(useLiteral);
+
+        if (node == null)
+        {
+            node = CallGraph.AddNode(useLiteral);
+        }
+
+        return node;
     }
 
     

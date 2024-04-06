@@ -10,19 +10,14 @@ public class CallGraphEdge
 {
     public CallGraphNode Source { get; set; }
     public CallGraphNode Target { get; set; }
-    public int Weight { get; set; }
-    public Rule CreatorRule { get; set; } // creating a UUID might be a better idea.
+    public bool IsNAF { get; set; }
+    public Rule CreatorRule { get; set; }
 
-    public CallGraphEdge(CallGraphNode source, CallGraphNode target, int weight, Rule creatorRule)
+    public CallGraphEdge(CallGraphNode source, CallGraphNode target, bool isNaf, Rule creatorRule)
     {
-        Source = source ?? throw new ArgumentNullException(nameof(source), "Source can not be null!");
-        Target = target ?? throw new ArgumentNullException(nameof(target), "Source can not be null!");
-        CreatorRule = creatorRule ?? throw new ArgumentNullException(nameof(CreatorRule), "Rule can not be null!");
-        
-        if (weight < 0 || weight > 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(Weight), "Weight must be either 0 or 1.");
-        }
-        Weight = weight;
+        Source = source;
+        Target = target;
+        CreatorRule = creatorRule;
+        IsNAF = isNaf;
     }
 }
