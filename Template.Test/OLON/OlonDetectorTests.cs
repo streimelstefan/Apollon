@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Template.Lib.Graph;
 using Template.Lib;
-using Template.Lib.Graph;
 using Template.Lib.OLON;
 
 namespace Template.Test.OLON
