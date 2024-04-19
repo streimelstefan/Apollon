@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Template.Lib
+namespace Template.Lib.Rules
 {
     public class Rule : IEquatable<Rule>
     {
 
-        public Literal Head {  get; set; }
+        public Literal Head { get; set; }
         public Literal[] Body { get; set; }
 
-        public Rule(Literal head, params Literal[] body) 
+        public Rule(Literal head, params Literal[] body)
         {
             if (head.IsNAF)
             {
@@ -24,7 +24,7 @@ namespace Template.Lib
 
         public override string ToString()
         {
-            return $"{Head} :- {String.Join(", ", Body.Select(literal => literal.ToString()))}";
+            return $"{Head} :- {string.Join(", ", Body.Select(literal => literal.ToString()))}";
         }
 
         public bool Equals(Rule? other)

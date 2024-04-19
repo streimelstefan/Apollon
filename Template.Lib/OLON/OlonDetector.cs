@@ -42,7 +42,7 @@ namespace Template.Lib.OLON
 
             visitedCopy.Add(node);
 
-            foreach (var edge in callGraph.getEdgesOfNode(node))
+            foreach (var edge in callGraph.GetEdgesOfNode(node))
             {
                 DetectOlonRec(edge.Target, visitedCopy, olonSet, callGraph, edge.IsNAF ? nafCount + 1 : nafCount);
             }

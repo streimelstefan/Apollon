@@ -4,6 +4,7 @@ using System.ComponentModel.Design.Serialization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Template.Lib.Rules;
 
 namespace Template.Lib.Graph
 {
@@ -77,9 +78,19 @@ namespace Template.Lib.Graph
             return this.AddEdge(new CallGraphEdge(source, target, isNaf, creatorRule));
         }
 
-        public IEnumerable<CallGraphEdge> getEdgesOfNode(CallGraphNode node)
+        public IEnumerable<CallGraphEdge> GetEdgesOfNode(CallGraphNode node)
         {
             return Edges.Where(edge => edge.Source.Equals(node));
+        }
+
+        public IEnumerable<CallGraphEdge> GetAllEdgesOfNode(CallGraphNode node)
+        {
+            return Edges.Where(edge => edge.Source.Equals(node) || edge.Target.Equals(node));
+        }
+
+        public IEnumerable<CallGraphNode> GetNodesOfRule(Rule rule)
+        {
+            return Nodes.Where(node => GetAllEdgesOfNode(node).Where(edge => edge.CreatorRule == rule).Any());
         }
 
 

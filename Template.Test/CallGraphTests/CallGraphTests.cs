@@ -126,7 +126,7 @@ public class CallGraphTests
         var node = _graph?.AddNode(literal2);
         _graph?.AddEdge(new CallGraphEdge(node, node2, false, rule));
 
-        var givenEdges = _graph.getEdgesOfNode(node).ToArray();
+        var givenEdges = _graph.GetEdgesOfNode(node).ToArray();
 
         Assert.AreEqual(1, givenEdges.Length);
         Assert.IsTrue(givenEdges[0].Source.Literal.Equals(literal2));
