@@ -14,7 +14,6 @@ namespace Template.Lib
 
         public static void Solve(Program program)
         {
-
             var callGraph = new CallGraphBuilder().BuildCallGraph(program);
 
             var olons = OlonDetector.DetectOlonIn(callGraph);
