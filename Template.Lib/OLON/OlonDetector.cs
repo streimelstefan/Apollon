@@ -32,11 +32,15 @@ namespace Template.Lib.OLON
             // by coping we make sure that only the nodes that are actually in one path are in the stack.
             var visitedCopy = new List<CallGraphNode>(visited);
 
-            // if there is a loop with an odd number of naf
-            if (visited.Contains(node) && nafCount % 2 == 1)
+            // if there is a loop
+            if (visited.Contains(node))
             {
-                // Add all nodes to olon set, no need to add the current node since it is already in the visited stack.
-                olonSet.Nodes.UnionWith(visitedCopy);
+                // if the loop is an ood loop over negation
+                if (nafCount % 2 == 1)
+                {
+                    // Add all nodes to olon set, no need to add the current node since it is already in the visited stack.
+                    olonSet.Nodes.UnionWith(visitedCopy);
+                }
                 return;
             }
 

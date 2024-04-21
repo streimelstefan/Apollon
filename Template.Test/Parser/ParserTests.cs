@@ -114,19 +114,19 @@ namespace Template.Test.Parser
             Assert.IsTrue(program.RuleList[0].Head.Atom.TermList[0].IsVariable);
 
             Assert.AreEqual("likes", program.RuleList[0].Body[0].Atom.Name);
-            Assert.AreEqual(2, program.RuleList[0].Head.Atom.TermList.Length);
-            Assert.AreEqual("X", program.RuleList[0].Head.Atom.TermList[0].Value);
-            Assert.IsTrue(program.RuleList[0].Head.Atom.TermList[0].IsVariable);
-            Assert.AreEqual("prix", program.RuleList[0].Head.Atom.TermList[1].Value);
-            Assert.IsFalse(program.RuleList[0].Head.Atom.TermList[1].IsVariable);
+            Assert.AreEqual(2, program.RuleList[0].Body[0].Atom.TermList.Length);
+            Assert.AreEqual("X", program.RuleList[0].Body[0].Atom.TermList[0].Value);
+            Assert.IsTrue(program.RuleList[0].Body[0].Atom.TermList[0].IsVariable);
+            Assert.AreEqual("prix", program.RuleList[0].Body[0].Atom.TermList[1].Value);
+            Assert.IsFalse(program.RuleList[0].Body[0].Atom.TermList[1].IsVariable);
 
 
-            Assert.AreEqual("hates", program.RuleList[1].Body[0].Atom.Name);
-            Assert.AreEqual(2, program.RuleList[1].Head.Atom.TermList.Length);
-            Assert.AreEqual("X", program.RuleList[1].Head.Atom.TermList[0].Value);
-            Assert.IsTrue(program.RuleList[1].Head.Atom.TermList[0].IsVariable);
-            Assert.AreEqual("prix", program.RuleList[1].Head.Atom.TermList[1].Value);
-            Assert.IsFalse(program.RuleList[1].Head.Atom.TermList[1].IsVariable);
+            Assert.AreEqual("hates", program.RuleList[0].Body[1].Atom.Name);
+            Assert.AreEqual(2, program.RuleList[0].Body[1].Atom.TermList.Length);
+            Assert.AreEqual("X", program.RuleList[0].Body[1].Atom.TermList[0].Value);
+            Assert.IsTrue(program.RuleList[0].Body[1].Atom.TermList[0].IsVariable);
+            Assert.AreEqual("stefan", program.RuleList[0].Body[1].Atom.TermList[1].Value);
+            Assert.IsFalse(program.RuleList[0].Body[1].Atom.TermList[1].IsVariable);
         }
 
         [Test]

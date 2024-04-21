@@ -143,6 +143,18 @@ public partial class apollonBaseListener : IapollonListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitAtom([NotNull] apollonParser.AtomContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.general_term"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterGeneral_term([NotNull] apollonParser.General_termContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.general_term"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitGeneral_term([NotNull] apollonParser.General_termContext context) { }
 
 	/// <inheritdoc/>
 	/// <remarks>The default implementation does nothing.</remarks>

@@ -15,9 +15,16 @@ namespace AppollonParser.Visitors
             var head = context.CLASICAL_TERM().GetText();
             var termList = new List<Term>();
 
-            foreach (var term in context.GENERAL_TERM())
+            foreach (var term in context.general_term())
             {
-                termList.Add(new Term(term.GetText()));
+                if (term.VARIABLE_TERM() != null)
+                {
+                    termList.Add(new Term(term.VARIABLE_TERM().GetText()));
+                }
+                else if (term.CLASICAL_TERM() != null)
+                {
+                    termList.Add(new Term(term.CLASICAL_TERM().GetText()));
+                }
             }
 
             return new Atom(head, termList.ToArray());

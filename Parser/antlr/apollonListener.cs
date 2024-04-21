@@ -120,4 +120,14 @@ public interface IapollonListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitAtom([NotNull] apollonParser.AtomContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.general_term"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterGeneral_term([NotNull] apollonParser.General_termContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.general_term"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitGeneral_term([NotNull] apollonParser.General_termContext context);
 }

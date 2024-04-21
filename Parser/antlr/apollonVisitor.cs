@@ -85,4 +85,10 @@ public interface IapollonVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitAtom([NotNull] apollonParser.AtomContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="apollonParser.general_term"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitGeneral_term([NotNull] apollonParser.General_termContext context);
 }

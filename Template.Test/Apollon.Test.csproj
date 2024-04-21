@@ -34,9 +34,6 @@
     <None Update="TestPrograms\RulesWithVariablesAndTerms.apo">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="TestPrograms\RuleWithVariables.apo">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>
