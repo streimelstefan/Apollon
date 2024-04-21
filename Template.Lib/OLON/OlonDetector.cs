@@ -17,9 +17,15 @@ namespace Template.Lib.OLON
             var olonSet = new OlonSet();
 
             // contains all the nodes that have been visited in a specific path.
+            // TODO: Change List to Stack so the list does not need to be recreated at each stepp
+            // but can just be popped at the end of each step.
             var visited = new List<CallGraphNode>();
 
-            DetectOlonRec(callGraph.Root, visited, olonSet, callGraph);
+            foreach (var startNode in callGraph.Nodes)
+            {
+                // TODO: if startNode has been visited already skip check
+                DetectOlonRec(startNode, visited, olonSet, callGraph);
+            }
 
             // add all target nodes of constraint rules
             foreach (var node in callGraph.Edges.Where(e => e.Source == null).Select(e => e.Target))
@@ -45,7 +51,8 @@ namespace Template.Lib.OLON
                 if (nafCount % 2 == 1)
                 {
                     // Add all nodes to olon set, no need to add the current node since it is already in the visited stack.
-                    olonSet.Nodes.UnionWith(visitedCopy);
+                    // TODO: Add only the nodes form the current node up.
+                    olonSet.Nodes.UnionWith(visitedCopy.TakeLast(visitedCopy.Count - visitedCopy.FindIndex(n => n == node)));
                 }
                 return;
             }

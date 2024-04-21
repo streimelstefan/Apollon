@@ -42,6 +42,7 @@ namespace Template.Lib.Rules
             {
                 // the node has other nodes that follow the path of the rule. Only nodes that represent the end of a path
                 // are elegable to detect an ordinary rule.
+                // if node is source node
                 if (_callGraph.GetEdgesOfNode(node).Where(edge => edge.CreatorRule == rule).Any())
                 {
                     continue;

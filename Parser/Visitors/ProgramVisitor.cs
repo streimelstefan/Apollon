@@ -21,7 +21,6 @@ namespace AppollonParser.Visitors
 
             foreach ( var statement in statements )
             {
-                var statment = statement.GetText();
                 ProcessStatment(statement, facts, rules);
             }
 
