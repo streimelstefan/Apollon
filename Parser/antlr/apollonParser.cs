@@ -37,7 +37,7 @@ public partial class apollonParser : Parser {
 	protected static PredictionContextCache sharedContextCache = new PredictionContextCache();
 	public const int
 		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, NAF=6, NEGATION=7, COMMENT=8, 
-		WS=9, GENERAL_TERM=10, CLASICAL_TERM=11, VARIABLE_TERM=12;
+		WS=9, CLASICAL_TERM=10, GENERAL_TERM=11;
 	public const int
 		RULE_program = 0, RULE_statement = 1, RULE_fact = 2, RULE_rule = 3, RULE_head = 4, 
 		RULE_body = 5, RULE_literal = 6, RULE_naf_literal = 7, RULE_atom = 8;
@@ -51,7 +51,7 @@ public partial class apollonParser : Parser {
 	};
 	private static readonly string[] _SymbolicNames = {
 		null, null, null, null, null, null, "NAF", "NEGATION", "COMMENT", "WS", 
-		"GENERAL_TERM", "CLASICAL_TERM", "VARIABLE_TERM"
+		"CLASICAL_TERM", "GENERAL_TERM"
 	};
 	public static readonly IVocabulary DefaultVocabulary = new Vocabulary(_LiteralNames, _SymbolicNames);
 
@@ -127,7 +127,7 @@ public partial class apollonParser : Parser {
 			State = 21;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2432L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 1408L) != 0)) {
 				{
 				{
 				State = 18;
@@ -666,7 +666,7 @@ public partial class apollonParser : Parser {
 	}
 
 	private static int[] _serializedATN = {
-		4,1,12,75,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,
+		4,1,11,75,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,
 		7,7,2,8,7,8,1,0,5,0,20,8,0,10,0,12,0,23,9,0,1,0,1,0,1,1,1,1,1,1,3,1,30,
 		8,1,1,2,1,2,1,2,1,3,1,3,1,3,1,3,1,3,1,4,1,4,1,5,1,5,1,5,5,5,45,8,5,10,
 		5,12,5,48,9,5,1,6,3,6,51,8,6,1,6,1,6,1,7,3,7,56,8,7,1,7,1,7,1,8,1,8,1,
@@ -682,8 +682,8 @@ public partial class apollonParser : Parser {
 		1,0,0,0,45,48,1,0,0,0,46,44,1,0,0,0,46,47,1,0,0,0,47,11,1,0,0,0,48,46,
 		1,0,0,0,49,51,5,7,0,0,50,49,1,0,0,0,50,51,1,0,0,0,51,52,1,0,0,0,52,53,
 		3,16,8,0,53,13,1,0,0,0,54,56,5,6,0,0,55,54,1,0,0,0,55,56,1,0,0,0,56,57,
-		1,0,0,0,57,58,3,12,6,0,58,15,1,0,0,0,59,72,5,11,0,0,60,69,5,4,0,0,61,66,
-		5,10,0,0,62,63,5,3,0,0,63,65,5,10,0,0,64,62,1,0,0,0,65,68,1,0,0,0,66,64,
+		1,0,0,0,57,58,3,12,6,0,58,15,1,0,0,0,59,72,5,10,0,0,60,69,5,4,0,0,61,66,
+		5,11,0,0,62,63,5,3,0,0,63,65,5,11,0,0,64,62,1,0,0,0,65,68,1,0,0,0,66,64,
 		1,0,0,0,66,67,1,0,0,0,67,70,1,0,0,0,68,66,1,0,0,0,69,61,1,0,0,0,69,70,
 		1,0,0,0,70,71,1,0,0,0,71,73,5,5,0,0,72,60,1,0,0,0,72,73,1,0,0,0,73,17,
 		1,0,0,0,8,21,29,46,50,55,66,69,72

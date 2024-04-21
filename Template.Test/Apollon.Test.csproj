@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Parser\Parser.csproj" />
-    <ProjectReference Include="..\Template.Lib\Template.Lib.csproj" />
+    <ProjectReference Include="..\Parser\Apollon.Parser.csproj" />
+    <ProjectReference Include="..\Template.Lib\Apollon.Lib.csproj" />
   </ItemGroup>
 
   <ItemGroup>

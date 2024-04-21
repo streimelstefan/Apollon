@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Template.Lib\Template.Lib.csproj" />
+    <ProjectReference Include="..\Parser\Apollon.Parser.csproj" />
+    <ProjectReference Include="..\Template.Lib\Apollon.Lib.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
