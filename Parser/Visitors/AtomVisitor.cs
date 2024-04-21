@@ -12,7 +12,15 @@ namespace AppollonParser.Visitors
 
         public override Atom VisitAtom(apollonParser.AtomContext context)
         {
-            return new Atom("");
+            var head = context.CLASICAL_TERM().GetText();
+            var termList = new List<Term>();
+
+            foreach (var term in context.GENERAL_TERM())
+            {
+                termList.Add(new Term(term.GetText()));
+            }
+
+            return new Atom(head, termList.ToArray());
         }
 
     }

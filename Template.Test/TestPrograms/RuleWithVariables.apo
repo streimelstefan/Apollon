@@ -1,0 +1,1 @@
+happy(X) :- likes(X, Y), not hates(X, Z).

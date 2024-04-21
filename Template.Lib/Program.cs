@@ -20,5 +20,11 @@ namespace Template.Lib
             RuleList = ruleList;
         }
 
+        public Program()
+        {
+            LiteralList = new Literal[0];
+            RuleList = new Rule[0];
+        }
+
     }
 }

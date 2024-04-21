@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Template.Lib;
 using Template.Lib.Graph;
+using Template.Lib.Rules;
 
 namespace Template.Test;
 

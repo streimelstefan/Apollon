@@ -1,0 +1,4 @@
+% This is a comment
+fish.
+bird :- worm.
+% Another comment

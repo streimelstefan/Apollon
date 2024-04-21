@@ -1,0 +1,4 @@
+﻿cat.
+-dog.
+
+dog :- not cat.

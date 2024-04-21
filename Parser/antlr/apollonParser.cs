@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from c://Users//strei//Documents//dev//Apollon//antlr//apollon.g4 by ANTLR 4.13.1
+// Generated from c://Users//strei//Documents//dev//Apollon//Parser//antlr//apollon.g4 by ANTLR 4.13.1
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -36,8 +36,8 @@ public partial class apollonParser : Parser {
 	protected static DFA[] decisionToDFA;
 	protected static PredictionContextCache sharedContextCache = new PredictionContextCache();
 	public const int
-		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, CLASICAL_TERM=6, VARIABLE_TERM=7, 
-		GENERAL_TERM=8, NAF=9, NEGATION=10, COMMENT=11, WS=12;
+		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, NAF=6, NEGATION=7, COMMENT=8, 
+		WS=9, GENERAL_TERM=10, CLASICAL_TERM=11, VARIABLE_TERM=12;
 	public const int
 		RULE_program = 0, RULE_statement = 1, RULE_fact = 2, RULE_rule = 3, RULE_head = 4, 
 		RULE_body = 5, RULE_literal = 6, RULE_naf_literal = 7, RULE_atom = 8;
@@ -47,11 +47,11 @@ public partial class apollonParser : Parser {
 	};
 
 	private static readonly string[] _LiteralNames = {
-		null, "'.'", "':-'", "','", "'('", "')'", null, null, null, "'not'", "'-'"
+		null, "'.'", "':-'", "','", "'('", "')'", "'not'", "'-'"
 	};
 	private static readonly string[] _SymbolicNames = {
-		null, null, null, null, null, null, "CLASICAL_TERM", "VARIABLE_TERM", 
-		"GENERAL_TERM", "NAF", "NEGATION", "COMMENT", "WS"
+		null, null, null, null, null, null, "NAF", "NEGATION", "COMMENT", "WS", 
+		"GENERAL_TERM", "CLASICAL_TERM", "VARIABLE_TERM"
 	};
 	public static readonly IVocabulary DefaultVocabulary = new Vocabulary(_LiteralNames, _SymbolicNames);
 
@@ -127,7 +127,7 @@ public partial class apollonParser : Parser {
 			State = 21;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 3136L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2432L) != 0)) {
 				{
 				{
 				State = 18;
@@ -614,32 +614,40 @@ public partial class apollonParser : Parser {
 			{
 			State = 59;
 			Match(CLASICAL_TERM);
-			State = 70;
+			State = 72;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			if (_la==T__3) {
 				{
 				State = 60;
 				Match(T__3);
-				State = 61;
-				Match(GENERAL_TERM);
-				State = 66;
+				State = 69;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
-				while (_la==T__2) {
+				if (_la==GENERAL_TERM) {
 					{
-					{
-					State = 62;
-					Match(T__2);
-					State = 63;
+					State = 61;
 					Match(GENERAL_TERM);
-					}
-					}
-					State = 68;
+					State = 66;
 					ErrorHandler.Sync(this);
 					_la = TokenStream.LA(1);
+					while (_la==T__2) {
+						{
+						{
+						State = 62;
+						Match(T__2);
+						State = 63;
+						Match(GENERAL_TERM);
+						}
+						}
+						State = 68;
+						ErrorHandler.Sync(this);
+						_la = TokenStream.LA(1);
+					}
+					}
 				}
-				State = 69;
+
+				State = 71;
 				Match(T__4);
 				}
 			}
@@ -658,26 +666,27 @@ public partial class apollonParser : Parser {
 	}
 
 	private static int[] _serializedATN = {
-		4,1,12,73,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,
+		4,1,12,75,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,
 		7,7,2,8,7,8,1,0,5,0,20,8,0,10,0,12,0,23,9,0,1,0,1,0,1,1,1,1,1,1,3,1,30,
 		8,1,1,2,1,2,1,2,1,3,1,3,1,3,1,3,1,3,1,4,1,4,1,5,1,5,1,5,5,5,45,8,5,10,
 		5,12,5,48,9,5,1,6,3,6,51,8,6,1,6,1,6,1,7,3,7,56,8,7,1,7,1,7,1,8,1,8,1,
-		8,1,8,1,8,5,8,65,8,8,10,8,12,8,68,9,8,1,8,3,8,71,8,8,1,8,0,0,9,0,2,4,6,
-		8,10,12,14,16,0,0,71,0,21,1,0,0,0,2,29,1,0,0,0,4,31,1,0,0,0,6,34,1,0,0,
-		0,8,39,1,0,0,0,10,41,1,0,0,0,12,50,1,0,0,0,14,55,1,0,0,0,16,59,1,0,0,0,
-		18,20,3,2,1,0,19,18,1,0,0,0,20,23,1,0,0,0,21,19,1,0,0,0,21,22,1,0,0,0,
-		22,24,1,0,0,0,23,21,1,0,0,0,24,25,5,0,0,1,25,1,1,0,0,0,26,30,3,4,2,0,27,
-		30,3,6,3,0,28,30,5,11,0,0,29,26,1,0,0,0,29,27,1,0,0,0,29,28,1,0,0,0,30,
-		3,1,0,0,0,31,32,3,12,6,0,32,33,5,1,0,0,33,5,1,0,0,0,34,35,3,8,4,0,35,36,
-		5,2,0,0,36,37,3,10,5,0,37,38,5,1,0,0,38,7,1,0,0,0,39,40,3,12,6,0,40,9,
-		1,0,0,0,41,46,3,14,7,0,42,43,5,3,0,0,43,45,3,14,7,0,44,42,1,0,0,0,45,48,
-		1,0,0,0,46,44,1,0,0,0,46,47,1,0,0,0,47,11,1,0,0,0,48,46,1,0,0,0,49,51,
-		5,10,0,0,50,49,1,0,0,0,50,51,1,0,0,0,51,52,1,0,0,0,52,53,3,16,8,0,53,13,
-		1,0,0,0,54,56,5,9,0,0,55,54,1,0,0,0,55,56,1,0,0,0,56,57,1,0,0,0,57,58,
-		3,12,6,0,58,15,1,0,0,0,59,70,5,6,0,0,60,61,5,4,0,0,61,66,5,8,0,0,62,63,
-		5,3,0,0,63,65,5,8,0,0,64,62,1,0,0,0,65,68,1,0,0,0,66,64,1,0,0,0,66,67,
-		1,0,0,0,67,69,1,0,0,0,68,66,1,0,0,0,69,71,5,5,0,0,70,60,1,0,0,0,70,71,
-		1,0,0,0,71,17,1,0,0,0,7,21,29,46,50,55,66,70
+		8,1,8,1,8,5,8,65,8,8,10,8,12,8,68,9,8,3,8,70,8,8,1,8,3,8,73,8,8,1,8,0,
+		0,9,0,2,4,6,8,10,12,14,16,0,0,74,0,21,1,0,0,0,2,29,1,0,0,0,4,31,1,0,0,
+		0,6,34,1,0,0,0,8,39,1,0,0,0,10,41,1,0,0,0,12,50,1,0,0,0,14,55,1,0,0,0,
+		16,59,1,0,0,0,18,20,3,2,1,0,19,18,1,0,0,0,20,23,1,0,0,0,21,19,1,0,0,0,
+		21,22,1,0,0,0,22,24,1,0,0,0,23,21,1,0,0,0,24,25,5,0,0,1,25,1,1,0,0,0,26,
+		30,3,4,2,0,27,30,3,6,3,0,28,30,5,8,0,0,29,26,1,0,0,0,29,27,1,0,0,0,29,
+		28,1,0,0,0,30,3,1,0,0,0,31,32,3,12,6,0,32,33,5,1,0,0,33,5,1,0,0,0,34,35,
+		3,8,4,0,35,36,5,2,0,0,36,37,3,10,5,0,37,38,5,1,0,0,38,7,1,0,0,0,39,40,
+		3,12,6,0,40,9,1,0,0,0,41,46,3,14,7,0,42,43,5,3,0,0,43,45,3,14,7,0,44,42,
+		1,0,0,0,45,48,1,0,0,0,46,44,1,0,0,0,46,47,1,0,0,0,47,11,1,0,0,0,48,46,
+		1,0,0,0,49,51,5,7,0,0,50,49,1,0,0,0,50,51,1,0,0,0,51,52,1,0,0,0,52,53,
+		3,16,8,0,53,13,1,0,0,0,54,56,5,6,0,0,55,54,1,0,0,0,55,56,1,0,0,0,56,57,
+		1,0,0,0,57,58,3,12,6,0,58,15,1,0,0,0,59,72,5,11,0,0,60,69,5,4,0,0,61,66,
+		5,10,0,0,62,63,5,3,0,0,63,65,5,10,0,0,64,62,1,0,0,0,65,68,1,0,0,0,66,64,
+		1,0,0,0,66,67,1,0,0,0,67,70,1,0,0,0,68,66,1,0,0,0,69,61,1,0,0,0,69,70,
+		1,0,0,0,70,71,1,0,0,0,71,73,5,5,0,0,72,60,1,0,0,0,72,73,1,0,0,0,73,17,
+		1,0,0,0,8,21,29,46,50,55,66,69,72
 	};
 
 	public static readonly ATN _ATN =
