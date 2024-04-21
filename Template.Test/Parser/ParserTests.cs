@@ -143,5 +143,41 @@ namespace Template.Test.Parser
             Assert.IsTrue(program.LiteralList[0].Atom.TermList[0].IsVariable);
             Assert.AreEqual("prix", program.LiteralList[0].Atom.TermList[1].Value);
         }
+
+
+        [Test]
+        public void ShouldParseAtomWithConstraintRule()
+        {
+            var program = _parser.ParseFromFile("../../../TestPrograms/AtomWithConstraintRule.apo");
+
+            Assert.IsNotNull(program);
+            Assert.AreEqual(1, program.LiteralList.Length);
+            Assert.AreEqual(1, program.RuleList.Length);
+
+            Assert.AreEqual("a", program.LiteralList[0].Atom.Name);
+
+            Assert.IsNull(program.RuleList[0].Head);
+            Assert.AreEqual(1, program.RuleList[0].Body.Length);
+            Assert.AreEqual("b", program.RuleList[0].Body[0].Atom.Name);
+        }
+
+        [Test]
+        public void ShouldParseAtomWithConstraintRuleAndNormalRule()
+        {
+            var program = _parser.ParseFromFile("../../../TestPrograms/OLONRuleByConstraintRule.apo");
+
+            Assert.IsNotNull(program);
+            Assert.AreEqual(0, program.LiteralList.Length);
+            Assert.AreEqual(2, program.RuleList.Length);
+
+            Assert.IsNotNull(program.RuleList[0].Head);
+            Assert.AreEqual("c", program.RuleList[0].Head?.Atom.Name);
+            Assert.AreEqual(1, program.RuleList[1].Body.Length);
+            Assert.AreEqual("b", program.RuleList[1].Body[0].Atom.Name);
+
+            Assert.IsNull(program.RuleList[1].Head);
+            Assert.AreEqual(1, program.RuleList[1].Body.Length);
+            Assert.AreEqual("b", program.RuleList[1].Body[0].Atom.Name);
+        }
     }
 }

@@ -9,12 +9,12 @@ namespace Template.Lib.Rules
     public class Rule : IEquatable<Rule>
     {
 
-        public Literal Head { get; set; }
+        public Literal? Head { get; set; }
         public Literal[] Body { get; set; }
 
-        public Rule(Literal head, params Literal[] body)
+        public Rule(Literal? head, params Literal[] body)
         {
-            if (head.IsNAF)
+            if (head != null && head.IsNAF)
             {
                 throw new ArgumentException("Head Literal is not allowed to be NAF negated.");
             }
@@ -34,7 +34,12 @@ namespace Template.Lib.Rules
                 return false;
             }
 
-            if (!other.Head.Equals(Head) || other.Body.Length != Body.Length)
+            if (Head == null && Head != other.Head)
+            {
+                return false;
+            }
+
+            if (other.Head != null && Head != null && !other.Head.Equals(Head) || other.Body.Length != Body.Length)
             {
                 return false;
             }

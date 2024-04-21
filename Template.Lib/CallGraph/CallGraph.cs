@@ -64,7 +64,7 @@ namespace Template.Lib.Graph
                 throw new ArgumentException("Edge already exists in the Graph!");
             }
 
-            if (!Nodes.Contains(edge.Source) || !Nodes.Contains(edge.Target))
+            if ((edge.Source != null && !Nodes.Contains(edge.Source)) || !Nodes.Contains(edge.Target))
             {
                 throw new ArgumentException("Source or Target Node of Edge is not part of the Graph!");
             }
@@ -73,19 +73,19 @@ namespace Template.Lib.Graph
             return edge;
         }
 
-        public CallGraphEdge AddEdge(CallGraphNode source, CallGraphNode target, bool isNaf, Rule creatorRule)
+        public CallGraphEdge AddEdge(CallGraphNode? source, CallGraphNode target, bool isNaf, Rule creatorRule)
         {
             return this.AddEdge(new CallGraphEdge(source, target, isNaf, creatorRule));
         }
 
         public IEnumerable<CallGraphEdge> GetEdgesOfNode(CallGraphNode node)
         {
-            return Edges.Where(edge => edge.Source.Equals(node));
+            return Edges.Where(edge => edge.Source != null && edge.Source.Equals(node));
         }
 
         public IEnumerable<CallGraphEdge> GetAllEdgesOfNode(CallGraphNode node)
         {
-            return Edges.Where(edge => edge.Source.Equals(node) || edge.Target.Equals(node));
+            return Edges.Where(edge => edge.Source != null && edge.Source.Equals(node) || edge.Target.Equals(node));
         }
 
         public IEnumerable<CallGraphNode> GetNodesOfRule(Rule rule)

@@ -4,7 +4,7 @@ grammar apollon;
 program: statement* EOF;
 statement: fact | rule | COMMENT;
 fact: literal '.';
-rule: head ':-' body '.';
+rule: head? ':-' body '.';
 head: literal;
 body: naf_literal (',' naf_literal)*;
 literal: NEGATION? atom;

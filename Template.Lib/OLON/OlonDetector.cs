@@ -21,6 +21,12 @@ namespace Template.Lib.OLON
 
             DetectOlonRec(callGraph.Root, visited, olonSet, callGraph);
 
+            // add all target nodes of constraint rules
+            foreach (var node in callGraph.Edges.Where(e => e.Source == null).Select(e => e.Target))
+            {
+                olonSet.Nodes.Add(node);
+            }
+
             return olonSet;
         }
 
@@ -43,6 +49,7 @@ namespace Template.Lib.OLON
                 }
                 return;
             }
+
 
             visitedCopy.Add(node);
 

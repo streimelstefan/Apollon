@@ -15,7 +15,12 @@ namespace AppollonParser.Visitors
 
         public override Rule VisitRule(apollonParser.RuleContext context)
         {
-            var head = _literalVisitor.VisitLiteral(context.head().literal());
+            var headContext = context.head();
+            Literal? head = null;
+            if (headContext != null )
+            {
+                head = _literalVisitor.VisitLiteral(headContext.literal());
+            }
             var bodyLiterals = new List<Literal>();
             
             foreach (var literal in context.body().naf_literal())

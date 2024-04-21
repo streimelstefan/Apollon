@@ -70,7 +70,12 @@ public class CallGraphBuilder
     {
         foreach(var rule in ruleList)
         {
-            var head = FindOrAddNodeOfLiteral(rule.Head);
+            CallGraphNode? head = null;
+            if (rule.Head != null)
+            {
+                head = FindOrAddNodeOfLiteral(rule.Head);
+            }
+
 
             foreach (var literal in rule.Body)
             {
