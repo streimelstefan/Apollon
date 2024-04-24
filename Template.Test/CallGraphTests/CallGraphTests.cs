@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Apollon.Lib.CallGraph;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,7 @@ public class CallGraphTests
     [SetUp]
     public void Setup()
     {
-        _graph = new CallGraph();
+        _graph = new CallGraph(new LiteralTermCountEqualizer());
     }
     
 

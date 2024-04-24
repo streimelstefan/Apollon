@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Apollon.Lib.CallGraph;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design.Serialization;
 using System.Linq;
@@ -18,13 +19,16 @@ namespace Template.Lib.Graph
         public List<CallGraphNode> Nodes { get; set; } // Nodes contains Root Element
         public List<CallGraphEdge> Edges { get; set; } // Edges are directional
 
+        public IEqualizer<Literal> Equalizer { get; private set; }
+
         /// <summary>
         /// Initializes a new instance of the CallGraph class.
         /// </summary>
-        public CallGraph()
+        public CallGraph(IEqualizer<Literal> equalizer)
         {
             Nodes = new List<CallGraphNode>();
             Edges = new List<CallGraphEdge>();
+            Equalizer = equalizer;
         }
 
         /// <summary>
@@ -101,7 +105,7 @@ namespace Template.Lib.Graph
         /// <returns>The Node if given Literal was found; Null if given Literal is not found.</returns>
         public CallGraphNode? GetNode(Literal literal)
         {
-            return Nodes.Find(node => node.Literal.Equals(literal));
+            return Nodes.Find(node => Equalizer.AreEqual(node.Literal, literal));
         }
     }
 }

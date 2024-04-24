@@ -8,6 +8,7 @@ using Template.Lib.Graph;
 using Template.Lib;
 using Template.Lib.OLON;
 using Template.Lib.Rules;
+using Apollon.Lib.CallGraph;
 
 namespace Template.Test.OLON
 {
@@ -25,7 +26,7 @@ namespace Template.Test.OLON
             var rules = new Rule[] { rule1, rule2 };
             var prgram = new Program(new Literal[] {}, rules);
 
-            var graph = new CallGraphBuilder().BuildCallGraph(prgram);
+            var graph = new CallGraphBuilder(new LiteralTermCountEqualizer()).BuildCallGraph(prgram);
 
             var olonSet = OlonDetector.DetectOlonIn(graph);
 
@@ -42,7 +43,7 @@ namespace Template.Test.OLON
             var rules = new Rule[] { rule1, rule2 };
             var prgram = new Program(new Literal[] { }, rules);
 
-            var graph = new CallGraphBuilder().BuildCallGraph(prgram);
+            var graph = new CallGraphBuilder(new LiteralTermCountEqualizer()).BuildCallGraph(prgram);
 
             var olonSet = OlonDetector.DetectOlonIn(graph);
 
@@ -61,7 +62,7 @@ namespace Template.Test.OLON
             var rules = new Rule[] { rule1, rule2 };
             var prgram = new Program(new Literal[] { }, rules);
 
-            var graph = new CallGraphBuilder().BuildCallGraph(prgram);
+            var graph = new CallGraphBuilder(new LiteralTermCountEqualizer()).BuildCallGraph(prgram);
 
             var olonSet = OlonDetector.DetectOlonIn(graph);
 

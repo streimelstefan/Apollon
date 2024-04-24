@@ -3,6 +3,7 @@ using AppollonParser;
 using Template.Lib.Graph;
 using Template.Lib.OLON;
 using Template.Lib.Rules;
+using Apollon.Lib.CallGraph;
 
 var code = "q :- not p.\n" +
     "p :- q, d.";
@@ -15,7 +16,7 @@ var program = parser.ParseFromString(code);
 // but we would not be able to see what happens so we do manually here what the solver does internally
 
 
-var callGraph = new CallGraphBuilder().BuildCallGraph(program);
+var callGraph = new CallGraphBuilder(new LiteralTermCountEqualizer()).BuildCallGraph(program);
 
 Console.WriteLine("Call Graph: ");
 foreach (var edge in callGraph.Edges)

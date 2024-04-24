@@ -1,4 +1,5 @@
-﻿using Template.Lib.Rules;
+﻿using Apollon.Lib.CallGraph;
+using Template.Lib.Rules;
 
 namespace Template.Lib.Graph;
 
@@ -15,9 +16,9 @@ public class CallGraphBuilder
     /// <summary>
     /// Initializes a new instance of the <see cref="CallGraphBuilder"/> class.
     /// </summary>
-    public CallGraphBuilder()
+    public CallGraphBuilder(IEqualizer<Literal> equalizer)
     {
-        CallGraph = new CallGraph();
+        CallGraph = new CallGraph(equalizer);
     }
 
     /*
@@ -40,7 +41,7 @@ public class CallGraphBuilder
     {
         if (program == null) throw new ArgumentNullException(nameof(program));
 
-        CallGraph = new CallGraph();
+        CallGraph = new CallGraph(CallGraph.Equalizer);
 
         CreateNodes(program.LiteralList);
         CreateEdges(program.RuleList);

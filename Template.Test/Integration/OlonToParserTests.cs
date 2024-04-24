@@ -1,4 +1,5 @@
 ﻿using Antlr4.Runtime;
+using Apollon.Lib.CallGraph;
 using AppollonParser;
 using NUnit.Framework;
 using System;
@@ -22,7 +23,7 @@ namespace Apollon.Test.Integration
         {
             var program = _parser.ParseFromFile("../../../TestPrograms/OLONRuleByConstraintRule.apo");
 
-            var callGraph = new CallGraphBuilder().BuildCallGraph(program);
+            var callGraph = new CallGraphBuilder(new LiteralTermCountEqualizer()).BuildCallGraph(program);
 
             var olonSet = OlonDetector.DetectOlonIn(callGraph);
 
@@ -46,7 +47,7 @@ namespace Apollon.Test.Integration
         {
             var program = _parser.ParseFromFile("../../../TestPrograms/ConstraintWithoutOLONRules.apo");
 
-            var callGraph = new CallGraphBuilder().BuildCallGraph(program);
+            var callGraph = new CallGraphBuilder(new LiteralTermCountEqualizer()).BuildCallGraph(program);
 
             var olonSet = OlonDetector.DetectOlonIn(callGraph);
 
@@ -62,6 +63,26 @@ namespace Apollon.Test.Integration
 
             Assert.IsTrue(processedRules[1].IsOlonRule);
             Assert.IsFalse(processedRules[1].IsOrdiniaryRule);
+        }
+
+
+        [Test]
+        public void ShouldDetectThreeOLONSandTwoOrdinaryRules()
+        {
+            var program = _parser.ParseFromFile("../../../TestPrograms/ComplexOLONTest.apo");
+
+            var callGraph = new CallGraphBuilder(new LiteralTermCountEqualizer()).BuildCallGraph(program);
+
+            var olonSet = OlonDetector.DetectOlonIn(callGraph);
+
+            Assert.IsNotNull(olonSet);
+            Assert.AreEqual(3, olonSet.Nodes.Count);
+
+            var processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleList);
+
+            Assert.IsNotNull(processedRules);
+
+            Assert.AreEqual(4, processedRules.Length);
         }
     }
 }
