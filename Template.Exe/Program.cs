@@ -15,7 +15,7 @@ var program = parser.ParseFromString(code);
 // but we would not be able to see what happens so we do manually here what the solver does internally
 
 
-var callGraph = new CallGraphBuilder().BuildCallGraph(program);
+var callGraph = new CallGraphBuilder(new LiteralTermCountEqualizer()).BuildCallGraph(program);
 
 Console.WriteLine("Call Graph: ");
 foreach (var edge in callGraph.Edges)

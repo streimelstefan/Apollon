@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Apollon.Lib.CallGraph;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,7 @@ namespace Apollon.Lib
 
         public static void Solve(Program program)
         {
-            var callGraph = new CallGraphBuilder().BuildCallGraph(program);
+            var callGraph = new CallGraphBuilder(new LiteralTermCountEqualizer()).BuildCallGraph(program);
 
             var olons = OlonDetector.DetectOlonIn(callGraph);
 

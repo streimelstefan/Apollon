@@ -1,0 +1,4 @@
+p :- not s.                    
+s :- not r. 
+r  :- not p.
+r  :- not s.
