@@ -84,6 +84,18 @@ public partial class apollonBaseListener : IapollonListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitRule([NotNull] apollonParser.RuleContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.constraint"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterConstraint([NotNull] apollonParser.ConstraintContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.constraint"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitConstraint([NotNull] apollonParser.ConstraintContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="apollonParser.head"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -143,6 +155,18 @@ public partial class apollonBaseListener : IapollonListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitAtom([NotNull] apollonParser.AtomContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.atom_param_part"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterAtom_param_part([NotNull] apollonParser.Atom_param_partContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.atom_param_part"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitAtom_param_part([NotNull] apollonParser.Atom_param_partContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="apollonParser.general_term"/>.
 	/// <para>The default implementation does nothing.</para>

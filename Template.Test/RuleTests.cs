@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Template.Lib;
-using Template.Lib.Rules;
+using Apollon.Lib;
+using Apollon.Lib.Rules;
+using Apollon.Lib.Atoms;
 
 
 namespace Template.Test
@@ -16,7 +17,7 @@ namespace Template.Test
         [Test]
         public void ShouldCorrectlyConvertToString()
         {
-            var atom = new Atom("reached", new Term[] { new Term("V") });
+            var atom = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
             var head = new Literal(atom, false, false);
             var body1 = new Literal(atom, false, true);
             var body2 = new Literal(atom, true, true);
@@ -29,7 +30,7 @@ namespace Template.Test
         [Test]
         public void ShouldThrowIfTheHeadIsNAFNegated()
         {
-            var atom = new Atom("reached", new Term[] { new Term("V") });
+            var atom = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
             var head = new Literal(atom, true, false);
             var body1 = new Literal(atom, false, true);
             var body2 = new Literal(atom, true, true);
@@ -40,14 +41,14 @@ namespace Template.Test
         [Test]
         public void ShouldBeEqual()
         {
-            var atom1 = new Atom("reached", new Term[] { new Term("V") });
+            var atom1 = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
             var head1 = new Literal(atom1, false, false);
             var body1 = new Literal(atom1, false, true);
 
             var rule1 = new Rule(head1, body1);
 
 
-            var atom2 = new Atom("reached", new Term[] { new Term("V") });
+            var atom2 = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
             var head2 = new Literal(atom2, false, false);
             var body2 = new Literal(atom2, false, true);
             var rule2 = new Rule(head2, body2);
@@ -58,14 +59,14 @@ namespace Template.Test
         [Test]
         public void ShouldNotBeEqual()
         {
-            var atom1 = new Atom("reached", new Term[] { new Term("V") });
+            var atom1 = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
             var head1 = new Literal(atom1, false, false);
             var body1 = new Literal(atom1, false, true);
 
             var rule1 = new Rule(head1, body1);
 
 
-            var atom2 = new Atom("reached", new Term[] { new Term("V") });
+            var atom2 = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
             var head2 = new Literal(atom2, false, false);
             var body2 = new Literal(atom2, true, true);
             var rule2 = new Rule(head2, body2);

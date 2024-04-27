@@ -71,6 +71,16 @@ public interface IapollonListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitRule([NotNull] apollonParser.RuleContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.constraint"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterConstraint([NotNull] apollonParser.ConstraintContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.constraint"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitConstraint([NotNull] apollonParser.ConstraintContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="apollonParser.head"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -120,6 +130,16 @@ public interface IapollonListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitAtom([NotNull] apollonParser.AtomContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.atom_param_part"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterAtom_param_part([NotNull] apollonParser.Atom_param_partContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.atom_param_part"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitAtom_param_part([NotNull] apollonParser.Atom_param_partContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="apollonParser.general_term"/>.
 	/// </summary>

@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Template.Lib.Graph;
-using Template.Lib.OLON;
-using Template.Lib.Rules;
+using Apollon.Lib.Graph;
+using Apollon.Lib.OLON;
+using Apollon.Lib.Rules;
 
 namespace Apollon.Test.Integration
 {
@@ -29,7 +29,7 @@ namespace Apollon.Test.Integration
             Assert.IsNotNull(olonSet);
             Assert.AreEqual(1, olonSet.Nodes.Count);
 
-            var processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleList);
+            var processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleTypesAsStatements.ToArray());
 
             Assert.IsNotNull(processedRules);
             Assert.AreEqual(2, processedRules.Length);
@@ -53,7 +53,7 @@ namespace Apollon.Test.Integration
             Assert.IsNotNull(olonSet);
             Assert.AreEqual(1, olonSet.Nodes.Count);
 
-            var processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleList);
+            var processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleTypesAsStatements.ToArray());
 
             Assert.IsNotNull(processedRules);
             Assert.AreEqual(2, processedRules.Length);

@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Apollon.Lib.Graph;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Template.Lib.Graph;
 
-namespace Template.Lib.OLON
+namespace Apollon.Lib.OLON
 {
     public class OlonDetector
     {

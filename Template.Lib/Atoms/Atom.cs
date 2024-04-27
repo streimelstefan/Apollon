@@ -4,23 +4,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Template.Lib
+namespace Apollon.Lib.Atoms
 {
     public class Atom : IEquatable<Atom>
     {
         public string Name { get; set; }
 
-        public Term[] TermList { get; set; }
+        public AtomParam[] ParamList { get; set; }
 
-        public Atom(string name, params Term[] termList)
+        public Atom(string name, params AtomParam[] paramList)
         {
             Name = name;
-            TermList = termList;
+            ParamList = paramList;
         }
 
         public override string ToString()
         {
-            return $"{Name}({String.Join(", ", TermList.Select(term => term.ToString()))})";
+            return $"{Name}({string.Join(", ", ParamList.Select(term => term.ToString()))})";
         }
 
 
@@ -28,15 +28,15 @@ namespace Template.Lib
         {
             if (other == null) return false;
 
-            if (Name != other.Name || TermList.Length != other.TermList.Length)
+            if (Name != other.Name || ParamList.Length != other.ParamList.Length)
             {
                 return false;
             }
 
             // check if the term list is the same
-            for (int i = 0; i < TermList.Length; i++) 
+            for (int i = 0; i < ParamList.Length; i++)
             {
-                if (!TermList[i].Equals(other.TermList[i]))
+                if (!ParamList[i].Equals(other.ParamList[i]))
                 {
                     return false;
                 }

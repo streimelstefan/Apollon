@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Template.Lib.Graph;
-using Template.Lib.OLON;
-using Template.Lib.Rules;
+using Apollon.Lib.Graph;
+using Apollon.Lib.OLON;
+using Apollon.Lib.Rules;
 
-namespace Template.Lib
+namespace Apollon.Lib
 {
     public class Solver
     {
@@ -19,7 +19,7 @@ namespace Template.Lib
             var olons = OlonDetector.DetectOlonIn(callGraph);
 
             var rulePreprocessor = new RuleMetadataSetter(callGraph, olons);
-            var processedRules = rulePreprocessor.SetMetadataOn(program.RuleList);
+            var processedRules = rulePreprocessor.SetMetadataOn(program.RuleTypesAsStatements.ToArray());
 
         }
 

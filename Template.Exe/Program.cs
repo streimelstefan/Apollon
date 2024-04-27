@@ -1,8 +1,8 @@
-﻿using Template.Lib;
+﻿using Apollon.Lib;
 using AppollonParser;
-using Template.Lib.Graph;
-using Template.Lib.OLON;
-using Template.Lib.Rules;
+using Apollon.Lib.Graph;
+using Apollon.Lib.OLON;
+using Apollon.Lib.Rules;
 
 var code = "q :- not p.\n" +
     "p :- q, d.";

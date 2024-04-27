@@ -4,15 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Template.Lib.Rules
+namespace Apollon.Lib.Rules
 {
-    public class PreprocessedRule : Rule
+    public class PreprocessedStatement : Statement
     {
-
         public bool IsOlonRule { get; private set; }
         public bool IsOrdiniaryRule { get; private set; }
 
-        public PreprocessedRule(Rule rule, bool isOlonRule, bool isOrdiniaryRule) : base(rule.Head, rule.Body)
+        public PreprocessedStatement(Statement statement, bool isOlonRule, bool isOrdiniaryRule) : base(statement.Head, statement.Body)
         {
             IsOlonRule = isOlonRule;
             IsOrdiniaryRule = isOrdiniaryRule;

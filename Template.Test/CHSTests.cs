@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Template.Lib;
+using Apollon.Lib;
+using Apollon.Lib.Atoms;
 
 namespace Template.Test;
 
@@ -22,8 +23,8 @@ public class CHSTests
     [Test]
     public void ShouldThrowWhenAddingMultiple()
     {
-        var literal = new Literal(new Atom("human", new Term[] { new Term("V") }), false, false);
-        var literal2 = new Literal(new Atom("human", new Term[] { new Term("V") }), false, false);
+        var literal = new Literal(new Atom("human", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
+        var literal2 = new Literal(new Atom("human", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
 
         _chs?.Add(literal);
         Assert.Throws<ArgumentException>(() => _chs?.Add(literal2));
@@ -32,8 +33,8 @@ public class CHSTests
     [Test]
     public void ShouldBuild()
     {
-        var literal = new Literal(new Atom("human", new Term[] { new Term("V") }), false, false);
-        var literal2 = new Literal(new Atom("informatiker", new Term[] { new Term("V") }), false, false);
+        var literal = new Literal(new Atom("human", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
+        var literal2 = new Literal(new Atom("informatiker", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
 
         _chs?.Add(literal);
         _chs?.Add(literal2);
@@ -47,7 +48,7 @@ public class CHSTests
 
         foreach (var name in names)
         {
-            _chs?.Add(new Literal(new Atom(name, new Term[] { new Term("V") }), false, false));
+            _chs?.Add(new Literal(new Atom(name, new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false));
         }
 
         foreach(var name in names.Reverse()) // Reverse since CHS behaves like LIFO

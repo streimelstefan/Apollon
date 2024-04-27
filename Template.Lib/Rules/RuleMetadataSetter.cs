@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Template.Lib.Graph;
-using Template.Lib.OLON;
+using Apollon.Lib.Graph;
+using Apollon.Lib.OLON;
 
-namespace Template.Lib.Rules
+namespace Apollon.Lib.Rules
 {
     public class RuleMetadataSetter
     {
@@ -20,30 +20,30 @@ namespace Template.Lib.Rules
             _olons = olons;
         }
 
-        public PreprocessedRule[] SetMetadataOn(Rule[] rules)
+        public PreprocessedStatement[] SetMetadataOn(Statement[] statements)
         {
             // this piece of code is highly inefficient...
             // TODO: Make faster without so many interations over the callgraph.
-            var preProcessedRules = new PreprocessedRule[rules.Length];
+            var preProcessedRules = new PreprocessedStatement[statements.Length];
 
-            for (int i = 0; i < rules.Length; i++)
+            for (int i = 0; i < statements.Length; i++)
             {
-                var isOrdinary = IsOrdinaryRule(rules[i]);
-                var isOlon = IsOlonRule(rules[i]);
-                preProcessedRules[i] = new PreprocessedRule(rules[i], isOlon, isOrdinary);
+                var isOrdinary = IsOrdinaryRule(statements[i]);
+                var isOlon = IsOlonRule(statements[i]);
+                preProcessedRules[i] = new PreprocessedStatement(statements[i], isOlon, isOrdinary);
             }
 
             return preProcessedRules;
         }
 
-        public bool IsOrdinaryRule(Rule rule)
+        public bool IsOrdinaryRule(Statement statement)
         {
-            foreach (var node in _callGraph.GetNodesOfRule(rule))
+            foreach (var node in _callGraph.GetNodesOfStatement(statement))
             {
                 // the node has other nodes that follow the path of the rule. Only nodes that represent the end of a path
                 // are elegable to detect an ordinary rule.
                 // if node is source node
-                if (_callGraph.GetEdgesOfNode(node).Where(edge => edge.CreatorRule == rule).Any())
+                if (_callGraph.GetEdgesOfNode(node).Where(edge => edge.CreatorRule == statement).Any())
                 {
                     continue;
                 }
@@ -57,9 +57,9 @@ namespace Template.Lib.Rules
             return false;
         }
 
-        public bool IsOlonRule(Rule rule)
+        public bool IsOlonRule(Statement statement)
         {
-            foreach (var node in _callGraph.GetNodesOfRule(rule))
+            foreach (var node in _callGraph.GetNodesOfStatement(statement))
             {
                 if (_olons.Nodes.Contains(node))
                 {

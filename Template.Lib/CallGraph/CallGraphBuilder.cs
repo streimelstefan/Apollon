@@ -1,6 +1,7 @@
-﻿using Template.Lib.Rules;
+﻿
+using Apollon.Lib.Rules;
 
-namespace Template.Lib.Graph;
+namespace Apollon.Lib.Graph;
 
 /// <summary>
 /// This class is responsible for building the CallGraph from a given Program.
@@ -42,8 +43,9 @@ public class CallGraphBuilder
 
         CallGraph = new CallGraph();
 
+        var statements = program.RuleTypesAsStatements;
         CreateNodes(program.LiteralList);
-        CreateEdges(program.RuleList);
+        CreateEdges(statements.ToArray());
 
         return CallGraph;
     }
@@ -66,7 +68,7 @@ public class CallGraphBuilder
     /// </summary>
     /// <param name="ruleList">The List of Rules with which the Edges shall be created.</param>
     /// <exception cref="ArgumentException">Is Thrown if a Rule is invalid due to it having an unknown body or head.</exception>
-    private void CreateEdges(Rule[] ruleList)
+    private void CreateEdges(Statement[] ruleList)
     {
         foreach(var rule in ruleList)
         {

@@ -1,30 +1,28 @@
-﻿using Apollon.Lib;
-using Apollon.Lib.Rules;
+﻿using Apollon.Lib.Rules;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Apollon.Lib;
 
 namespace AppollonParser.Visitors
 {
-    public class RuleVisitor : apollonBaseVisitor<Rule>
+    public class ConstraintVisitor : apollonBaseVisitor<Constraint>
     {
         private readonly LiteralVisitor _literalVisitor = new LiteralVisitor();
         private readonly NafLiteralVisitor _nafLiteralVisitor = new NafLiteralVisitor();
 
-        public override Rule VisitRule(apollonParser.RuleContext context)
+        public override Constraint VisitConstraint(apollonParser.ConstraintContext context)
         {
-            var headContext = context.head().literal();
-            var head = _literalVisitor.VisitLiteral(headContext);
             var bodyLiterals = new List<Literal>();
-            
+
             foreach (var literal in context.body().naf_literal())
             {
                 bodyLiterals.Add(_nafLiteralVisitor.VisitNaf_literal(literal));
             }
 
-            return new Rule(head, bodyLiterals.ToArray());
+            return new Constraint(bodyLiterals.ToArray());
         }
 
     }

@@ -56,6 +56,12 @@ public interface IapollonVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitRule([NotNull] apollonParser.RuleContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="apollonParser.constraint"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitConstraint([NotNull] apollonParser.ConstraintContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="apollonParser.head"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -85,6 +91,12 @@ public interface IapollonVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitAtom([NotNull] apollonParser.AtomContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="apollonParser.atom_param_part"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAtom_param_part([NotNull] apollonParser.Atom_param_partContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="apollonParser.general_term"/>.
 	/// </summary>

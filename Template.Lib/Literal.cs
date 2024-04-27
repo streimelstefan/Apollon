@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Apollon.Lib.Atoms;
 
-namespace Template.Lib
+namespace Apollon.Lib
 {
     public class Literal : IEquatable<Literal>
     {

@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Apollon.Lib.Rules;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design.Serialization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Template.Lib.Rules;
 
-namespace Template.Lib.Graph
+namespace Apollon.Lib.Graph
 {
     /// <summary>
     /// Represents a CallGraph. A CallGraph is a directed graph that represents the calls between Literals.
@@ -73,7 +73,7 @@ namespace Template.Lib.Graph
             return edge;
         }
 
-        public CallGraphEdge AddEdge(CallGraphNode? source, CallGraphNode target, bool isNaf, Rule creatorRule)
+        public CallGraphEdge AddEdge(CallGraphNode? source, CallGraphNode target, bool isNaf, Statement creatorRule)
         {
             return this.AddEdge(new CallGraphEdge(source, target, isNaf, creatorRule));
         }
@@ -88,7 +88,7 @@ namespace Template.Lib.Graph
             return Edges.Where(edge => edge.Source != null && edge.Source.Equals(node) || edge.Target.Equals(node));
         }
 
-        public IEnumerable<CallGraphNode> GetNodesOfRule(Rule rule)
+        public IEnumerable<CallGraphNode> GetNodesOfStatement(Statement rule)
         {
             return Nodes.Where(node => GetAllEdgesOfNode(node).Where(edge => edge.CreatorRule == rule).Any());
         }

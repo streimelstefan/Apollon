@@ -3,31 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Template.Lib;
+using Apollon.Lib.Atoms;
+using Apollon.Lib;
 
 namespace AppollonParser.Visitors
 {
     internal class AtomVisitor : apollonBaseVisitor<Atom>
     {
+        private static readonly AtomParamVisitor _paramVisitor = new AtomParamVisitor();
 
         public override Atom VisitAtom(apollonParser.AtomContext context)
         {
             var head = context.CLASICAL_TERM().GetText();
-            var termList = new List<Term>();
+            var paramList = new List<AtomParam>();
 
-            foreach (var term in context.general_term())
+            foreach (var param in context.atom_param_part())
             {
-                if (term.VARIABLE_TERM() != null)
-                {
-                    termList.Add(new Term(term.VARIABLE_TERM().GetText()));
-                }
-                else if (term.CLASICAL_TERM() != null)
-                {
-                    termList.Add(new Term(term.CLASICAL_TERM().GetText()));
-                }
+                paramList.Add(_paramVisitor.VisitAtom_param_part(param));
             }
 
-            return new Atom(head, termList.ToArray());
+            return new Atom(head, paramList.ToArray());
         }
 
     }

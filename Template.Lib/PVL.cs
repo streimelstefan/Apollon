@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace Template.Lib;
+namespace Apollon.Lib;
 
 /// <summary>
 /// Jede Variable wird mit einer PVL (prohibited value list) verbunden. Solange diese Liste leer ist ist die Variable unbound. Sobald sich Werte in dieser Liste befinden ist diese Variable negatively constrained.

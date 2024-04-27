@@ -5,7 +5,7 @@ using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Template.Lib;
+namespace Apollon.Lib;
 
 /// <summary>
 /// CHS steht für conductive hypothesis set.
