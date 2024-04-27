@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Apollon.Lib.Graph;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Template.Lib;
 
-namespace Apollon.Lib.CallGraph
+namespace Apollon.Lib.Graph
 {
     /// <summary>
     /// Checks the equality of two literals based on their name and the lenght of their term list.
@@ -24,7 +24,7 @@ namespace Apollon.Lib.CallGraph
     {
         public bool AreEqual(Literal first, Literal second)
         {
-            return first.Atom.Name == second.Atom.Name && first.Atom.TermList.Length == second.Atom.TermList.Length;
+            return first.Atom.Name == second.Atom.Name && first.Atom.ParamList.Length == second.Atom.ParamList.Length;
         }
     }
 }

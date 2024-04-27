@@ -1,5 +1,4 @@
 ﻿using Antlr4.Runtime;
-using Apollon.Lib.CallGraph;
 using AppollonParser;
 using NUnit.Framework;
 using System;
