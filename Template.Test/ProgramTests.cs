@@ -13,7 +13,7 @@ namespace Apollon.Test
         [Test]
         public void ShouldReturnEnumerableOfAllRulesAndConstraintsAsStatements()
         {
-            var rules = new Rule[] { new Rule(new Literal(new Atom("a"), false, false), new Literal[] { new Literal(new Atom("b"), false, false) }) };
+            var rules = new Rule[] { new Rule(new Literal(new Atom("a"), false, false), new BodyPart[] { new BodyPart(new Literal(new Atom("b"), false, false), null) }) };
             var constraints = new Constraint[] { new Constraint(new Literal[] { new Literal(new Atom("a"), false, false) }) };
             var literals = new Literal[0];
             var program = new Program(literals, rules, constraints);
@@ -28,7 +28,7 @@ namespace Apollon.Test
         [Test]
         public void ShouldReturnTheProgramAsAnEnumerableOfStatements()
         {
-            var rules = new Rule[] { new Rule(new Literal(new Atom("a"), false, false), new Literal[] { new Literal(new Atom("b"), false, false) }) };
+            var rules = new Rule[] { new Rule(new Literal(new Atom("a"), false, false), new BodyPart[] { new BodyPart(new Literal(new Atom("b"), false, false), null) }) };
             var constraints = new Constraint[] { new Constraint(new Literal[] { new Literal(new Atom("a"), false, false) }) };
             var literals = new Literal[] {new Literal(new Atom("a"), false, false)};
             var program = new Program(literals, rules, constraints);

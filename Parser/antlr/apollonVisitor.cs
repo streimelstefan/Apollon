@@ -74,6 +74,12 @@ public interface IapollonVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitBody([NotNull] apollonParser.BodyContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="apollonParser.body_part"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitBody_part([NotNull] apollonParser.Body_partContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="apollonParser.literal"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -103,4 +109,16 @@ public interface IapollonVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitGeneral_term([NotNull] apollonParser.General_termContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="apollonParser.operation"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitOperation([NotNull] apollonParser.OperationContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="apollonParser.operator"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitOperator([NotNull] apollonParser.OperatorContext context);
 }

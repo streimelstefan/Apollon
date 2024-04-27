@@ -101,6 +101,16 @@ public interface IapollonListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitBody([NotNull] apollonParser.BodyContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.body_part"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterBody_part([NotNull] apollonParser.Body_partContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.body_part"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitBody_part([NotNull] apollonParser.Body_partContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="apollonParser.literal"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -150,4 +160,24 @@ public interface IapollonListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitGeneral_term([NotNull] apollonParser.General_termContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.operation"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterOperation([NotNull] apollonParser.OperationContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.operation"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitOperation([NotNull] apollonParser.OperationContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.operator"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterOperator([NotNull] apollonParser.OperatorContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.operator"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitOperator([NotNull] apollonParser.OperatorContext context);
 }

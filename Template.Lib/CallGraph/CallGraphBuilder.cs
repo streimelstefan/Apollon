@@ -79,11 +79,15 @@ public class CallGraphBuilder
             }
 
 
-            foreach (var literal in rule.Body)
+            foreach (var bodyPart in rule.Body)
             {
-                var target = FindOrAddNodeOfLiteral(literal);
+                if (bodyPart.Literal == null)
+                {
+                    continue;
+                }
+                var target = FindOrAddNodeOfLiteral(bodyPart.Literal);
 
-                CallGraph.AddEdge(head, target, literal.IsNAF, rule);
+                CallGraph.AddEdge(head, target, bodyPart.Literal.IsNAF, rule);
             }
         }
     }

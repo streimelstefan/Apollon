@@ -11,20 +11,20 @@ namespace AppollonParser.Visitors
     public class RuleVisitor : apollonBaseVisitor<Rule>
     {
         private readonly LiteralVisitor _literalVisitor = new LiteralVisitor();
-        private readonly NafLiteralVisitor _nafLiteralVisitor = new NafLiteralVisitor();
+        private static readonly BodyPartVisitor _bodyPartVisitor = new BodyPartVisitor();
 
         public override Rule VisitRule(apollonParser.RuleContext context)
         {
             var headContext = context.head().literal();
             var head = _literalVisitor.VisitLiteral(headContext);
-            var bodyLiterals = new List<Literal>();
+            var bodyParts = new List<BodyPart>();
             
-            foreach (var literal in context.body().naf_literal())
+            foreach (var bodyPart in context.body().body_part())
             {
-                bodyLiterals.Add(_nafLiteralVisitor.VisitNaf_literal(literal));
+                bodyParts.Add(_bodyPartVisitor.VisitBody_part(bodyPart));
             }
 
-            return new Rule(head, bodyLiterals.ToArray());
+            return new Rule(head, bodyParts.ToArray());
         }
 
     }

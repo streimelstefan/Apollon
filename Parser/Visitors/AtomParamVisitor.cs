@@ -28,6 +28,9 @@ namespace AppollonParser.Visitors
             {
                 var atom = _atomVisitor.VisitAtom(context.atom());
                 return new AtomParam(atom, null);
+            } else if (context.NUMBER() != null)
+            {
+                return new AtomParam(null, new Term(context.NUMBER().GetText()));
             }
             throw new InvalidProgramException("Atom param was neither a general term or an atom. This is an invalid state.");
         }

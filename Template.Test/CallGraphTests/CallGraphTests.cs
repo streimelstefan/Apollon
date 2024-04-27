@@ -58,7 +58,7 @@ public class CallGraphTests
         var node2 = new CallGraphNode(literal2);
         _graph?.AddNode(node2);
 
-        _graph?.AddEdge(new CallGraphEdge(node, node2, true, new Rule(literal, literal2)));
+        _graph?.AddEdge(new CallGraphEdge(node, node2, true, new Rule(literal, new BodyPart(literal2, null))));
 
         Assert.AreEqual(1, _graph?.Edges.Count);
     }
@@ -74,7 +74,7 @@ public class CallGraphTests
         var node2 = new CallGraphNode(literal2);
         _graph?.AddNode(node2);
 
-        Assert.Throws<ArgumentException>(() => _graph?.AddEdge(new CallGraphEdge(node, node2, true, new Rule(literal, literal2))));
+        Assert.Throws<ArgumentException>(() => _graph?.AddEdge(new CallGraphEdge(node, node2, true, new Rule(literal, new BodyPart(literal2, null)))));
     }
 
     [Test]
@@ -87,7 +87,7 @@ public class CallGraphTests
         var literal2 = new Literal(new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) }), true, false);
         var node2 = new CallGraphNode(literal2);
 
-        Assert.Throws<ArgumentException>(() => _graph?.AddEdge(new CallGraphEdge(node, node2, true, new Rule(literal, literal2))));
+        Assert.Throws<ArgumentException>(() => _graph?.AddEdge(new CallGraphEdge(node, node2, true, new Rule(literal, new BodyPart(literal2, null)))));
     }
 
     [Test]
@@ -111,7 +111,7 @@ public class CallGraphTests
         var node2 = new CallGraphNode(literal2);
         _graph?.AddNode(node2);
 
-        var edge = new CallGraphEdge(node, node2, true, new Rule(literal, literal2));
+        var edge = new CallGraphEdge(node, node2, true, new Rule(literal, new BodyPart(literal2, null)));
         _graph?.AddEdge(edge);
 
         Assert.Throws<ArgumentException>(() => _graph?.AddEdge(edge));
@@ -123,7 +123,7 @@ public class CallGraphTests
         var literal = new Literal(new Atom("atom", new AtomParam[] { }), false, false);
         var literal2 = new Literal(new Atom("atom", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
 
-        var rule = new Rule(literal2, new Literal[] { literal }) ;
+        var rule = new Rule(literal2, new BodyPart[] { new BodyPart(literal, null) }) ;
         var node2 = _graph?.AddNode(literal);
         var node = _graph?.AddNode(literal2);
         _graph?.AddEdge(new CallGraphEdge(node, node2, false, rule));

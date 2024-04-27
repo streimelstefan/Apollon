@@ -58,8 +58,8 @@ namespace Template.Test.Parser
             Assert.AreEqual(1, program.RuleList.Length);
 
             Assert.AreEqual("bird", program.RuleList[0].Head.Atom.Name);
-            Assert.AreEqual("cat", program.RuleList[0].Body[0].Atom.Name);
-            Assert.AreEqual("dog", program.RuleList[0].Body[1].Atom.Name);
+            Assert.AreEqual("cat", program.RuleList[0].Body[0].Literal.Atom.Name);
+            Assert.AreEqual("dog", program.RuleList[0].Body[1].Literal.Atom.Name);
         }
 
         [Test]
@@ -72,7 +72,7 @@ namespace Template.Test.Parser
             Assert.AreEqual(1, program.RuleList.Length);
 
             Assert.AreEqual("bird", program.RuleList[0].Head.Atom.Name);
-            Assert.AreEqual("worm", program.RuleList[0].Body[0].Atom.Name);
+            Assert.AreEqual("worm", program.RuleList[0].Body[0].Literal.Atom.Name);
 
             Assert.AreEqual("fish", program.LiteralList[0].Atom.Name);
         }
@@ -87,9 +87,9 @@ namespace Template.Test.Parser
             Assert.AreEqual(1, program.RuleList.Length);
 
             Assert.AreEqual("dog", program.RuleList[0].Head.Atom.Name);
-            Assert.AreEqual("cat", program.RuleList[0].Body[0].Atom.Name);
-            Assert.IsFalse(program.RuleList[0].Body[0].IsNegative);
-            Assert.IsTrue(program.RuleList[0].Body[0].IsNAF);
+            Assert.AreEqual("cat", program.RuleList[0].Body[0].Literal.Atom.Name);
+            Assert.IsFalse(program.RuleList[0].Body[0].Literal.IsNegative);
+            Assert.IsTrue(program.RuleList[0].Body[0].Literal.IsNAF);
 
             Assert.AreEqual("cat", program.LiteralList[0].Atom.Name);
             Assert.IsFalse(program.LiteralList[0].IsNegative);
@@ -114,20 +114,20 @@ namespace Template.Test.Parser
             Assert.AreEqual("X", program.RuleList[0].Head.Atom.ParamList[0].Term.Value);
             Assert.IsTrue(program.RuleList[0].Head.Atom.ParamList[0].Term.IsVariable);
 
-            Assert.AreEqual("likes", program.RuleList[0].Body[0].Atom.Name);
-            Assert.AreEqual(2, program.RuleList[0].Body[0].Atom.ParamList.Length);
-            Assert.AreEqual("X", program.RuleList[0].Body[0].Atom.ParamList[0].Term.Value);
-            Assert.IsTrue(program.RuleList[0].Body[0].Atom.ParamList[0].Term.IsVariable);
-            Assert.AreEqual("prix", program.RuleList[0].Body[0].Atom.ParamList[1].Term.Value);
-            Assert.IsFalse(program.RuleList[0].Body[0].Atom.ParamList[1].Term.IsVariable);
+            Assert.AreEqual("likes", program.RuleList[0].Body[0].Literal.Atom.Name);
+            Assert.AreEqual(2, program.RuleList[0].Body[0].Literal.Atom.ParamList.Length);
+            Assert.AreEqual("X", program.RuleList[0].Body[0].Literal.Atom.ParamList[0].Term.Value);
+            Assert.IsTrue(program.RuleList[0].Body[0].Literal.Atom.ParamList[0].Term.IsVariable);
+            Assert.AreEqual("prix", program.RuleList[0].Body[0].Literal.Atom.ParamList[1].Term.Value);
+            Assert.IsFalse(program.RuleList[0].Body[0].Literal.Atom.ParamList[1].Term.IsVariable);
 
 
-            Assert.AreEqual("hates", program.RuleList[0].Body[1].Atom.Name);
-            Assert.AreEqual(2, program.RuleList[0].Body[1].Atom.ParamList.Length);
-            Assert.AreEqual("X", program.RuleList[0].Body[1].Atom.ParamList[0].Term.Value);
-            Assert.IsTrue(program.RuleList[0].Body[1].Atom.ParamList[0].Term.IsVariable);
-            Assert.AreEqual("stefan", program.RuleList[0].Body[1].Atom.ParamList[1].Term.Value);
-            Assert.IsFalse(program.RuleList[0].Body[1].Atom.ParamList[1].Term.IsVariable);
+            Assert.AreEqual("hates", program.RuleList[0].Body[1].Literal.Atom.Name);
+            Assert.AreEqual(2, program.RuleList[0].Body[1].Literal.Atom.ParamList.Length);
+            Assert.AreEqual("X", program.RuleList[0].Body[1].Literal.Atom.ParamList[0].Term.Value);
+            Assert.IsTrue(program.RuleList[0].Body[1].Literal.Atom.ParamList[0].Term.IsVariable);
+            Assert.AreEqual("stefan", program.RuleList[0].Body[1].Literal.Atom.ParamList[1].Term.Value);
+            Assert.IsFalse(program.RuleList[0].Body[1].Literal.Atom.ParamList[1].Term.IsVariable);
         }
 
         [Test]
@@ -159,7 +159,7 @@ namespace Template.Test.Parser
             Assert.AreEqual("a", program.LiteralList[0].Atom.Name);
 
             Assert.AreEqual(1, program.ConstraintList[0].Body.Length);
-            Assert.AreEqual("b", program.ConstraintList[0].Body[0].Atom.Name);
+            Assert.AreEqual("b", program.ConstraintList[0].Body[0].Literal.Atom.Name);
         }
 
         [Test]
@@ -176,7 +176,7 @@ namespace Template.Test.Parser
             Assert.AreEqual("c", program.RuleList[0].Head?.Atom.Name);
 
             Assert.AreEqual(1, program.ConstraintList[0].Body.Length);
-            Assert.AreEqual("b", program.ConstraintList[0].Body[0].Atom.Name);
+            Assert.AreEqual("b", program.ConstraintList[0].Body[0].Literal.Atom.Name);
         }
 
         [Test]
@@ -207,6 +207,17 @@ namespace Template.Test.Parser
 
             Assert.IsTrue(literal.Atom.ParamList[1].IsTerm);
             Assert.AreEqual("outer_param", literal.Atom.ParamList[1].Term.Value);
+        }
+
+        [Test]
+        public void ShouldParseRulesWithOperationsCorrectly()
+        {
+            var program = _parser.ParseFromFile("../../../TestPrograms/RulesWithOperation.apo");
+
+            Assert.IsNotNull(program);
+            Assert.AreEqual(1, program.LiteralList.Length);
+            Assert.AreEqual(2, program.RuleList.Length);
+            Assert.AreEqual(0, program.ConstraintList.Length);
         }
     }
 }

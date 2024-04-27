@@ -21,8 +21,8 @@ namespace Template.Test.OLON
             var literal1 = new Literal(new Atom("atom1", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
             var literal2Naf = new Literal(new Atom("atom2", new AtomParam[] { new AtomParam(null, new Term("V")) }), true, false);
             var literal2 = new Literal(new Atom("atom2", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
-            var rule1 = new Rule(literal1, new Literal[] { literal2Naf });
-            var rule2 = new Rule(literal2, new Literal[] { literal1 });
+            var rule1 = new Rule(literal1, new BodyPart[] { new BodyPart(literal2Naf, null) });
+            var rule2 = new Rule(literal2, new BodyPart[] { new BodyPart(literal1, null) });
             var rules = new Rule[] { rule1, rule2 };
             var prgram = new Program(new Literal[] {}, rules, new Constraint[0]);
 
@@ -38,8 +38,8 @@ namespace Template.Test.OLON
         {
             var literal1 = new Literal(new Atom("atom1", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
             var literal2 = new Literal(new Atom("atom2", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
-            var rule1 = new Rule(literal1, new Literal[] { literal2 });
-            var rule2 = new Rule(literal2, new Literal[] { literal1 });
+            var rule1 = new Rule(literal1, new BodyPart[] { new BodyPart(literal2, null) });
+            var rule2 = new Rule(literal2, new BodyPart[] { new BodyPart(literal1, null) });
             var rules = new Rule[] { rule1, rule2 };
             var prgram = new Program(new Literal[] { }, rules, new Constraint[0]);
 
@@ -57,8 +57,8 @@ namespace Template.Test.OLON
             var literal2Naf = new Literal(new Atom("atom2", new AtomParam[] { new AtomParam(null, new Term("V")) }), true, false);
             var literal2 = new Literal(new Atom("atom2", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
             var literal3 = new Literal(new Atom("atom3", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
-            var rule1 = new Rule(literal1, new Literal[] { literal2Naf });
-            var rule2 = new Rule(literal2, new Literal[] { literal1, literal3 });
+            var rule1 = new Rule(literal1, new BodyPart[] { new BodyPart(literal2Naf, null) });
+            var rule2 = new Rule(literal2, new BodyPart[] { new BodyPart(literal1, null) });
             var rules = new Rule[] { rule1, rule2 };
             var prgram = new Program(new Literal[] { }, rules, new Constraint[0]);
 
@@ -67,7 +67,7 @@ namespace Template.Test.OLON
             var olonSet = OlonDetector.DetectOlonIn(graph);
 
             Assert.AreEqual(olonSet.Nodes.Count, 2);
-            var node = graph.Nodes.Where(node => node.Literal.Equals(literal3)).First();
+            var node = graph.GetNode(literal3);
             Assert.IsFalse(olonSet.IsPartOfOlon(node));
         }
     }

@@ -29,7 +29,7 @@ namespace Apollon.Lib
         {
             get
             {
-                return LiteralList.Select(l => new Statement(l, new Literal[0]))
+                return LiteralList.Select(l => new Statement(l, new BodyPart[0]))
                     .Union(RuleTypesAsStatements);
             }
         }

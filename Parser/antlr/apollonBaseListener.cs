@@ -120,6 +120,18 @@ public partial class apollonBaseListener : IapollonListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitBody([NotNull] apollonParser.BodyContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.body_part"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterBody_part([NotNull] apollonParser.Body_partContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.body_part"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitBody_part([NotNull] apollonParser.Body_partContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="apollonParser.literal"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -179,6 +191,30 @@ public partial class apollonBaseListener : IapollonListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitGeneral_term([NotNull] apollonParser.General_termContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.operation"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterOperation([NotNull] apollonParser.OperationContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.operation"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitOperation([NotNull] apollonParser.OperationContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.operator"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterOperator([NotNull] apollonParser.OperatorContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.operator"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitOperator([NotNull] apollonParser.OperatorContext context) { }
 
 	/// <inheritdoc/>
 	/// <remarks>The default implementation does nothing.</remarks>

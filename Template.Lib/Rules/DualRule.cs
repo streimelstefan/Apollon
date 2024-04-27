@@ -9,7 +9,7 @@ namespace Apollon.Lib.Rules
     public class DualRules : Statement
     {
 
-        public DualRules(Literal head, params Literal[] body) : base(head, body)
+        public DualRules(Literal head, params BodyPart[] body) : base(head, body)
         {
             if (Head == null) throw new ArgumentNullException(nameof(head));
             if (Body.Length == 0)

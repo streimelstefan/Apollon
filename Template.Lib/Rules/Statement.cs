@@ -10,9 +10,9 @@ namespace Apollon.Lib.Rules
     public class Statement : IEquatable<Statement>
     {
         public Literal? Head { get; set; }
-        public Literal[] Body { get; set; }
+        public BodyPart[] Body { get; set; }
 
-        public Statement(Literal? head, params Literal[] body)
+        public Statement(Literal? head, params BodyPart[] body)
         {
             Head = head;
             Body = body;

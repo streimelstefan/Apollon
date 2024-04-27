@@ -27,7 +27,7 @@ public class CallGraphBuilderTests
         var literal = new Literal(new Atom("human", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
         var literal2 = new Literal(new Atom("informatiker", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
 
-        var program = new Program(new Literal[] { literal, literal2 }, new Rule[] { new Rule(literal, literal2) }, new Constraint[0]);
+        var program = new Program(new Literal[] { literal, literal2 }, new Rule[] { new Rule(literal, new BodyPart(literal2, null)) }, new Constraint[0]);
         var graph = _callGraphBuilder?.BuildCallGraph(program);
 
         //Assert.AreEqual(new List<CallGraphNode> { new CallGraphNode(literal), new CallGraphNode(literal2)}, graph.Nodes);
@@ -40,7 +40,7 @@ public class CallGraphBuilderTests
     public void ShouldBuildCallGraphCorrectly()
     {
         var literals = new Literal[] { new Literal(new Atom("atom", new AtomParam[] { }), false, false) };
-        var rules = new Rule[] { new Rule(new Literal(new Atom("atom", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false), new Literal[] { new Literal(new Atom("atom", new AtomParam[] { }), false, false) }) };
+        var rules = new Rule[] { new Rule(new Literal(new Atom("atom", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false), new BodyPart[] { new BodyPart(new Literal(new Atom("atom", new AtomParam[] { }), false, false), null) }) };
         var prgram = new Program(literals, rules, new Constraint[0]);
 
         var graph = _callGraphBuilder?.BuildCallGraph(prgram);
@@ -66,7 +66,7 @@ public class CallGraphBuilderTests
     public void ShouldBuildCallGraphCorrectlyWithNAF()
     {
         var literals = new Literal[] { new Literal(new Atom("atom", new AtomParam[] { }), false, false) };
-        var rules = new Rule[] { new Rule(new Literal(new Atom("atom", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false), new Literal[] { new Literal(new Atom("atom", new AtomParam[] { }), true, false) }) };
+        var rules = new Rule[] { new Rule(new Literal(new Atom("atom", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false), new BodyPart[] { new BodyPart(new Literal(new Atom("atom", new AtomParam[] { }), true, false), null) }) };
         var prgram = new Program(literals, rules, new Constraint[0]);
 
         var graph = _callGraphBuilder?.BuildCallGraph(prgram);

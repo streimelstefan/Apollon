@@ -10,7 +10,7 @@ namespace Apollon.Lib.Rules
     public class Rule : DualRules
     {
 
-        public Rule(Literal head, params Literal[] body) : base(head, body)
+        public Rule(Literal head, params BodyPart[] body) : base(head, body)
         {
             if (Head != null && Head.IsNAF)
             {

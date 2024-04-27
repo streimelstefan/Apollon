@@ -19,8 +19,8 @@ namespace Template.Test
         {
             var atom = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
             var head = new Literal(atom, false, false);
-            var body1 = new Literal(atom, false, true);
-            var body2 = new Literal(atom, true, true);
+            var body1 = new BodyPart(new Literal(atom, false, true), null);
+            var body2 = new BodyPart(new Literal(atom, true, true), null);
 
             var rule = new Rule(head, body1, body2 );
 
@@ -32,8 +32,8 @@ namespace Template.Test
         {
             var atom = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
             var head = new Literal(atom, true, false);
-            var body1 = new Literal(atom, false, true);
-            var body2 = new Literal(atom, true, true);
+            var body1 = new BodyPart(new Literal(atom, false, true), null);
+            var body2 = new BodyPart(new Literal(atom, true, true), null);
 
             Assert.Throws<ArgumentException>(() => new Rule(head, body1, body2));
         }
@@ -43,14 +43,14 @@ namespace Template.Test
         {
             var atom1 = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
             var head1 = new Literal(atom1, false, false);
-            var body1 = new Literal(atom1, false, true);
+            var body1 = new BodyPart(new Literal(atom1, false, true), null);
 
             var rule1 = new Rule(head1, body1);
 
 
             var atom2 = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
             var head2 = new Literal(atom2, false, false);
-            var body2 = new Literal(atom2, false, true);
+            var body2 = new BodyPart(new Literal(atom2, false, true), null);
             var rule2 = new Rule(head2, body2);
 
             Assert.IsTrue(rule1.Equals(rule2));
@@ -61,14 +61,14 @@ namespace Template.Test
         {
             var atom1 = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
             var head1 = new Literal(atom1, false, false);
-            var body1 = new Literal(atom1, false, true);
+            var body1 = new BodyPart(new Literal(atom1, false, true), null);
 
             var rule1 = new Rule(head1, body1);
 
 
             var atom2 = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
             var head2 = new Literal(atom2, false, false);
-            var body2 = new Literal(atom2, true, true);
+            var body2 = new BodyPart(new Literal(atom2, true, true), null);
             var rule2 = new Rule(head2, body2);
 
             Assert.IsFalse(rule1.Equals(rule2));
