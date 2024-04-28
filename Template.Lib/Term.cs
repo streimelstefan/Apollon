@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Apollon.Lib
 {
-    public class Term : IEquatable<Term>
+    public class Term : IEquatable<Term>, ICloneable
     {
         public PVL ProhibitedValues { get; set; } // Is this the correct place to put this?
 
@@ -43,5 +43,9 @@ namespace Apollon.Lib
             return !ProhibitedValues.Empty(); // It is negatively constrained if it has prohibited values
         }
 
+        public object Clone()
+        {
+            return new Term((string)Value.Clone());
+        }
     }
 }

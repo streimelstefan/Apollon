@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace Apollon.Lib.Rules.Operations
 {
-    public class Operation : IEquatable<Operation>
+    public class Operation : IEquatable<Operation>, ICloneable
     {
 
         public Term Variable { get; private set; }
 
-        public Operator Operator { get; private set; }
+        public Operator Operator { get; set; }
 
         public Atom Condition { get; private set; }
 
@@ -44,6 +44,11 @@ namespace Apollon.Lib.Rules.Operations
             return this.Variable.Equals(other.Variable) &&
                 this.Operator == other.Operator &&
                 this.Condition.Equals(other.Condition);
+        }
+
+        public object Clone()
+        {
+            return new Operation((Term)Variable.Clone(), Operator, (Atom)Condition.Clone());
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Apollon.Lib.Atoms
 {
-    public class AtomParam : IEquatable<AtomParam>
+    public class AtomParam : IEquatable<AtomParam>, ICloneable
     {
         public Atom? Atom { get; private set; }
         public Term? Term { get; private set; }
@@ -63,6 +63,20 @@ namespace Apollon.Lib.Atoms
             }
 
             return string.Empty;
+        }
+
+        public object Clone()
+        {
+            if (Atom != null)
+            {
+                return new AtomParam((Atom)Atom.Clone(), null);
+            }
+            if (Term != null)
+            {
+                return new AtomParam(null, (Term)Term.Clone());
+            }
+
+            throw new Exception("Unable to clone param that is neither an atom nor an term.");
         }
     }
 }

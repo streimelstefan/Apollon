@@ -22,7 +22,7 @@ namespace Apollon.Test.Integration
         {
             var program = _parser.ParseFromFile("../../../TestPrograms/OLONRuleByConstraintRule.apo");
 
-            var callGraph = new CallGraphBuilder(new LiteralTermCountEqualizer()).BuildCallGraph(program);
+            var callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
 
             var olonSet = OlonDetector.DetectOlonIn(callGraph);
 
@@ -46,7 +46,7 @@ namespace Apollon.Test.Integration
         {
             var program = _parser.ParseFromFile("../../../TestPrograms/ConstraintWithoutOLONRules.apo");
 
-            var callGraph = new CallGraphBuilder(new LiteralTermCountEqualizer()).BuildCallGraph(program);
+            var callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
 
             var olonSet = OlonDetector.DetectOlonIn(callGraph);
 
@@ -70,7 +70,7 @@ namespace Apollon.Test.Integration
         {
             var program = _parser.ParseFromFile("../../../TestPrograms/ComplexOLONTest.apo");
 
-            var callGraph = new CallGraphBuilder(new LiteralTermCountEqualizer()).BuildCallGraph(program);
+            var callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
 
             var olonSet = OlonDetector.DetectOlonIn(callGraph);
 

@@ -20,7 +20,7 @@ namespace Apollon.Lib.Graph
     /// a(1, 2, 3).
     /// b(1, 2).
     /// </summary>
-    public class LiteralTermCountEqualizer : IEqualizer<Literal>
+    public class LiteralParamCountEqualizer : IEqualizer<Literal>
     {
         public bool AreEqual(Literal first, Literal second)
         {

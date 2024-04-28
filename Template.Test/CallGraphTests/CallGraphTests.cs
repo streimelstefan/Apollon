@@ -19,7 +19,7 @@ public class CallGraphTests
     [SetUp]
     public void Setup()
     {
-        _graph = new CallGraph(new LiteralTermCountEqualizer());
+        _graph = new CallGraph(new LiteralParamCountEqualizer());
     }
     
 

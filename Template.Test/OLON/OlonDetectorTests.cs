@@ -26,7 +26,7 @@ namespace Template.Test.OLON
             var rules = new Rule[] { rule1, rule2 };
             var prgram = new Program(new Literal[] {}, rules, new Constraint[0]);
 
-            var graph = new CallGraphBuilder(new LiteralTermCountEqualizer()).BuildCallGraph(prgram);
+            var graph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(prgram);
 
             var olonSet = OlonDetector.DetectOlonIn(graph);
 
@@ -43,7 +43,7 @@ namespace Template.Test.OLON
             var rules = new Rule[] { rule1, rule2 };
             var prgram = new Program(new Literal[] { }, rules, new Constraint[0]);
 
-            var graph = new CallGraphBuilder(new LiteralTermCountEqualizer()).BuildCallGraph(prgram);
+            var graph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(prgram);
 
             var olonSet = OlonDetector.DetectOlonIn(graph);
 
@@ -62,7 +62,7 @@ namespace Template.Test.OLON
             var rules = new Rule[] { rule1, rule2 };
             var prgram = new Program(new Literal[] { }, rules, new Constraint[0]);
 
-            var graph = new CallGraphBuilder(new LiteralTermCountEqualizer()).BuildCallGraph(prgram);
+            var graph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(prgram);
 
             var olonSet = OlonDetector.DetectOlonIn(graph);
 

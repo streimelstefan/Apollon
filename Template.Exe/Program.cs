@@ -15,12 +15,12 @@ var program = parser.ParseFromString(code);
 // but we would not be able to see what happens so we do manually here what the solver does internally
 
 
-var callGraph = new CallGraphBuilder(new LiteralTermCountEqualizer()).BuildCallGraph(program);
+var callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
 
 Console.WriteLine("Call Graph: ");
 foreach (var edge in callGraph.Edges)
 {
-    Console.WriteLine($"({edge.Source.Literal}) -{(edge.IsNAF ? "*" : "")}> ({edge.Target.Literal}) Created by: {edge.CreatorRule}");
+    Console.WriteLine($"({edge?.Source.Literal}) -{(edge.IsNAF ? "*" : "")}> ({edge.Target.Literal}) Created by: {edge.CreatorRule}");
 }
 
 var olons = OlonDetector.DetectOlonIn(callGraph);

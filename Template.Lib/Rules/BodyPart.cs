@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Apollon.Lib.Rules
 {
-    public class BodyPart : IEquatable<BodyPart>
+    public class BodyPart : IEquatable<BodyPart>, ICloneable
     {
 
         public Literal? Literal { get; private set; }
@@ -79,6 +79,23 @@ namespace Apollon.Lib.Rules
             }
 
             return "";
+        }
+
+        public object Clone()
+        {
+            Literal? literal = null;
+            Operation? operation = null;
+
+            if (Literal != null)
+            {
+                literal = (Literal)Literal.Clone();
+            }
+            if (Operation != null)
+            {
+                operation = (Operation)Operation.Clone();
+            }
+
+            return new BodyPart(literal, operation);
         }
     }
 }

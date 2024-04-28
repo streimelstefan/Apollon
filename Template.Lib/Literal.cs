@@ -7,7 +7,7 @@ using Apollon.Lib.Atoms;
 
 namespace Apollon.Lib
 {
-    public class Literal : IEquatable<Literal>
+    public class Literal : IEquatable<Literal>, ICloneable
     {
         public Atom Atom { get; set; }
 
@@ -35,6 +35,11 @@ namespace Apollon.Lib
             if (other == null) return false;
 
             return IsNAF == other.IsNAF && IsNegative == other.IsNegative && Atom.Equals(other.Atom);
+        }
+
+        public object Clone()
+        {
+            return new Literal((Atom)Atom.Clone(), IsNAF, IsNegative);
         }
     }
 }

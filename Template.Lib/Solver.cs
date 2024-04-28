@@ -14,7 +14,7 @@ namespace Apollon.Lib
 
         public static void Solve(Program program)
         {
-            var callGraph = new CallGraphBuilder(new LiteralTermCountEqualizer()).BuildCallGraph(program);
+            var callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
 
             var olons = OlonDetector.DetectOlonIn(callGraph);
 

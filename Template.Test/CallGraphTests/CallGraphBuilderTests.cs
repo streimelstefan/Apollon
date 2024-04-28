@@ -18,7 +18,7 @@ public class CallGraphBuilderTests
     [SetUp]
     public void Setup()
     {
-        _callGraphBuilder = new CallGraphBuilder(new LiteralTermCountEqualizer());
+        _callGraphBuilder = new CallGraphBuilder(new LiteralParamCountEqualizer());
     }
 
     [Test]

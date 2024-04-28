@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Apollon.Lib.Atoms
 {
-    public class Atom : IEquatable<Atom>
+    public class Atom : IEquatable<Atom>, ICloneable
     {
         public string Name { get; set; }
 
@@ -43,6 +43,11 @@ namespace Apollon.Lib.Atoms
             }
 
             return true;
+        }
+
+        public object Clone()
+        {
+            return new Atom((string)Name.Clone(), new List<AtomParam>(ParamList.Select(p => (AtomParam)p.Clone())).ToArray());
         }
     }
 }

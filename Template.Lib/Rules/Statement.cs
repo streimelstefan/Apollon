@@ -7,7 +7,7 @@ using Apollon.Lib;
 
 namespace Apollon.Lib.Rules
 {
-    public class Statement : IEquatable<Statement>
+    public class Statement : IEquatable<Statement>, ICloneable
     {
         public Literal? Head { get; set; }
         public BodyPart[] Body { get; set; }
@@ -50,6 +50,16 @@ namespace Apollon.Lib.Rules
             }
 
             return true;
+        }
+
+        public virtual object Clone()
+        {
+            Literal? head = null;
+            if (Head != null)
+            {
+                head = (Literal)Head.Clone();
+            }
+            return new Statement(head, Body.Select(bp => (BodyPart)bp.Clone()).ToArray());
         }
     }
 }

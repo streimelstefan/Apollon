@@ -17,5 +17,10 @@ namespace Apollon.Lib.Rules
             IsOrdiniaryRule = isOrdiniaryRule;
         }
 
+        public override object Clone()
+        {
+            return new PreprocessedStatement((Statement)base.Clone(), IsOlonRule, IsOrdiniaryRule);
+        }
+
     }
 }
