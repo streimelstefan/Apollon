@@ -31,7 +31,9 @@ namespace Apollon.Test.Integration
 
             var rules = generator.GenerateDualRules(program.Statements.ToArray());
 
-
+            Assert.AreEqual(2, rules.Length);
+            Assert.IsTrue(rules[0].Head.IsNAF);
+            Assert.AreEqual("a", rules[0].Head.Atom.Name);
 
         }
 
@@ -42,6 +44,7 @@ namespace Apollon.Test.Integration
             var program = parser.ParseFromString(code);
 
             var rules = generator.GenerateDualRules(program.Statements.ToArray());
+
 
 
 

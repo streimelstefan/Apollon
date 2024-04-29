@@ -142,6 +142,10 @@ namespace Apollon.Lib.DualRules
                 index++;
             }
 
+            var newHead = group.Statements[0].Head.Clone();
+            
+            var overallRule = new DualRule(newHead)
+
             // build overarching rule for all created dual rules.
 
             return dualRules;
