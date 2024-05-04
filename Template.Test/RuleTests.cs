@@ -24,7 +24,7 @@ namespace Template.Test
 
             var rule = new Rule(head, body1, body2 );
 
-            Assert.AreEqual("reached(V) :- -reached(V), not -reached(V)", rule.ToString());
+            Assert.AreEqual("reached(V) :- -reached(V), not -reached(V).", rule.ToString());
         }
 
         [Test]

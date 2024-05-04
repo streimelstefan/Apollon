@@ -14,6 +14,10 @@ namespace Apollon.Lib.Rules
 
         public Operation? Operation { get; private set; }
 
+        public Term? ForAll { get; private set; }
+
+        public BodyPart? Child {  get; private set; }
+
         public bool IsLiteral
         {
             get
@@ -30,6 +34,22 @@ namespace Apollon.Lib.Rules
             }
         }
 
+        public bool IsForAll
+        {
+            get
+            {
+                return ForAll != null;
+            }
+        }
+
+        public bool HasChild
+        {
+            get
+            {
+                return Child != null;
+            }
+        }
+
         public BodyPart(Literal? literal, Operation? operation) 
         {
             if (literal == null && operation == null) 
@@ -43,6 +63,18 @@ namespace Apollon.Lib.Rules
 
             Literal = literal;
             Operation = operation;
+        }
+
+        public BodyPart(Term term, Literal literal)
+        {
+            ForAll = term;
+            Literal = literal;
+        }
+
+        public BodyPart(Term variable, BodyPart child)
+        {
+            ForAll = variable;
+            Child = child;
         }
 
         public bool Equals(BodyPart? other)
@@ -68,6 +100,10 @@ namespace Apollon.Lib.Rules
 
         public override string ToString()
         {
+            if (ForAll != null)
+            {
+                return $"forall({ForAll}, {(Child == null ? Literal : Child)})";
+            }
             if (Literal != null)
             {
                 return Literal.ToString();

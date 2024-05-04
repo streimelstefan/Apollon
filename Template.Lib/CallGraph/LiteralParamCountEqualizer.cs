@@ -24,7 +24,9 @@ namespace Apollon.Lib.Graph
     {
         public bool AreEqual(Literal first, Literal second)
         {
-            return first.Atom.Name == second.Atom.Name && first.Atom.ParamList.Length == second.Atom.ParamList.Length;
+            return first.Atom.Name == second.Atom.Name && 
+                first.Atom.ParamList.Length == second.Atom.ParamList.Length &&
+                first.IsNegative == second.IsNegative;
         }
     }
 }

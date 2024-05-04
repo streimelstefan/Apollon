@@ -20,7 +20,7 @@ namespace Apollon.Lib.Rules
 
         public override string ToString()
         {
-            return $"{Head} :- {string.Join(", ", Body.Select(literal => literal.ToString()))}";
+            return $"{Head} :- {string.Join(", ", Body.Select(literal => literal.ToString()))}.";
         }
 
         public bool Equals(Statement? other)

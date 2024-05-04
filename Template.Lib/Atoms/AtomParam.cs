@@ -30,6 +30,16 @@ namespace Apollon.Lib.Atoms
             Term = term;
         }
 
+        public AtomParam(Atom atom)
+        {
+            Atom = atom;
+        }
+
+        public AtomParam(Term term)
+        {
+            Term = term;
+        }
+
         public bool Equals(AtomParam? other)
         {
             if (other  == null) return false;
