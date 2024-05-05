@@ -252,7 +252,7 @@ namespace Apollon.Lib.DualRules
             }
         }
 
-        private Statement MoveAtomsFromHeadToBody(Statement statement, IEnumerable<Term> linkingVariables)
+        public Statement MoveAtomsFromHeadToBody(Statement statement, IEnumerable<Term> linkingVariables)
         {
             if (statement.Head == null) throw new ArgumentNullException(nameof(statement), "Head of statement is not allowed to be null.");
             var body = new List<BodyPart>();
@@ -291,8 +291,9 @@ namespace Apollon.Lib.DualRules
             return new Statement(new Literal(new Atom(statement.Head.Atom.Name, head.ToArray()), statement.Head.IsNAF, statement.Head.IsNegative), body.ToArray());
         }
 
-        private void SwitchNegation(BodyPart bodyPart)
+        public void SwitchNegation(BodyPart bodyPart)
         {
+            // Maybe make this function into a whole class.
             if (bodyPart.Operation != null)
             {
                 if (bodyPart.Operation.Operator == Rules.Operations.Operator.Equals)
@@ -314,7 +315,7 @@ namespace Apollon.Lib.DualRules
         /// </summary>
         /// <param name="statement"></param>
         /// <returns></returns>
-        private List<Term> GetAllVariablesNotInHead(Statement statement)
+        public List<Term> GetAllVariablesNotInHead(Statement statement)
         {
             var head = statement.Head;
             if (head == null)
