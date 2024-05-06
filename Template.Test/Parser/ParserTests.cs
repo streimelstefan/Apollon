@@ -195,15 +195,15 @@ namespace Template.Test.Parser
             Assert.AreEqual(2, literal.Atom.ParamList.Length);
 
             var innerLiteralParam = literal.Atom.ParamList[0];
-            Assert.IsTrue(innerLiteralParam.IsAtom);
+            Assert.IsTrue(innerLiteralParam.IsLiteral);
 
-            var innerAtom = innerLiteralParam.Atom;
-            Assert.AreEqual("inner", innerAtom.Name);
-            Assert.AreEqual(2, innerAtom.ParamList.Length);
-            Assert.IsTrue(innerAtom.ParamList[0].IsTerm);
-            Assert.AreEqual("inner_param", innerAtom.ParamList[0].Term.Value);
-            Assert.IsTrue(innerAtom.ParamList[1].IsTerm);
-            Assert.AreEqual("inner_param2", innerAtom.ParamList[1].Term.Value);
+            var innerAtom = innerLiteralParam.Literal;
+            Assert.AreEqual("inner", innerAtom.Atom.Name);
+            Assert.AreEqual(2, innerAtom.Atom.ParamList.Length);
+            Assert.IsTrue(innerAtom.Atom.ParamList[0].IsTerm);
+            Assert.AreEqual("inner_param", innerAtom.Atom.ParamList[0].Term.Value);
+            Assert.IsTrue(innerAtom.Atom.ParamList[1].IsTerm);
+            Assert.AreEqual("inner_param2", innerAtom.Atom.ParamList[1].Term.Value);
 
             Assert.IsTrue(literal.Atom.ParamList[1].IsTerm);
             Assert.AreEqual("outer_param", literal.Atom.ParamList[1].Term.Value);

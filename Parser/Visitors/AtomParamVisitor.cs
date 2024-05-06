@@ -10,7 +10,7 @@ namespace AppollonParser.Visitors
 {
     public class AtomParamVisitor : apollonBaseVisitor<AtomParam>
     {
-        private static readonly AtomVisitor _atomVisitor = new AtomVisitor();
+        private static readonly LiteralVisitor _literalVisitor = new LiteralVisitor();
         public override AtomParam VisitAtom_param_part(apollonParser.Atom_param_partContext context)
         {
             if (context.general_term() != null)
@@ -24,10 +24,10 @@ namespace AppollonParser.Visitors
                 {
                     return new AtomParam(null, new Term(term.CLASICAL_TERM().GetText()));
                 }
-            } else if (context.atom() != null)
+            } else if (context.literal() != null)
             {
-                var atom = _atomVisitor.VisitAtom(context.atom());
-                return new AtomParam(atom, null);
+                var literal = _literalVisitor.VisitLiteral(context.literal());
+                return new AtomParam(literal, null);
             } else if (context.NUMBER() != null)
             {
                 return new AtomParam(null, new Term(context.NUMBER().GetText()));

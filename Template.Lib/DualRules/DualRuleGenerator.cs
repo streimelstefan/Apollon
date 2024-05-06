@@ -269,9 +269,9 @@ namespace Apollon.Lib.DualRules
                     if (param.Term != null)
                     {
                         condtion = new Atom(param.Term.Value);
-                    } else if (param.Atom != null) 
+                    } else if (param.Literal != null) 
                     {
-                        condtion = (Atom)param.Atom.Clone();
+                        condtion = (Atom)param.Literal.Clone();
                     } else
                     {
                         throw new InvalidOperationException();

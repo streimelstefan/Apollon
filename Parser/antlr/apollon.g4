@@ -16,7 +16,7 @@ atom:
 	CLASICAL_TERM (
 		'(' (atom_param_part (',' atom_param_part)*)? ')'
 	)?;
-atom_param_part: general_term | NUMBER | atom;
+atom_param_part: general_term | NUMBER | literal;
 general_term: VARIABLE_TERM | CLASICAL_TERM;
 
 operation: VARIABLE_TERM operator (atom | NUMBER);

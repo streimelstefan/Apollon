@@ -8,31 +8,41 @@ namespace Apollon.Lib.Atoms
 {
     public class AtomParam : IEquatable<AtomParam>, ICloneable
     {
-        public Atom? Atom { get; private set; }
+        public Literal? Literal { get; private set; }
         public Term? Term { get; private set; }
 
-        public bool IsAtom { get {  return Atom != null; } }
+        public bool IsLiteral { get {  return Literal != null; } }
 
         public bool IsTerm { get { return Term != null; } }
 
-        public AtomParam(Atom? atom, Term? term) 
+        public AtomParam(Literal? literal, Term? term) 
         { 
-            if (atom == null && term == null)
+            if (literal == null && term == null)
             {
-                throw new ArgumentException("Atom and Term are not allowed to be null at the same time.");
+                throw new ArgumentException("Literal and Term are not allowed to be null at the same time.");
             }
-            if (atom != null && term != null)
+            if (literal != null && term != null)
             {
-                throw new ArgumentException("Atom and Term are not allowed to be set at the same time.");
+                throw new ArgumentException("Literal and Term are not allowed to be set at the same time.");
             }
 
-            Atom = atom;
+            if (literal != null && literal.IsNAF)
+            {
+                throw new ArgumentException("Literal is not allowed to be NAF.");
+            }
+
+            Literal = literal;
             Term = term;
         }
 
-        public AtomParam(Atom atom)
+        public AtomParam(Literal literal)
         {
-            Atom = atom;
+            if (literal != null && literal.IsNAF)
+            {
+                throw new ArgumentException("Literal is not allowed to be NAF.");
+            }
+
+            Literal = literal;
         }
 
         public AtomParam(Term term)
@@ -47,11 +57,11 @@ namespace Apollon.Lib.Atoms
             if (this == other) return true;
 
             if (other.IsTerm && !IsTerm) return false;
-            if (other.IsAtom && !IsAtom) return false;
+            if (other.IsLiteral && !IsLiteral) return false;
         
-            if (Atom != null)
+            if (Literal != null)
             {
-                return Atom.Equals(other.Atom);
+                return Literal.Equals(other.Literal);
             }
 
             if (Term != null)
@@ -64,9 +74,9 @@ namespace Apollon.Lib.Atoms
 
         public override string ToString()
         {
-            if (Atom != null)
+            if (Literal != null)
             {
-                return Atom.ToString();
+                return Literal.ToString();
             } else if (Term != null)
             {
                 return Term.ToString();
@@ -77,9 +87,9 @@ namespace Apollon.Lib.Atoms
 
         public object Clone()
         {
-            if (Atom != null)
+            if (Literal != null)
             {
-                return new AtomParam((Atom)Atom.Clone(), null);
+                return new AtomParam((Literal)Literal.Clone(), null);
             }
             if (Term != null)
             {

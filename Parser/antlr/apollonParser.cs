@@ -781,7 +781,7 @@ public partial class apollonParser : Parser {
 				State = 97;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 28672L) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 28800L) != 0)) {
 					{
 					State = 89;
 					atom_param_part();
@@ -827,8 +827,8 @@ public partial class apollonParser : Parser {
 			return GetRuleContext<General_termContext>(0);
 		}
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode NUMBER() { return GetToken(apollonParser.NUMBER, 0); }
-		[System.Diagnostics.DebuggerNonUserCode] public AtomContext atom() {
-			return GetRuleContext<AtomContext>(0);
+		[System.Diagnostics.DebuggerNonUserCode] public LiteralContext literal() {
+			return GetRuleContext<LiteralContext>(0);
 		}
 		public Atom_param_partContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
@@ -879,7 +879,7 @@ public partial class apollonParser : Parser {
 				EnterOuterAlt(_localctx, 3);
 				{
 				State = 104;
-				atom();
+				literal();
 				}
 				break;
 			}
@@ -1111,8 +1111,8 @@ public partial class apollonParser : Parser {
 		94,3,22,11,0,90,91,5,3,0,0,91,93,3,22,11,0,92,90,1,0,0,0,93,96,1,0,0,0,
 		94,92,1,0,0,0,94,95,1,0,0,0,95,98,1,0,0,0,96,94,1,0,0,0,97,89,1,0,0,0,
 		97,98,1,0,0,0,98,99,1,0,0,0,99,101,5,5,0,0,100,88,1,0,0,0,100,101,1,0,
-		0,0,101,21,1,0,0,0,102,106,3,24,12,0,103,106,5,14,0,0,104,106,3,20,10,
-		0,105,102,1,0,0,0,105,103,1,0,0,0,105,104,1,0,0,0,106,23,1,0,0,0,107,108,
+		0,0,101,21,1,0,0,0,102,106,3,24,12,0,103,106,5,14,0,0,104,106,3,16,8,0,
+		105,102,1,0,0,0,105,103,1,0,0,0,105,104,1,0,0,0,106,23,1,0,0,0,107,108,
 		7,0,0,0,108,25,1,0,0,0,109,110,5,13,0,0,110,113,3,28,14,0,111,114,3,20,
 		10,0,112,114,5,14,0,0,113,111,1,0,0,0,113,112,1,0,0,0,114,27,1,0,0,0,115,
 		116,7,1,0,0,116,29,1,0,0,0,12,33,42,58,70,75,78,83,94,97,100,105,113
