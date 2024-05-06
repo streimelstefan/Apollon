@@ -11,15 +11,15 @@ namespace Apollon.Lib.Rules.Operations
     public class Operation : IEquatable<Operation>, ICloneable
     {
 
-        public Term Variable { get; private set; }
+        public AtomParam Variable { get; set; }
 
         public Operator Operator { get; set; }
 
         public Atom Condition { get; private set; }
 
-        public Operation(Term variable, Operator @operator, Atom condition)
+        public Operation(AtomParam variable, Operator @operator, Atom condition)
         {
-            if (!variable.IsVariable)
+            if (variable.Term != null && !variable.Term.IsVariable)
             {
                 throw new ArgumentException("Term needs to be a variable.", nameof(variable));
             }
@@ -48,7 +48,7 @@ namespace Apollon.Lib.Rules.Operations
 
         public object Clone()
         {
-            return new Operation((Term)Variable.Clone(), Operator, (Atom)Condition.Clone());
+            return new Operation((AtomParam)Variable.Clone(), Operator, (Atom)Condition.Clone());
         }
     }
 }

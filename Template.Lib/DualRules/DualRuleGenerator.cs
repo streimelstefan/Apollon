@@ -277,7 +277,7 @@ namespace Apollon.Lib.DualRules
                         throw new InvalidOperationException();
                     }
 
-                    var operation = new Operation(variable, Operator.Equals, condtion);
+                    var operation = new Operation(new AtomParam(variable), Operator.Equals, condtion);
                     head.Add(new AtomParam(null, variable));
                     body.Add(new BodyPart(null, operation));
                 } else

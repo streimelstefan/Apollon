@@ -41,7 +41,7 @@ namespace Apollon.Test.Integration
             Assert.AreEqual(1, rules[0].Body.Length);
             Assert.IsTrue(rules[0].Body[0].IsOperation);
             Assert.AreEqual(Operator.NotEquals, rules[0].Body[0].Operation.Operator);
-            Assert.AreEqual("V/0", rules[0].Body[0].Operation.Variable.Value);
+            Assert.AreEqual("V/0", rules[0].Body[0].Operation.Variable.Term.Value);
             Assert.AreEqual("0", rules[0].Body[0].Operation.Condition.Name);
 
             Assert.AreEqual("a", rules[1].Head.Atom.Name);

@@ -1,5 +1,6 @@
 ﻿using Apollon.Lib.Atoms;
 using Apollon.Lib.Rules;
+using Apollon.Lib.Rules.Operations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -79,6 +80,25 @@ namespace Apollon.Lib.Unification
             if (part.Child != null)
             {
                 Apply(part.Child);
+            }
+            if (part.Operation != null)
+            {
+                Apply(part.Operation);
+            }
+        }
+
+        private void Apply(Operation operation)
+        {
+            if (operation.Variable.Term != null)
+            {
+                if (mappings.ContainsKey(operation.Variable.Term.Value))
+                {
+                    operation.Variable = mappings[operation.Variable.Term.Value];
+                }
+            }
+            if (operation.Variable.Literal != null)
+            {
+                Apply(operation.Variable.Literal.Atom);
             }
         }
 

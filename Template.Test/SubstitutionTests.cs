@@ -15,7 +15,7 @@ namespace Apollon.Test
     [TestFixture]
     public class SubstitutionTests
     {
-        private Substitution _sub = new Substitution();
+        private ISubstitution _sub = new Substitution();
         private ApollonParser _parser = new ApollonParser();
 
         [SetUp]
@@ -76,6 +76,48 @@ namespace Apollon.Test
 
             Assert.IsNotNull(substituted);
             Assert.AreEqual("likes(hates(stefan)) :- not likes(hates(stefan)).", substituted.ToString());
+        }
+
+        [Test]
+        public void ShouldSubstituteXInBodyWithNegativeLiteral()
+        {
+            var code = "likes(X) :- not likes(X).";
+            var program = _parser.ParseFromString(code);
+            var rule = program.RuleList.First();
+            _sub.Add(new Term("X"), new AtomParam(new Literal(new Atom("hates", new AtomParam(new Term("stefan"))), false, true)));
+
+            var substituted = _sub.Apply(rule);
+
+            Assert.IsNotNull(substituted);
+            Assert.AreEqual("likes(-hates(stefan)) :- not likes(-hates(stefan)).", substituted.ToString());
+        }
+
+        [Test]
+        public void ShouldSubstituteXInOperation()
+        {
+            var code = "likes(X) :- X != 0.";
+            var program = _parser.ParseFromString(code);
+            var rule = program.RuleList.First();
+            _sub.Add(new Term("X"), new AtomParam(new Literal(new Atom("hates", new AtomParam(new Term("stefan"))), false, true)));
+
+            var substituted = _sub.Apply(rule);
+
+            Assert.IsNotNull(substituted);
+            Assert.AreEqual("likes(-hates(stefan)) :- -hates(stefan) != 0().", substituted.ToString());
+        }
+
+        [Test]
+        public void ShouldSubstituteXAsTermInOperation()
+        {
+            var code = "likes(X) :- X != 0.";
+            var program = _parser.ParseFromString(code);
+            var rule = program.RuleList.First();
+            _sub.Add(new Term("X"), new AtomParam(new Term("0")));
+
+            var substituted = _sub.Apply(rule);
+
+            Assert.IsNotNull(substituted);
+            Assert.AreEqual("likes(0) :- 0 != 0().", substituted.ToString());
         }
     }
 }

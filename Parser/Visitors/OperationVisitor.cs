@@ -32,7 +32,7 @@ namespace AppollonParser.Visitors
                 throw new InvalidProgramException("Condition of an operation needs to be an variable or an atom.");
             }
 
-            return new Operation(variable, @operator, condition);
+            return new Operation(new AtomParam(variable), @operator, condition);
         }
 
         public Operator ParseOperator(apollonParser.OperatorContext context)
