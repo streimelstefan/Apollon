@@ -13,6 +13,22 @@ namespace Apollon.Lib.Unification
     {
         private Dictionary<string, AtomParam> mappings = new Dictionary<string, AtomParam>();
 
+
+        public Substitution() { }
+
+        public Substitution(IEnumerable<Mapping> mappings)
+        {
+            this.mappings = new Dictionary<string, AtomParam>(mappings.Select(m => new KeyValuePair<string, AtomParam>(m.Variable.Value, m.MapsTo)));
+        }
+
+        public IEnumerable<Mapping> Mappings
+        {
+            get
+            {
+                return mappings.Select(m => new Mapping(new Term(m.Key), m.Value));
+            }
+        }
+
         public void Add(Term variable, AtomParam term)
         {
             mappings[variable.Value] = term;
@@ -94,6 +110,12 @@ namespace Apollon.Lib.Unification
                 if (mappings.ContainsKey(operation.Variable.Term.Value))
                 {
                     operation.Variable = mappings[operation.Variable.Term.Value];
+
+                    // make sure the operation variable is always a literal.
+                    if (operation.Variable.Term != null)
+                    {
+                        operation.Variable = new AtomParam(new Literal(new Atom(operation.Variable.Term.Value), false, false));
+                    }
                 }
             }
             if (operation.Variable.Literal != null)

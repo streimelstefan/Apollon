@@ -265,13 +265,15 @@ namespace Apollon.Lib.DualRules
                 {
                     // move value to body and replace it with a Variable.
                     var variable = new Term($"V/{newVariableIndex}");
-                    Atom condtion;
+                    newVariableIndex++;
+
+                    Literal condtion;
                     if (param.Term != null)
                     {
-                        condtion = new Atom(param.Term.Value);
+                        condtion = new Literal(new Atom(param.Term.Value), false, false);
                     } else if (param.Literal != null) 
                     {
-                        condtion = (Atom)param.Literal.Clone();
+                        condtion = (Literal)param.Literal.Clone();
                     } else
                     {
                         throw new InvalidOperationException();
@@ -351,7 +353,7 @@ namespace Apollon.Lib.DualRules
                 }
             }
 
-            return bodyVariables.Keys.Where(k => bodyVariables[k] > 1).Select(k => new Term(k)).ToList();
+            return bodyVariables.Keys.Select(k => new Term(k)).ToList();
         }
     }
 }

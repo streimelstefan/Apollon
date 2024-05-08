@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Apollon.Lib.Unification;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.ConstrainedExecution;
@@ -15,7 +16,16 @@ namespace Apollon.Lib;
 /// </summary>
 public class CHS
 {
-    private List<Literal> Literals; //List does preserve Order, as written on MSDN List<T> Class.
+    public List<Literal> Literals { get; private set; } //List does preserve Order, as written on MSDN List<T> Class.
+    private IUnifier Unifier = new Unifier();
+
+    public bool IsEmpty
+    {
+        get
+        {
+            return Literals.Count == 0;
+        }
+    }
 
     public CHS()
     {
@@ -24,13 +34,32 @@ public class CHS
 
     public void Add(Literal literal)
     {
-        if (Literals.Contains(literal)) // If I understood correctly, this is a check for unification, because the Equals method is overwritten in the Literal class.
+        if (Literals.Where(l => Unifier.Unify(l, literal).IsSuccess).Any()) // if there is another literal in the chs that can be unified.
         {
             throw new ArgumentException("Literal already in CHS."); // Check is proffiecient, as shown in Tests.
         }
 
         Literals.Add(literal);
     }
+
+    public void AddIfNotExists(Literal literal)
+    {
+        try
+        {
+            Add(literal);
+        } catch (Exception)
+        {
+        }
+    }
+
+    public void SafeUnion(CHS chs)
+    {
+        foreach (var literal in chs.Literals)
+        {
+            AddIfNotExists(literal);
+        }
+    }
+
 
     public Literal Peek()
     {
@@ -52,5 +81,10 @@ public class CHS
     public IEnumerable<Literal> GetLiterals()
     {
         return Literals;
+    }
+
+    public override string ToString()
+    {
+        return $"{{ ({string.Join("), (", Literals.Select(l => l.ToString()))}) }}";
     }
 }

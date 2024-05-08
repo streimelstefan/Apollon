@@ -956,8 +956,8 @@ public partial class apollonParser : Parser {
 		[System.Diagnostics.DebuggerNonUserCode] public OperatorContext @operator() {
 			return GetRuleContext<OperatorContext>(0);
 		}
-		[System.Diagnostics.DebuggerNonUserCode] public AtomContext atom() {
-			return GetRuleContext<AtomContext>(0);
+		[System.Diagnostics.DebuggerNonUserCode] public Naf_literalContext naf_literal() {
+			return GetRuleContext<Naf_literalContext>(0);
 		}
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode NUMBER() { return GetToken(apollonParser.NUMBER, 0); }
 		public OperationContext(ParserRuleContext parent, int invokingState)
@@ -997,10 +997,12 @@ public partial class apollonParser : Parser {
 			State = 113;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
+			case NAF:
+			case NEGATION:
 			case CLASICAL_TERM:
 				{
 				State = 111;
-				atom();
+				naf_literal();
 				}
 				break;
 			case NUMBER:
@@ -1113,8 +1115,8 @@ public partial class apollonParser : Parser {
 		97,98,1,0,0,0,98,99,1,0,0,0,99,101,5,5,0,0,100,88,1,0,0,0,100,101,1,0,
 		0,0,101,21,1,0,0,0,102,106,3,24,12,0,103,106,5,14,0,0,104,106,3,16,8,0,
 		105,102,1,0,0,0,105,103,1,0,0,0,105,104,1,0,0,0,106,23,1,0,0,0,107,108,
-		7,0,0,0,108,25,1,0,0,0,109,110,5,13,0,0,110,113,3,28,14,0,111,114,3,20,
-		10,0,112,114,5,14,0,0,113,111,1,0,0,0,113,112,1,0,0,0,114,27,1,0,0,0,115,
+		7,0,0,0,108,25,1,0,0,0,109,110,5,13,0,0,110,113,3,28,14,0,111,114,3,18,
+		9,0,112,114,5,14,0,0,113,111,1,0,0,0,113,112,1,0,0,0,114,27,1,0,0,0,115,
 		116,7,1,0,0,116,29,1,0,0,0,12,33,42,58,70,75,78,83,94,97,100,105,113
 	};
 

@@ -13,5 +13,7 @@ namespace Apollon.Lib.Unification
         Statement Apply(Statement statement);
 
         void Add(Term variable, AtomParam term);
+
+        public IEnumerable<Mapping> Mappings { get; }
     }
 }

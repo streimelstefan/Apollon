@@ -34,19 +34,19 @@ namespace Apollon.Lib
             }
         }
 
+
         public Program(Literal[] literalList, Rule[] ruleList, Constraint[] constraints)
-        { 
+        {
             LiteralList = literalList;
             RuleList = ruleList;
             ConstraintList = constraints;
         }
 
-        public Program()
+        public Program() : this(new Literal[0], new Rule[0], new Constraint[0])
         {
-            LiteralList = new Literal[0];
-            RuleList = new Rule[0];
-            ConstraintList = new Constraint[0];
         }
+
+
 
     }
 }

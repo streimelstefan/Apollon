@@ -15,9 +15,9 @@ namespace Apollon.Lib.Rules.Operations
 
         public Operator Operator { get; set; }
 
-        public Atom Condition { get; private set; }
+        public Literal Condition { get; private set; }
 
-        public Operation(AtomParam variable, Operator @operator, Atom condition)
+        public Operation(AtomParam variable, Operator @operator, Literal condition)
         {
             if (variable.Term != null && !variable.Term.IsVariable)
             {
@@ -48,7 +48,7 @@ namespace Apollon.Lib.Rules.Operations
 
         public object Clone()
         {
-            return new Operation((AtomParam)Variable.Clone(), Operator, (Atom)Condition.Clone());
+            return new Operation((AtomParam)Variable.Clone(), Operator, (Literal)Condition.Clone());
         }
     }
 }

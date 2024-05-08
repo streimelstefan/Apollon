@@ -42,7 +42,7 @@ namespace Apollon.Test.Integration
             Assert.IsTrue(rules[0].Body[0].IsOperation);
             Assert.AreEqual(Operator.NotEquals, rules[0].Body[0].Operation.Operator);
             Assert.AreEqual("V/0", rules[0].Body[0].Operation.Variable.Term.Value);
-            Assert.AreEqual("0", rules[0].Body[0].Operation.Condition.Name);
+            Assert.AreEqual("0", rules[0].Body[0].Operation.Condition.Atom.Name);
 
             Assert.AreEqual("a", rules[1].Head.Atom.Name);
             Assert.AreEqual("V/0", rules[1].Head.Atom.ParamList[0].Term.Value);
@@ -134,6 +134,64 @@ namespace Apollon.Test.Integration
             Assert.AreEqual("not a0(X, Y) :- b(X, Y), not c(Y, X).", rules[1].ToString());
             Assert.AreEqual("not a0(X) :- forall(Y, not a0(X, Y)).", rules[2].ToString());
             Assert.AreEqual("not a(V/0) :- not a0(V/0).", rules[3].ToString());
+        }
+
+        [Test]
+        public void ShouldCreateForAllForSinglePrivateVariables()
+        {
+            var code = "a(X) :- b(X, Y).";
+            var program = parser.ParseFromString(code);
+
+            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+
+            Assert.AreEqual(3, rules.Length);
+            Assert.AreEqual("not a0(X, Y) :- not b(X, Y).", rules[0].ToString());
+            Assert.AreEqual("not a0(X) :- forall(Y, not a0(X, Y)).", rules[1].ToString());
+            Assert.AreEqual("not a(V/0) :- not a0(V/0).", rules[2].ToString());
+        }
+
+        [Test]
+        public void ShouldParseComplexerProgramWithOnlyAtoms()
+        {
+            var code = "bird(tweety).\r\ncat(sylvester).\r\ndog(pluto).\r\nlikes(mary, pizza).\r\nlikes(john, pasta).\r\n";
+            var program = parser.ParseFromString(code);
+
+            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+
+            Assert.AreEqual(11, rules.Length);
+            Assert.AreEqual("not bird0(V/0) :- V/0 != tweety().", rules[0].ToString());
+            Assert.AreEqual("not bird(V/0) :- not bird0(V/0).", rules[1].ToString());
+            Assert.AreEqual("not cat0(V/0) :- V/0 != sylvester().", rules[2].ToString());
+            Assert.AreEqual("not cat(V/0) :- not cat0(V/0).", rules[3].ToString());
+            Assert.AreEqual("not dog0(V/0) :- V/0 != pluto().", rules[4].ToString());
+            Assert.AreEqual("not dog(V/0) :- not dog0(V/0).", rules[5].ToString());
+            Assert.AreEqual("not likes0(V/0, V/1) :- V/0 != mary().", rules[6].ToString());
+            Assert.AreEqual("not likes0(V/0, V/1) :- V/0 = mary(), V/1 != pizza().", rules[7].ToString());
+            Assert.AreEqual("not likes1(V/0, V/1) :- V/0 != john().", rules[8].ToString());
+            Assert.AreEqual("not likes1(V/0, V/1) :- V/0 = john(), V/1 != pasta().", rules[9].ToString());
+            Assert.AreEqual("not likes(V/0, V/1) :- not likes0(V/0, V/1), not likes1(V/0, V/1).", rules[10].ToString());
+        }
+
+        [Test]
+        public void ShouldCreateDualRulesComplexerProgramWithRecursion()
+        {
+            var code = "parent(alice, bob).\r\nparent(bob, charlie).\r\nancestor(X, Y) :- parent(X, Y).\r\nancestor(X, Y) :- parent(X, Z), ancestor(Z, Y).\r\n";
+            var program = parser.ParseFromString(code);
+
+            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+
+            Assert.AreEqual(10, rules.Length);
+            Assert.AreEqual("not parent0(V/0, V/1) :- V/0 != alice().", rules[0].ToString());
+            Assert.AreEqual("not parent0(V/0, V/1) :- V/0 = alice(), V/1 != bob().", rules[1].ToString());
+            Assert.AreEqual("not parent1(V/0, V/1) :- V/0 != bob().", rules[2].ToString());
+            Assert.AreEqual("not parent1(V/0, V/1) :- V/0 = bob(), V/1 != charlie().", rules[3].ToString());
+            Assert.AreEqual("not parent(V/0, V/1) :- not parent0(V/0, V/1), not parent1(V/0, V/1).", rules[4].ToString());
+            Assert.AreEqual("not ancestor0(X, Y) :- not parent(X, Y).", rules[5].ToString());
+            Assert.AreEqual("not ancestor1(X, Y, Z) :- not parent(X, Z).", rules[6].ToString());
+            Assert.AreEqual("not ancestor1(X, Y, Z) :- parent(X, Z), not ancestor(Z, Y).", rules[7].ToString());
+            Assert.AreEqual("not ancestor1(X, Y) :- forall(Z, not ancestor1(X, Y, Z)).", rules[8].ToString());
+            Assert.AreEqual("not ancestor(V/0, V/1) :- not ancestor0(V/0, V/1), not ancestor1(V/0, V/1).", rules[9].ToString());
+
         }
 
     }

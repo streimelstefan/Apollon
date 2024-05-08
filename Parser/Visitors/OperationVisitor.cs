@@ -20,13 +20,13 @@ namespace AppollonParser.Visitors
             
             var variable = new Term(context.VARIABLE_TERM().GetText());
             var @operator = ParseOperator(context.@operator());
-            Atom condition;
-            if (context.atom() != null)
+            Literal condition;
+            if (context.naf_literal() != null)
             {
-                condition = _atomVisitor.VisitAtom(context.atom());
+                condition = _nafLiteralVisitor.VisitNaf_literal(context.naf_literal());
             } else if (context.NUMBER() != null)
             {
-                condition = new Atom(context.NUMBER().GetText());
+                condition = new Literal(new Atom(context.NUMBER().GetText()), false, false);
             } else
             {
                 throw new InvalidProgramException("Condition of an operation needs to be an variable or an atom.");
