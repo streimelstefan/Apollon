@@ -240,7 +240,7 @@ namespace Apollon.Lib.DualRules
             return rules;
         }
 
-        private BodyPart BuildForAllBody(Literal currentHead, List<Term> linkingVariabels, int currentIndex = 0)
+        public BodyPart BuildForAllBody(Literal currentHead, List<Term> linkingVariabels, int currentIndex = 0)
         {
             // if we are at the last index 
             if (currentIndex == linkingVariabels.Count() - 1)

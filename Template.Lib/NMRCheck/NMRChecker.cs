@@ -24,9 +24,12 @@ public class NMRChecker : INMRChecker
 
         var nmrCheckRules = new List<CheckRule>();
 
+        int counter = 1;
+
         foreach (var olonRule in olonRules)
         {
-            nmrCheckRules.AddRange(GenerateRulesForOlonRule(olonRule, 1));
+            nmrCheckRules.AddRange(GenerateRulesForOlonRule(olonRule, counter));
+            counter++;
         }
 
         return nmrCheckRules.ToArray();
@@ -34,39 +37,53 @@ public class NMRChecker : INMRChecker
 
     private CheckRule[] GenerateRulesForOlonRule(PreprocessedStatement olonRule, int counterIndex)
     {
-        string placeHolderName = "nmr_check";
+        string placeHolderName = "chk";
         var nmrCheckRules = new List<CheckRule>();
-        // Not sure if is negative can just be set to false.
-        var ruleHead = new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString()), true, false);
 
         var negator = new DualRuleGenerator();
 
-        var tmp = negator.GetAllVariablesNotInHead(olonRule);
-        var ruleProcessed = negator.MoveAtomsFromHeadToBody(olonRule, tmp);
+        var linkingVariables = negator.GetAllVariablesNotInHead(olonRule);
+        var ruleProcessed = negator.MoveAtomsFromHeadToBody(olonRule, linkingVariables);
+        
+        // Not sure if is negative can just be set to false.
+        var ruleHead = new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), ruleProcessed.Head.Atom.ParamList), true, false);
 
-        // All Body parts
-        for (int i = 0; i < olonRule.Body.Length; i++)
+        // All Body part Rules
+        for (int i = 0; i < ruleProcessed.Body.Length; i++)
         {
             var bodyParts = new BodyPart[i + 1];
 
             for (int j = 0; j < i; j++)
             {
-                bodyParts[j] = (BodyPart)olonRule.Body[j].Clone();
+                bodyParts[j] = (BodyPart)ruleProcessed.Body[j].Clone();
             }
 
-            bodyParts[i] = (BodyPart)olonRule.Body[i].Clone();
+            bodyParts[i] = (BodyPart)ruleProcessed.Body[i].Clone();
             negator.SwitchNegation(bodyParts[i]);
             nmrCheckRules.Add(new CheckRule((Literal)ruleHead.Clone(), bodyParts));
         }
 
-        // Move head to Body
-        var tmpList = olonRule.Body.ToList();
+        // Move head to Body Rule
+        var tmpList = ruleProcessed.Body.ToList();
         tmpList.Add(new BodyPart(olonRule.Head, null));
 
         nmrCheckRules.Add(new CheckRule(ruleHead, tmpList.ToArray()));
 
+        BodyPart body;
         // Add the overruling Rule
-        nmrCheckRules.Add(new CheckRule(new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString()), true, false), new BodyPart(new Literal(new Atoms.Atom("nmr_check" + counterIndex.ToString() + counterIndex.ToString()), true, false), null)));
+        if (linkingVariables.Count > 0)
+        {
+            // We need a forall rule here. 
+            body = negator.BuildForAllBody(ruleHead, linkingVariables);
+            
+            //Adds the forall rule itself
+            nmrCheckRules.Add(new CheckRule(new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), olonRule.Head.Atom.ParamList), true, false), body));
+        }
+
+        // That feels so fcking wrong.
+        body = new BodyPart(new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), nmrCheckRules.Last().Head.Atom.ParamList), true, false), null);
+
+        nmrCheckRules.Add(new CheckRule(new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString(), nmrCheckRules.Last().Head.Atom.ParamList), true, false), body));
         
         return nmrCheckRules.ToArray();
     }
