@@ -17,7 +17,7 @@ namespace Apollon.Lib
     {
 
         public IEnumerable<Statement>? ProcessedStatments { get; private set; }
-
+        public IResolution Resolution { get; set; } = new SLDResolution();
 
         public void Load(Program program)
         {
@@ -40,10 +40,9 @@ namespace Apollon.Lib
             {
                 throw new InvalidOperationException("No program loaded.");
             }
-            IResolution resolution = new SLDResolution();
             var goalsCopy = goals.Select(g => (BodyPart)g.Clone()).ToArray();
 
-            var res = resolution.Resolute(ProcessedStatments.ToArray(), goalsCopy);
+            var res = Resolution.Resolute(ProcessedStatments.ToArray(), goalsCopy);
 
             var unifier = new Unifier();
             Substitution sub = new Substitution();

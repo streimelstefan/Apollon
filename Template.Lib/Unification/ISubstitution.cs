@@ -1,5 +1,6 @@
 ﻿using Apollon.Lib.Atoms;
 using Apollon.Lib.Rules;
+using Apollon.Lib.Rules.Operations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,9 @@ namespace Apollon.Lib.Unification
     public interface ISubstitution
     {
         Statement Apply(Statement statement);
+        Literal Apply(Literal literal);
+
+        Operation Apply(Operation operation);
 
         void Add(Term variable, AtomParam term);
 

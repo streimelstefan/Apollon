@@ -1,27 +1,35 @@
-﻿using Apollon.Lib;
-using Apollon.Lib.Atoms;
+﻿using Apollon.Lib.Atoms;
 using Apollon.Lib.Rules;
-using Apollon.Lib.Unification;
+using Apollon.Lib;
 using AppollonParser;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Intrinsics;
 using System.Text;
 using System.Threading.Tasks;
+using Apollon.Lib.Resolution;
 
 namespace Apollon.Test.Integration
 {
     [TestFixture]
-    public class ParseToResult
+    internal class ParseToCoSLD
     {
 
         private Solver _solver = new Solver();
         private ApollonParser _parser = new ApollonParser();
 
+        [SetUp]
+        public void Setup()
+        {
+            _solver = new Solver();
+            _parser = new ApollonParser();
+
+            _solver.Resolution = new CoSLDResolution();
+        }
+
         [Test]
-        public void ShouldSuceed() 
+        public void ShouldSuceed()
         {
             var code = "p(a).\r\nq(X) :- p(X), r(X).\r\nr(a).";
             var program = _parser.ParseFromString(code);
@@ -83,6 +91,5 @@ namespace Apollon.Test.Integration
             Assert.IsNotNull(res.Substitution);
             Assert.AreEqual("{ X -> bob }", res.Substitution.ToString());
         }
-
     }
 }

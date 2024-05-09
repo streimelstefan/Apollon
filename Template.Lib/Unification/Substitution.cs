@@ -99,28 +99,29 @@ namespace Apollon.Lib.Unification
             }
             if (part.Operation != null)
             {
-                Apply(part.Operation);
+                ApplyOperation(part.Operation);
             }
         }
 
-        private void Apply(Operation operation)
+        private void ApplyOperation(Operation copy)
         {
-            if (operation.Variable.Term != null)
+
+            if (copy.Variable.Term != null)
             {
-                if (mappings.ContainsKey(operation.Variable.Term.Value))
+                if (mappings.ContainsKey(copy.Variable.Term.Value))
                 {
-                    operation.Variable = mappings[operation.Variable.Term.Value];
+                    copy.Variable = mappings[copy.Variable.Term.Value];
 
                     // make sure the operation variable is always a literal.
-                    if (operation.Variable.Term != null)
+                    if (copy.Variable.Term != null)
                     {
-                        operation.Variable = new AtomParam(new Literal(new Atom(operation.Variable.Term.Value), false, false));
+                        copy.Variable = new AtomParam(new Literal(new Atom(copy.Variable.Term.Value), false, false));
                     }
                 }
             }
-            if (operation.Variable.Literal != null)
+            if (copy.Variable.Literal != null)
             {
-                Apply(operation.Variable.Literal.Atom);
+                Apply(copy.Variable.Literal.Atom);
             }
         }
 
@@ -128,6 +129,23 @@ namespace Apollon.Lib.Unification
         public override string ToString()
         {
             return $"{{ {string.Join(", ", mappings.Select(kv => $"{kv.Key} -> {kv.Value}"))} }}";
+        }
+
+        public Literal Apply(Literal literal)
+        {
+            var copy = (Literal) literal.Clone();
+            Apply(copy.Atom);
+
+            return copy;
+        }
+
+        public Operation Apply(Operation operation)
+        {
+            var copy = (Operation)operation.Clone();
+
+            ApplyOperation(copy);
+
+            return copy;
         }
     }
 }
