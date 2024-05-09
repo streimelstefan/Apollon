@@ -6,7 +6,7 @@ using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Apollon.Lib.Resolution;
+namespace Apollon.Lib.Resolution.CallStackAndCHS;
 
 /// <summary>
 /// CHS steht für conductive hypothesis set.
@@ -30,6 +30,11 @@ public class CHS
     public CHS()
     {
         Literals = new List<Literal>();
+    }
+
+    public CHS(IEnumerable<Literal> literals)
+    {
+        Literals = new List<Literal>(literals);
     }
 
     public void Add(Literal literal)

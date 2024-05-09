@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Apollon.Lib.Resolution
+namespace Apollon.Lib.Resolution.CallStackAndCHS
 {
     public enum CCHSResult
     {

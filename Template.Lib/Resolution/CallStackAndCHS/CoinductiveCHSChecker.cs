@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Apollon.Lib.Resolution
+namespace Apollon.Lib.Resolution.CallStackAndCHS
 {
     public class CoinductiveCHSChecker : ICoinductiveCHSChecker
     {
@@ -27,7 +27,7 @@ namespace Apollon.Lib.Resolution
             // if there is no loop continue.
             if (!chs.Literals.Where(l => _unifer.Unify(literal, l).IsSuccess).Any()) return CCHSResult.Continue;
             var checkingChs = chs.Literals.TakeWhile(l => _unifer.Unify(l, literal).IsError).ToList();
-            
+
 
             if (IsEvenLoop(checkingChs))
             {

@@ -13,7 +13,7 @@ namespace Apollon.Lib;
 /// Eine PVL darf keine Variablen enthalten die selber negatively constrained sind(Also eine selber eine PVL mit Werten haben.
 /// Die PVL wie ihr Name vermuten lässt ist eine Liste an Werten die diese Variabel nicht annehmen darf. 
 /// </summary>
-public class PVL
+public class PVL : ICloneable
 {
     /// Linking to the variable should happen on the variable side.
 
@@ -25,6 +25,11 @@ public class PVL
     public PVL()
     {
         Values = new List<AtomParam>();
+    }
+
+    public PVL(IEnumerable<AtomParam> atomParams)
+    {
+        Values = new List<AtomParam>(atomParams);
     }
 
     /// <summary>
@@ -80,5 +85,10 @@ public class PVL
     public bool Empty()
     {
         return Values.Count == 0;
+    }
+
+    public object Clone()
+    {
+        return new PVL(Values.Select(p => new AtomParam(p.Literal, p.Term)));
     }
 }

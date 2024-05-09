@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Apollon.Lib;
 using Apollon.Lib.Atoms;
-using Apollon.Lib.Resolution;
+using Apollon.Lib.Resolution.CallStackAndCHS;
 
 namespace Template.Test;
 

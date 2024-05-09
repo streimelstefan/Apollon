@@ -1,8 +1,10 @@
 ﻿using Apollon.Lib.Atoms;
+using Apollon.Lib.Resolution.CallStackAndCHS;
 using Apollon.Lib.Rules;
 using Apollon.Lib.Rules.Operations;
 using Apollon.Lib.Unification;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +21,100 @@ namespace Apollon.Lib.Resolution
 
         public ResolutionResult Resolute(Statement[] statements, BodyPart[] goals)
         {
-            return RecResolution(statements, goals, new Substitution(), new CHS());
+            //return RecResolution(statements, goals, new Substitution(), new CHS());
+            return BetterResolute(statements, goals);
+        }
+
+        /// <summary>
+        /// TODO: Preprocess goals so the samly named variables have the same term object, so they share the same PVL.
+        /// </summary>
+        /// <param name="statements"></param>
+        /// <param name="goals"></param>
+        /// <returns></returns>
+        private ResolutionResult BetterResolute(Statement[] statements, BodyPart[] goals)
+        {
+            // 1. Peek last element of call stack with suff in appling rules
+            // 2. If Goal Literal
+            // 2.1. CHS Check with current Goal
+            // 2.2.1. If Succeed -> clear current Stacks appling rules
+            // 2.2.2. If Fail -> Pop call stack
+            // 2.3. Unify gal with first appling rule.
+            // 2.4. Take first element of first appling rule. If rule gets empty by duing so remove it.
+            // 2.5. Take first element of unified rule and add it as a new call stack item.
+            PreprocessOriginalGoals(goals);
+            var callStack = new CallStack();
+            // add all goals in reverse order
+            callStack.Items.AddRange(goals.Reverse().Select(g => new CallStack.CallStackItem(g, GetApplingRulesFor(g, statements))));
+            ISubstitution lastSub = new Substitution();
+
+            while (!callStack.NoMoreRulesToCheck() && !callStack.IsEmpty)
+            {
+                CallStack.CallStackItem currentStack;
+                currentStack = callStack.Peek();
+
+                if (currentStack.CurrentGoal.Literal != null)
+                {
+                    var chsCheck = _coinductiveCHSChecker.CheckCHSFor(currentStack.CurrentGoal.Literal, callStack.ConverToCHSWithoutFirstNotFinished());
+                    if (chsCheck == CCHSResult.Succeed)
+                    {
+                        currentStack.ApplingRules.Clear();
+                        continue;
+                    }
+                    if (chsCheck == CCHSResult.Fail)
+                    {
+                        callStack.Pop();
+                        continue;
+                    }
+
+                    var nextRule = currentStack.ApplingRules.Peek();
+                    var unificationRes = _unifier.Unify(nextRule.Head, currentStack.CurrentGoal.Literal);
+                    var substituted = unificationRes.Value.Apply(nextRule);
+
+                    lastSub = unificationRes.Value;
+
+                    nextRule.Body = nextRule.Body.Skip(1).ToArray();
+                    callStack.Add(substituted.Body[0], GetApplingRulesFor(substituted.Body[0], statements));
+
+                    if (nextRule.Body.Length == 0)
+                    {
+                        currentStack.ApplingRules.Dequeue();
+                    }
+                } else if (currentStack.CurrentGoal.Operation != null)
+                {
+                    callStack.Pop();
+                    if (!ResoluteOperation(currentStack.CurrentGoal.Operation, lastSub))
+                    {
+                        var caller = callStack.PeekFirstNonFinished();
+                        caller.ApplingRules.Dequeue();
+                    }
+                }
+            }
+
+            return new ResolutionResult(callStack.ConverToCHS(), new Substitution());
+        }
+
+        private Queue<Statement> GetApplingRulesFor(BodyPart goal, Statement[] statements)
+        {
+            if (goal.Literal == null)
+            {
+                return new Queue<Statement>();
+            }
+            return new Queue<Statement>(statements
+                .Where(s => s.Head != null && _unifier.Unify(goal.Literal, s.Head).IsSuccess)
+                .Select(s => (Statement)s.Clone()));
+        }
+
+        private void PreprocessOriginalGoals(BodyPart[] goals)
+        {
+            var variableIndex = 0;
+            foreach (var param in goals[0].Literal.Atom.ParamList)
+            {
+                if (param.Term != null && param.Term.IsVariable)
+                {
+                    param.Term.Value = $"RV/{variableIndex}";
+                    variableIndex++;
+                }
+            }
         }
 
         private CoResolutionResult RecResolution(Statement[] statements, BodyPart[] goals, ISubstitution substitution, CHS chs)
@@ -62,30 +157,6 @@ namespace Apollon.Lib.Resolution
 
         private CoResolutionResult ResoluteLiteral(Statement[] statements, Literal currentGoal, CHS chs)
         {
-            // check for chs failure or success
-            var chsCheck = _coinductiveCHSChecker.CheckCHSFor(currentGoal, chs);
-            if (chsCheck == CCHSResult.Succeed)
-            {
-                // we dont need to add the current goal again since it is already present once in the chs
-                // if we get here. 
-                return new CoResolutionResult(chs, new Substitution());
-            }
-            if (chsCheck == CCHSResult.Fail)
-            {
-                return new CoResolutionResult();
-            }
-            chs.Add(currentGoal);
-
-            var variableIndex = 0;
-            foreach (var param in currentGoal.Atom.ParamList)
-            {
-                if (param.Term != null && param.Term.IsVariable)
-                {
-                    param.Term.Value = $"RV/{variableIndex}";
-                    variableIndex++;
-                }
-            }
-
             foreach (var statement in statements)
             {
                 if (statement.Head == null)

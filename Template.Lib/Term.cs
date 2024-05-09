@@ -19,10 +19,14 @@ namespace Apollon.Lib
 
         public string Value { get; set; }
 
-        public Term(string value) 
+        public Term(string value) : this(value, new PVL())
         { 
+        }
+
+        public Term(string value, PVL pVL)
+        {
             Value = value;
-            ProhibitedValues = new PVL();
+            ProhibitedValues = pVL;
         }
 
         public override string ToString()
@@ -45,7 +49,7 @@ namespace Apollon.Lib
 
         public object Clone()
         {
-            return new Term((string)Value.Clone());
+            return new Term((string)Value.Clone(), (PVL)ProhibitedValues.Clone());
         }
     }
 }
