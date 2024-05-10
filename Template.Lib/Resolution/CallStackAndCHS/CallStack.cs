@@ -26,14 +26,14 @@ namespace Apollon.Lib.Resolution.CallStackAndCHS
             Items = new List<CallStackItem>();
         }
 
-        public void Add(BodyPart currentGoal, Queue<Statement> applingRules)
+        public void Add(BodyPart currentGoal, Queue<Statement> applingRules, ISubstitution applyingSubstitution)
         {
             if (Items.Select(i => i.CurrentGoal).Where(l => Unifier.Unify(l, currentGoal).IsSuccess).Any()) // if there is another literal in the chs that can be unified.
             {
                 throw new ArgumentException("Literal already in CHS."); // Check is proffiecient, as shown in Tests.
             }
 
-            Items.Add(new CallStackItem(currentGoal, applingRules));
+            Items.Add(new CallStackItem(currentGoal, applingRules, applyingSubstitution));
         }
 
 
@@ -72,14 +72,14 @@ namespace Apollon.Lib.Resolution.CallStackAndCHS
         public CHS ConverToCHS()
         {
             // warning can be ignored literal in the goal needs has to be set.
-            return new CHS(Items.Where(i => i.CurrentGoal.Literal != null).Select(i => i.CurrentGoal.Literal));
+            return new CHS(Items.Where(i => i.CurrentGoal.Literal != null).Select(i => i.ApplingSubstitution.Apply(i.CurrentGoal.Literal)));
         }
 
-        public CHS ConverToCHSWithoutFirstNotFinished()
+        public CHS ConvertToCHSWithoutLast()
         {
             // warning can be ignored literal in the goal needs has to be set.
-            var notFinished = PeekFirstNonFinished();
-            return new CHS(Items.Where(i => i.CurrentGoal.Literal != null && i != notFinished).Select(i => i.CurrentGoal.Literal));
+            var last = Items.Last();
+            return new CHS(Items.Where(i => i.CurrentGoal.Literal != null).TakeWhile(i => i != last).Select(i => i.ApplingSubstitution.Apply(i.CurrentGoal.Literal)));
         }
 
         public class CallStackItem
@@ -87,15 +87,18 @@ namespace Apollon.Lib.Resolution.CallStackAndCHS
             public BodyPart CurrentGoal { get; private set; }
             public Queue<Statement> ApplingRules { get; private set; }
 
-            public CallStackItem(BodyPart goal, Queue<Statement> applingRules)
+            public ISubstitution ApplingSubstitution { get; private set; }
+
+            public CallStackItem(BodyPart goal, Queue<Statement> applingRules, ISubstitution applingSubstitution)
             {
                 CurrentGoal = goal;
                 ApplingRules = applingRules;
+                ApplingSubstitution = applingSubstitution;
             }
 
             public override string ToString()
             {
-                return $"{CurrentGoal}, T = [{string.Join(", ", ApplingRules.Select(rule => rule.ToString()))}]!";
+                return $"{CurrentGoal} ({ApplingSubstitution}), T = [{string.Join(", ", ApplingRules.Select(rule => rule.ToString()))}]!";
             }
         }
     }

@@ -44,8 +44,8 @@ namespace Apollon.Lib.Resolution
             PreprocessOriginalGoals(goals);
             var callStack = new CallStack();
             // add all goals in reverse order
-            callStack.Items.AddRange(goals.Reverse().Select(g => new CallStack.CallStackItem(g, GetApplingRulesFor(g, statements))));
-            ISubstitution lastSub = new Substitution();
+            callStack.Items.AddRange(goals.Reverse().Select(g => new CallStack.CallStackItem(g, GetApplingRulesFor(g, statements), new Substitution())));
+            CCHSResult lastCallRes = CCHSResult.Continue;
 
             while (!callStack.NoMoreRulesToCheck() && !callStack.IsEmpty)
             {
@@ -54,38 +54,58 @@ namespace Apollon.Lib.Resolution
 
                 if (currentStack.CurrentGoal.Literal != null)
                 {
-                    var chsCheck = _coinductiveCHSChecker.CheckCHSFor(currentStack.CurrentGoal.Literal, callStack.ConverToCHSWithoutFirstNotFinished());
-                    if (chsCheck == CCHSResult.Succeed)
+                    var currentGoal = currentStack.ApplingSubstitution.Apply(currentStack.CurrentGoal.Literal);
+                    var chsCheck = _coinductiveCHSChecker.CheckCHSFor(
+                        currentGoal, 
+                        lastCallRes == CCHSResult.Continue ? callStack.ConvertToCHSWithoutLast() : callStack.ConverToCHS());
+                    if (lastCallRes != CCHSResult.Fail && chsCheck == CCHSResult.Succeed)
                     {
                         currentStack.ApplingRules.Clear();
+                        lastCallRes = CCHSResult.Succeed;
                         continue;
                     }
-                    if (chsCheck == CCHSResult.Fail)
+                    if (lastCallRes != CCHSResult.Fail && chsCheck == CCHSResult.Fail)
                     {
                         callStack.Pop();
+                        lastCallRes = CCHSResult.Fail;
                         continue;
+                    }
+
+                    if (lastCallRes == CCHSResult.Fail)
+                    {
+                        currentStack.ApplingRules.TryDequeue(out _);
+                        if (currentStack.ApplingRules.Count() == 0)
+                        {
+                            lastCallRes = CCHSResult.Fail;
+                            callStack.Pop();
+                            continue;
+                        }
                     }
 
                     var nextRule = currentStack.ApplingRules.Peek();
-                    var unificationRes = _unifier.Unify(nextRule.Head, currentStack.CurrentGoal.Literal);
+                    var unificationRes = _unifier.Unify(nextRule.Head, currentGoal);
                     var substituted = unificationRes.Value.Apply(nextRule);
 
-                    lastSub = unificationRes.Value;
-
-                    nextRule.Body = nextRule.Body.Skip(1).ToArray();
-                    callStack.Add(substituted.Body[0], GetApplingRulesFor(substituted.Body[0], statements));
-
+                    BodyPart nextGoal;
                     if (nextRule.Body.Length == 0)
                     {
-                        currentStack.ApplingRules.Dequeue();
+                        lastCallRes = CCHSResult.Succeed;
+                        continue;
+                    } else
+                    {
+                        nextGoal = nextRule.Body[0];
                     }
+                    nextRule.Body = nextRule.Body.Skip(1).ToArray();
+                    callStack.Add(nextGoal, GetApplingRulesFor(substituted.Body[0], statements), unificationRes.Value);
+
+                    lastCallRes = CCHSResult.Continue;
                 } else if (currentStack.CurrentGoal.Operation != null)
                 {
                     callStack.Pop();
-                    if (!ResoluteOperation(currentStack.CurrentGoal.Operation, lastSub))
+                    if (!ResoluteOperation(currentStack.CurrentGoal.Operation, currentStack.ApplingSubstitution))
                     {
                         var caller = callStack.PeekFirstNonFinished();
-                        caller.ApplingRules.Dequeue();
+                        lastCallRes = CCHSResult.Fail;
                     }
                 }
             }
