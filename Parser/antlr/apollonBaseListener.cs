@@ -48,6 +48,18 @@ public partial class apollonBaseListener : IapollonListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitProgram([NotNull] apollonParser.ProgramContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.query"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterQuery([NotNull] apollonParser.QueryContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.query"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitQuery([NotNull] apollonParser.QueryContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="apollonParser.statement"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

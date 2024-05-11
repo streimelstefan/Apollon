@@ -19,6 +19,10 @@ namespace Apollon.Lib
         public IEnumerable<Statement>? ProcessedStatments { get; private set; }
         public IResolution Resolution { get; set; } = new SLDResolution();
 
+        public IVariableLinker VariableLinker { get; set; } = new VariableLinker();
+
+        public Program LoadedProgram { get; private set; }
+
         public void Load(Program program)
         {
             IDualRuleGenerator dualRuleGenerator = new DualRuleGenerator();
@@ -31,7 +35,8 @@ namespace Apollon.Lib
             var processedRules = rulePreprocessor.SetMetadataOn(program.RuleTypesAsStatements.ToArray());
             var dualRules = dualRuleGenerator.GenerateDualRules(program.Statements.ToArray());
 
-            ProcessedStatments = program.Statements.Union(dualRules).ToArray();
+            ProcessedStatments = program.Statements.Union(dualRules).Select(s => VariableLinker.LinkVariables(s)).ToArray();
+            LoadedProgram = program;
         }
 
         public ResolutionResult Solve(BodyPart[] goals)
@@ -40,13 +45,20 @@ namespace Apollon.Lib
             {
                 throw new InvalidOperationException("No program loaded.");
             }
-            var goalsCopy = goals.Select(g => (BodyPart)g.Clone()).ToArray();
+            var linkedGoals = VariableLinker.LinkVariables(new Statement(null, goals)).Body;
+            var goalsCopy = linkedGoals.Select(g => (BodyPart)g.Clone()).ToArray();
 
             var res = Resolution.Resolute(ProcessedStatments.ToArray(), goalsCopy);
 
+            return PostProcessResult(goals, res);
+        }
+
+        private ResolutionResult PostProcessResult(BodyPart[] goals, ResolutionResult res)
+        {
+            // get the values of the variables of the query. as the result has the variables filled in.
             var unifier = new Unifier();
             Substitution sub = new Substitution();
-            foreach (var goal in  goals)
+            foreach (var goal in goals)
             {
                 foreach (var literal in res.CHS.Literals)
                 {
@@ -64,8 +76,10 @@ namespace Apollon.Lib
                 }
             }
 
-            return new ResolutionResult(res.CHS, sub);
-        }
+            // remove all answers that are not in the original program
+            var final = res.CHS.Literals.Where(l => LoadedProgram.AllLiterals.Where(pl => unifier.Unify(pl, l).IsSuccess).Any());
 
+            return new ResolutionResult(new CHS(final), sub);
+        }
     }
 }

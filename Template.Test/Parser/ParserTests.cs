@@ -219,5 +219,68 @@ namespace Template.Test.Parser
             Assert.AreEqual(2, program.RuleList.Length);
             Assert.AreEqual(0, program.ConstraintList.Length);
         }
+
+        [Test]
+        public void ShouldParseQuery()
+        {
+            var query = _parser.ParseQueryFromString("a(X).");
+
+            Assert.IsNotNull(query);
+            Assert.AreEqual(1, query.Length);
+            Assert.AreEqual("a(X)", query[0].ToString());
+        }
+
+        [Test]
+        public void ShouldParseOperation()
+        {
+            var query = _parser.ParseQueryFromString("X = a.");
+
+            Assert.IsNotNull(query);
+            Assert.AreEqual("X = a()", query[0].ToString());
+        }
+
+        [Test]
+        public void ShouldParseForAllAsLiteral()
+        {
+            var query = _parser.ParseQueryFromString("forall(X, b(X))."); 
+            
+            Assert.IsNotNull(query);
+            Assert.AreEqual(1, query.Length);
+            Assert.IsFalse(query[0].IsForAll);
+            Assert.IsTrue(query[0].IsLiteral);
+        }
+
+        [Test]
+        public void ShouldParseMultiGoalQuery()
+        {
+            var query = _parser.ParseQueryFromString("a(X), b(a).");
+
+            Assert.IsNotNull(query);
+            Assert.AreEqual(2, query.Length);
+            Assert.AreEqual("a(X)", query[0].ToString());
+            Assert.AreEqual("b(a)", query[1].ToString());
+        }
+
+        [Test]
+        public void ShouldParseGoalWithNestedLiteral()
+        {
+            var query = _parser.ParseQueryFromString("a(c(X)).");
+
+            Assert.IsNotNull(query);
+            Assert.AreEqual(1, query.Length);
+            Assert.AreEqual("a(c(X))", query[0].ToString());
+        }
+
+        [Test]
+        public void ShouldParseQueryWithOperationsAndLiterals()
+        {
+            var query = _parser.ParseQueryFromString("a(X), X = a.");
+
+            Assert.IsNotNull(query);
+            Assert.AreEqual(2, query.Length);
+            Assert.AreEqual("a(X)", query[0].ToString());
+            Assert.AreEqual("X = a()", query[1].ToString());
+        }
+
     }
 }

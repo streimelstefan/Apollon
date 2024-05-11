@@ -41,6 +41,16 @@ public interface IapollonListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitProgram([NotNull] apollonParser.ProgramContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.query"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterQuery([NotNull] apollonParser.QueryContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.query"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitQuery([NotNull] apollonParser.QueryContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="apollonParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

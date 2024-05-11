@@ -3,6 +3,7 @@ using Apollon.Lib.Rules;
 using Apollon.Lib.Rules.Operations;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -67,7 +68,16 @@ namespace Apollon.Lib.Unification
                     return param;
                 }
 
-                return mappings[param.Term.Value];
+                var setting =  mappings[param.Term.Value];
+
+                if (setting.Term != null && setting.Term.IsVariable)
+                {
+                    PVL.Union(setting.Term.ProhibitedValues, param.Term.ProhibitedValues);
+
+                    return setting;
+                }
+
+                return setting;
             }
 
             if (param.Literal != null)
@@ -110,7 +120,15 @@ namespace Apollon.Lib.Unification
             {
                 if (mappings.ContainsKey(copy.Variable.Term.Value))
                 {
-                    copy.Variable = mappings[copy.Variable.Term.Value];
+                    var mapped = mappings[copy.Variable.Term.Value];
+
+                    if (mapped.Term != null && mapped.Term.IsVariable)
+                    {
+                        PVL.Union(mapped.Term.ProhibitedValues, copy.Variable.Term.ProhibitedValues);
+                    }
+
+                    copy.Variable = mapped;
+
 
                     // make sure the operation variable is always a literal.
                     if (copy.Variable.Term != null)

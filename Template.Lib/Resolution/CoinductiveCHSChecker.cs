@@ -26,7 +26,7 @@ namespace Apollon.Lib.Resolution
 
             // if there is no loop continue.
             if (!chs.Literals.Where(l => _unifer.Unify(literal, l).IsSuccess).Any()) return CCHSResult.Continue;
-            var checkingChs = chs.Literals.TakeWhile(l => _unifer.Unify(l, literal).IsError).ToList();
+            var checkingChs = chs.Literals.SkipWhile(l => _unifer.Unify(l, literal).IsError).Skip(1).ToList();
             
 
             if (IsEvenLoop(checkingChs))
@@ -50,7 +50,7 @@ namespace Apollon.Lib.Resolution
 
         private bool IsPositiveLoop(IEnumerable<Literal> chs)
         {
-            return !chs.Where(l => l.IsNAF).Any();
+            return !chs.Where(l => l.IsNAF).Any() && chs.Count() > 0;
         }
 
         private bool IsPresentWithNAFSwitch(Literal literal, CHS chs)

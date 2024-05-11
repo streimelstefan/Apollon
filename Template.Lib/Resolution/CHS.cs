@@ -32,6 +32,11 @@ public class CHS
         Literals = new List<Literal>();
     }
 
+    public CHS(IEnumerable<Literal> literals)
+    {
+        Literals = new List<Literal>(literals);
+    }
+
     public void Add(Literal literal)
     {
         if (Literals.Where(l => Unifier.Unify(l, literal).IsSuccess).Any()) // if there is another literal in the chs that can be unified.
