@@ -19,12 +19,25 @@ namespace Apollon.Lib.Resolution
 
         public ResolutionResult Resolute(Statement[] statements, BodyPart[] goals)
         {
-            return RecResolution(statements, goals, new Substitution(), new CHS());
+            var res = RecResolution(statements, goals, new Substitution(), new CHS());
+
+            if (res.CHS.IsEmpty)
+            {
+                return new ResolutionResult();
+            }
+
+            return new ResolutionResult(res.Result, new Substitution());
+        }
+
+        private void PreprocessGoals(BodyPart[] goals)
+        {
+            var variables = new Dictionary<string, Term>();
+
         }
 
         private CoResolutionResult RecResolution(Statement[] statements, BodyPart[] goals, ISubstitution substitution, CHS chs)
         {
-
+            var result = new CHS();
             foreach (var currentGoal in goals)
             {
                 CoResolutionResult newChs;
@@ -51,24 +64,26 @@ namespace Apollon.Lib.Resolution
                 }
 
                 chs.SafeUnion(newChs.CHS);
+                result.SafeUnion(newChs.Result);
                 foreach (var mapping in newChs.Substitution.Mappings)
                 {
                     substitution.Add(mapping.Variable, mapping.MapsTo);
                 }
             }
 
-            return new CoResolutionResult(chs, substitution);
+            return new CoResolutionResult(chs, substitution, result);
         }
 
         private CoResolutionResult ResoluteLiteral(Statement[] statements, Literal currentGoal, CHS chs)
         {
             // check for chs failure or success
             var chsCheck = _coinductiveCHSChecker.CheckCHSFor(currentGoal, chs);
+            var result = new CHS();
             if (chsCheck == CCHSResult.Succeed)
             {
                 // we dont need to add the current goal again since it is already present once in the chs
                 // if we get here. 
-                return new CoResolutionResult(chs, new Substitution());
+                return new CoResolutionResult(chs, new Substitution(), result);
             }
             if (chsCheck == CCHSResult.Fail)
             {
@@ -108,13 +123,12 @@ namespace Apollon.Lib.Resolution
 
                 if (recChs.CHS.IsEmpty && substituted.Body.Length != 0) // if new goals is empty. The current goals was a fact and can be added to the chs.
                 {
-                    //chs.Pop(); // remove current head again since this call did not succeed.
                     continue;
                 }
+                result.SafeUnion(recChs.Result);
+                result.Add(recChs.Substitution.Apply(currentGoal));
 
-                chs.SafeUnion(recChs.CHS);
-
-                return new CoResolutionResult(chs, unificationRes.Value);
+                return new CoResolutionResult(chs, unificationRes.Value, result);
             }
 
             chs.Pop();

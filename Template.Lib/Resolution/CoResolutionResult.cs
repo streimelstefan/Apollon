@@ -9,11 +9,14 @@ namespace Apollon.Lib.Resolution
 {
     public class CoResolutionResult : ResolutionResult
     {
-        public CoResolutionResult(CHS chs, ISubstitution substitution) : base(chs, substitution)
+        public CHS Result { get; set; }
+
+        public CoResolutionResult(CHS chs, ISubstitution substitution, CHS result) : base(chs, substitution)
         {
+            Result = result;
         }
 
-        public CoResolutionResult() : this(new CHS(), new Substitution())
+        public CoResolutionResult() : this(new CHS(), new Substitution(), new CHS())
         {
         }
     }
