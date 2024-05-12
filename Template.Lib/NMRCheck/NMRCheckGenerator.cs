@@ -17,7 +17,7 @@ namespace Apollon.Lib.NMRCheck;
 /// </summary>
 public class NMRCheckGenerator : INMRCheckGenerator
 {
-    public CheckRule[] GenerateNMRCheckRules(PreprocessedStatement[] preprocessedStatements)
+    public Statement[] GenerateNMRCheckRules(PreprocessedStatement[] preprocessedStatements)
     {
         // Can preprocessedStatements be null? 
         var olonRules = preprocessedStatements.Where(x => x.IsOlonRule);
@@ -93,7 +93,7 @@ public class NMRCheckGenerator : INMRCheckGenerator
         return nmrCheckRules.ToArray();
     }
 
-    private CheckRule GenerateGeneralRule(List<CheckRule> rules)
+    private Statement GenerateGeneralRule(List<CheckRule> rules)
     {
         var bodyParts = new List<BodyPart>();
         var dualRules = new DualRuleGenerator();
@@ -112,6 +112,6 @@ public class NMRCheckGenerator : INMRCheckGenerator
         }
 
 
-        return new CheckRule(new Literal(new Atoms.Atom("nmr_check"), true, false), bodyParts.ToArray());
+        return new Statement(new Literal(new Atoms.Atom("nmr_check"), true, false), bodyParts.ToArray());
     }
 }

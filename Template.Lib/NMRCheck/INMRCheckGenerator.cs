@@ -9,5 +9,5 @@ namespace Apollon.Lib.NMRCheck;
 
 public interface INMRCheckGenerator
 {
-    CheckRule[] GenerateNMRCheckRules(PreprocessedStatement[] preprocessedStatements);
+    Statement[] GenerateNMRCheckRules(PreprocessedStatement[] preprocessedStatements);
 }
