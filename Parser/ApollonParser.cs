@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Apollon.Lib;
 using AppollonParser.Visitors;
+using Apollon.Lib.Rules;
 
 namespace AppollonParser
 {
@@ -43,6 +44,21 @@ namespace AppollonParser
             var tree = parser.program();
             
             return tree.Accept(new ProgramVisitor());
+        }
+
+        public BodyPart[] ParseQueryFromString(string query)
+        {
+            return ParseQueryFromStream(CharStreams.fromString(query));
+        }
+
+        private BodyPart[] ParseQueryFromStream(ICharStream stream)
+        {
+            var lexer = new apollonLexer(stream);
+            var tokens = new CommonTokenStream(lexer);
+            var parser = new apollonParser(tokens);
+            var tree = parser.query();
+
+            return tree.Accept(new QueryVisitor());
         }
 
     }

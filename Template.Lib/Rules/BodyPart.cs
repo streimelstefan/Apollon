@@ -14,7 +14,7 @@ namespace Apollon.Lib.Rules
 
         public Operation? Operation { get; private set; }
 
-        public Term? ForAll { get; private set; }
+        public Term? ForAll { get; set; }
 
         public BodyPart? Child {  get; private set; }
 

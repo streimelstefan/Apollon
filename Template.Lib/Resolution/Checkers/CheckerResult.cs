@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Apollon.Lib.Resolution.CallStackAndCHS
+namespace Apollon.Lib.Resolution.Checkers
 {
-    public enum CCHSResult
+    public enum CheckerResult
     {
         Succeed,
         Fail,

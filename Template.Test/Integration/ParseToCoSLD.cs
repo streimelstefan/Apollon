@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Apollon.Lib.Resolution;
+using Apollon.Lib.Resolution.CoSLD;
 
 namespace Apollon.Test.Integration
 {
@@ -90,6 +91,35 @@ namespace Apollon.Test.Integration
 
             Assert.IsNotNull(res.Substitution);
             Assert.AreEqual("{ X -> bob }", res.Substitution.ToString());
+        }
+
+        [Test]
+        public void ShouldRunPQLoop()
+        {
+            var code = "p(X) :- not q(X).\r\nq(X) :- not p(X).";
+            var query = _parser.ParseQueryFromString("p(X).");
+            var program = _parser.ParseFromString(code);
+            _solver.Load(program);
+
+            var res = _solver.Solve(query);
+
+            Assert.IsFalse(res.CHS.IsEmpty);
+            Assert.AreEqual("not q(RV/0)", res.CHS.Literals[0].ToString());
+            Assert.AreEqual("p(RV/0)", res.CHS.Literals[1].ToString());
+            Assert.AreEqual("{ X -> RV/0 }", res.Substitution.ToString());
+        }
+
+        [Test]
+        public void ShouldRunLoopVar()
+        {
+            var code = "p(X) :- not q(X).\r\nq(X) :- not p(X).\r\nr(X) :- X != 3, X != 4, q(X).";
+            var query = _parser.ParseQueryFromString("p(X), r(Y).");
+            var program = _parser.ParseFromString(code);
+            _solver.Load(program);
+
+            var res = _solver.Solve(query);
+
+            Assert.IsFalse(res.CHS.IsEmpty);
         }
     }
 }

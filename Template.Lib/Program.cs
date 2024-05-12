@@ -34,6 +34,18 @@ namespace Apollon.Lib
             }
         }
 
+        public IEnumerable<Literal> AllLiterals
+        {
+            get
+            {
+#pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
+                return Statements
+                    .SelectMany(s => s.Body.Where(b => b.Literal != null).Select(b => b.Literal))
+                    .Union(Statements.Where(s => s.Head != null).Select(s => s.Head));
+#pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
+            }
+        }
+
 
         public Program(Literal[] literalList, Rule[] ruleList, Constraint[] constraints)
         {

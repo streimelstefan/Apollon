@@ -20,18 +20,24 @@ namespace Apollon.Lib
         public string Value { get; set; }
 
         public Term(string value) : this(value, new PVL())
-        { 
+        {
         }
 
         public Term(string value, PVL pVL)
         {
             Value = value;
+            ProhibitedValues = new PVL();
             ProhibitedValues = pVL;
         }
 
         public override string ToString()
         {
-            return Value;
+            if (ProhibitedValues.Empty()) {
+                return Value;
+            } else
+            {
+                return $"{Value} - {{{ProhibitedValues}}}";
+            }
         }
 
 
@@ -39,7 +45,7 @@ namespace Apollon.Lib
         {
             if (other == null) return false;
 
-            return Value == other.Value;
+            return Value == other.Value && ProhibitedValues.Equals(other.ProhibitedValues);
         }
 
         public bool IsNegativelyConstrained()

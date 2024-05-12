@@ -38,6 +38,12 @@ public interface IapollonVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitProgram([NotNull] apollonParser.ProgramContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="apollonParser.query"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitQuery([NotNull] apollonParser.QueryContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="apollonParser.statement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

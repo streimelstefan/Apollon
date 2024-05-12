@@ -9,7 +9,7 @@ namespace Apollon.Lib.Atoms
     public class AtomParam : IEquatable<AtomParam>, ICloneable
     {
         public Literal? Literal { get; private set; }
-        public Term? Term { get; private set; }
+        public Term? Term { get; set; }
 
         public bool IsLiteral { get {  return Literal != null; } }
 

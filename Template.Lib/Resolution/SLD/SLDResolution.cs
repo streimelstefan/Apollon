@@ -2,6 +2,7 @@
 using Apollon.Lib.Rules;
 using Apollon.Lib.Rules.Operations;
 using Apollon.Lib.Unification;
+using Apollon.Lib.Unification.Substitutioners;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Apollon.Lib.Resolution
+namespace Apollon.Lib.Resolution.SLD
 {
     public class SLDResolution : IResolution
     {
@@ -22,21 +23,23 @@ namespace Apollon.Lib.Resolution
         {
             var chs = new CHS();
             var substitution = new Substitution();
-         
+
             foreach (var currentGoal in goals)
             {
                 ResolutionResult newChs;
                 if (currentGoal.Literal != null)
                 {
                     newChs = ResoluteLiteral(statements, currentGoal.Literal);
-                } else if (currentGoal.Operation != null)
+                }
+                else if (currentGoal.Operation != null)
                 {
                     if (!ResoluteOperation(currentGoal.Operation))
                     {
                         return new ResolutionResult();
                     }
                     continue;
-                } else
+                }
+                else
                 {
                     throw new InvalidOperationException("TODO: Implement Forall");
                 }
@@ -112,7 +115,8 @@ namespace Apollon.Lib.Resolution
             if (operation.Operator == Operator.Equals)
             {
                 return operation.Condition.Equals(operation.Variable.Literal);
-            } else
+            }
+            else
             {
                 return !operation.Condition.Equals(operation.Variable.Literal);
             }

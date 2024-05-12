@@ -2,6 +2,8 @@ grammar apollon;
 
 // Parser rules
 program: statement* EOF;
+query: body_part (',' body_part)* '.' EOF;
+
 statement: fact | rule | constraint | COMMENT;
 fact: literal '.';
 rule: head ':-' body '.';
