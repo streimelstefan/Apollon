@@ -5,6 +5,7 @@ using Apollon.Lib.NMRCheck;
 using Apollon.Lib.OLON;
 using Apollon.Lib.Resolution;
 using Apollon.Lib.Resolution.CallStackAndCHS;
+using Apollon.Lib.Resolution.CoSLD;
 using Apollon.Lib.Resolution.SLD;
 using Apollon.Lib.Rules;
 using Apollon.Lib.Unification;
@@ -16,13 +17,13 @@ namespace Apollon.Lib
     {
 
         public IEnumerable<Statement>? ProcessedStatments { get; private set; }
-        public IResolution Resolution { get; set; } = new SLDResolution();
+        public IResolution Resolution { get; set; } = new CoSLDResolution();
 
         public IVariableLinker VariableLinker { get; set; } = new VariableLinker();
 
         public INMRCheckGenerator nmrCheckGenerator { get; set; } = new NMRCheckGenerator();
 
-        private CheckRule? NMRCheck { get; set; }
+        private Statement? NMRCheck { get; set; }
 
         public Program? LoadedProgram { get; private set; }
 
@@ -31,7 +32,6 @@ namespace Apollon.Lib
             IDualRuleGenerator dualRuleGenerator = new DualRuleGenerator();
 
             var callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
-
             var olons = OlonDetector.DetectOlonIn(callGraph);
 
             var rulePreprocessor = new RuleMetadataSetter(callGraph, olons);
@@ -39,7 +39,7 @@ namespace Apollon.Lib
             var dualRules = dualRuleGenerator.GenerateDualRules(program.Statements.ToArray());
             var nmrRules = nmrCheckGenerator.GenerateNMRCheckRules(processedRules);
 
-            //NMRCheck = nmrRules.Last();
+            NMRCheck = nmrRules.Last();
             ProcessedStatments = program.Statements.Union(dualRules).Union(nmrRules).Select(s => VariableLinker.LinkVariables(s)).ToArray();
             LoadedProgram = program;
         }
@@ -52,9 +52,9 @@ namespace Apollon.Lib
             }
             var linkedGoals = VariableLinker.LinkVariables(new Statement(null, goals)).Body;
 
-            //var NMRCheckGoal = new BodyPart(((CheckRule)NMRCheck.Clone()).Head, null);
+            var NMRCheckGoal = new BodyPart(((Statement)NMRCheck.Clone()).Head, null);
             var goalsCopy = linkedGoals.Select(g => (BodyPart)g.Clone())
-                //.Append(NMRCheckGoal)
+                .Append(NMRCheckGoal)
                 .ToArray();
 
             var res = Resolution.Resolute(ProcessedStatments.ToArray(), goalsCopy);

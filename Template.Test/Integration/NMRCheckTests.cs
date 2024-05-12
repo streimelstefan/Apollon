@@ -33,7 +33,7 @@ public class NMRCheckTests
         var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray());
         var nmrCheckRulesString = nmrCheckRules.Select(x => x.ToString()).ToArray();
 
-        Assert.AreEqual(7, nmrCheckRules.Length);
+        Assert.AreEqual(8, nmrCheckRules.Length);
         Assert.Contains("not chk22() :- not q().", nmrCheckRulesString);
         Assert.Contains("not chk22() :- q(), not d().", nmrCheckRulesString);
         Assert.Contains("not chk22() :- q(), d(), p().", nmrCheckRulesString);
@@ -41,6 +41,7 @@ public class NMRCheckTests
         Assert.Contains("not chk11() :- p().", nmrCheckRulesString);
         Assert.Contains("not chk11() :- not p(), q().", nmrCheckRulesString);
         Assert.Contains("not chk1() :- not chk11().", nmrCheckRulesString);
+        Assert.AreEqual("nmr_check() :- not chk1(), not chk2().", nmrCheckRulesString[7]);
     }
 
     [Test]
@@ -59,7 +60,7 @@ public class NMRCheckTests
         var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray());
         var nmrCheckRulesString = nmrCheckRules.Select(x => x.ToString()).ToArray();
 
-        Assert.AreEqual(9, nmrCheckRules.Length);
+        Assert.AreEqual(10, nmrCheckRules.Length);
         Assert.Contains("not chk11(X, Z) :- not b(X, Z).", nmrCheckRulesString);
         Assert.Contains("not chk11(X, Z) :- b(X, Z), c(Z, X).", nmrCheckRulesString);
         Assert.Contains("not chk11(X, Z) :- b(X, Z), not c(Z, X), a(X).", nmrCheckRulesString);
@@ -69,5 +70,6 @@ public class NMRCheckTests
         Assert.Contains("not chk22(X, V/0) :- V/0 = b(), not a(X).", nmrCheckRulesString);
         Assert.Contains("not chk22(X, V/0) :- V/0 = b(), a(X), c(X, b).", nmrCheckRulesString);
         Assert.Contains("not chk2(X, V/0) :- not chk22(X, V/0).", nmrCheckRulesString);
+        Assert.AreEqual("nmr_check() :- forall(X, not chk1(X)), forall(X, forall(V/0, not chk2(X, V/0))).", nmrCheckRulesString[9]);
     }
 }

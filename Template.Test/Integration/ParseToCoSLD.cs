@@ -25,8 +25,6 @@ namespace Apollon.Test.Integration
         {
             _solver = new Solver();
             _parser = new ApollonParser();
-
-            _solver.Resolution = new CoSLDResolution();
         }
 
         [Test]

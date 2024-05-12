@@ -22,8 +22,8 @@ public class NMRCheckGenerator : INMRCheckGenerator
         // Can preprocessedStatements be null? 
         var olonRules = preprocessedStatements.Where(x => x.IsOlonRule);
 
-        var nmrCheckRules = new List<CheckRule>();
-        var generalRules = new List<CheckRule>();
+        var nmrCheckRules = new List<Statement>();
+        var generalRules = new List<Statement>();
         int counter = 1;
 
         foreach (var olonRule in olonRules)
@@ -36,6 +36,7 @@ public class NMRCheckGenerator : INMRCheckGenerator
 
         // Generate the NMR Rule
         var generalRule = GenerateGeneralRule(generalRules);
+        nmrCheckRules.Add(generalRule);
 
         return nmrCheckRules.ToArray();
     }
@@ -93,7 +94,7 @@ public class NMRCheckGenerator : INMRCheckGenerator
         return nmrCheckRules.ToArray();
     }
 
-    private Statement GenerateGeneralRule(List<CheckRule> rules)
+    private Statement GenerateGeneralRule(List<Statement> rules)
     {
         var bodyParts = new List<BodyPart>();
         var dualRules = new DualRuleGenerator();
@@ -112,6 +113,6 @@ public class NMRCheckGenerator : INMRCheckGenerator
         }
 
 
-        return new Statement(new Literal(new Atoms.Atom("nmr_check"), true, false), bodyParts.ToArray());
+        return new Statement(new Literal(new Atoms.Atom("nmr_check"), false, false), bodyParts.ToArray());
     }
 }

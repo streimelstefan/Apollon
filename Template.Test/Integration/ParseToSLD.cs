@@ -1,5 +1,7 @@
 ﻿using Apollon.Lib;
 using Apollon.Lib.Atoms;
+using Apollon.Lib.Resolution.CoSLD;
+using Apollon.Lib.Resolution.SLD;
 using Apollon.Lib.Rules;
 using Apollon.Lib.Unification;
 using AppollonParser;
@@ -19,6 +21,15 @@ namespace Apollon.Test.Integration
 
         private Solver _solver = new Solver();
         private ApollonParser _parser = new ApollonParser();
+
+        [SetUp]
+        public void SetUp()
+        {
+            _solver = new Solver();
+            _parser = new ApollonParser();
+
+            _solver.Resolution = new SLDResolution();
+        }
 
         [Test]
         public void ShouldSuceed() 
