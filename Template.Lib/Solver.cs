@@ -20,7 +20,7 @@ namespace Apollon.Lib
 
         public IVariableLinker VariableLinker { get; set; } = new VariableLinker();
 
-        public INMRCheckerGenerator nmrCheckGenerator { get; set; } = new NMRCheckerGenerator();
+        public INMRCheckGenerator nmrCheckGenerator { get; set; } = new NMRCheckGenerator();
 
         private CheckRule? NMRCheck { get; set; }
 

@@ -28,7 +28,7 @@ public class NMRCheckTests
 
         var processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleTypesAsStatements.ToArray());
 
-        NMRCheckerGenerator nmrChecker = new NMRCheckerGenerator();
+        NMRCheckGenerator nmrChecker = new NMRCheckGenerator();
 
         var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray());
         var nmrCheckRulesString = nmrCheckRules.Select(x => x.ToString()).ToArray();
@@ -54,7 +54,7 @@ public class NMRCheckTests
 
         var processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleTypesAsStatements.ToArray());
 
-        NMRCheckerGenerator nmrChecker = new NMRCheckerGenerator();
+        NMRCheckGenerator nmrChecker = new NMRCheckGenerator();
 
         var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray());
         var nmrCheckRulesString = nmrCheckRules.Select(x => x.ToString()).ToArray();

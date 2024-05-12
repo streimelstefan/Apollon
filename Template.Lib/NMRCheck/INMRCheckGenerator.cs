@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Apollon.Lib.NMRCheck;
 
-public interface INMRCheckerGenerator
+public interface INMRCheckGenerator
 {
     CheckRule[] GenerateNMRCheckRules(PreprocessedStatement[] preprocessedStatements);
 }

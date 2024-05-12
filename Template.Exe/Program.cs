@@ -6,8 +6,8 @@ using Apollon.Lib.Rules;
 using Apollon.Lib.NMRCheck;
 using Apollon.Lib.DualRules;
 
-var code = "q :- not p.\n" +   "p :- q, d.";
-var query = "";
+var code = "a(X) :- b(X, Z), not c(Z, X).\n" + "c(X, b) :- a(X).";
+var query = "true.";
 
 var parser = new ApollonParser();
 

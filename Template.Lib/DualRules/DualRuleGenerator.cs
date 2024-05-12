@@ -248,7 +248,7 @@ namespace Apollon.Lib.DualRules
                 return new BodyPart(linkingVariabels.ElementAt(currentIndex), currentHead);
             } else
             {
-                return new BodyPart(linkingVariabels.ElementAt(currentIndex), BuildForAllBody(currentHead, linkingVariabels, currentIndex++));
+                return new BodyPart(linkingVariabels.ElementAt(currentIndex), BuildForAllBody(currentHead, linkingVariabels, ++currentIndex));
             }
         }
 

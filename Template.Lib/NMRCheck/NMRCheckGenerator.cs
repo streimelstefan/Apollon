@@ -15,7 +15,7 @@ namespace Apollon.Lib.NMRCheck;
 /// not(nmr_check11) :- not q, p.
 /// not(nmr_check1) :- not(nmr_check11).
 /// </summary>
-public class NMRCheckerGenerator : INMRCheckerGenerator
+public class NMRCheckGenerator : INMRCheckGenerator
 {
     public CheckRule[] GenerateNMRCheckRules(PreprocessedStatement[] preprocessedStatements)
     {
@@ -23,14 +23,19 @@ public class NMRCheckerGenerator : INMRCheckerGenerator
         var olonRules = preprocessedStatements.Where(x => x.IsOlonRule);
 
         var nmrCheckRules = new List<CheckRule>();
-
+        var generalRules = new List<CheckRule>();
         int counter = 1;
 
         foreach (var olonRule in olonRules)
         {
             nmrCheckRules.AddRange(GenerateRulesForOlonRule(olonRule, counter));
             counter++;
+
+            generalRules.Add(nmrCheckRules.Last());
         }
+
+        // Generate the NMR Rule
+        var generalRule = GenerateGeneralRule(generalRules);
 
         return nmrCheckRules.ToArray();
     }
@@ -86,5 +91,27 @@ public class NMRCheckerGenerator : INMRCheckerGenerator
         nmrCheckRules.Add(new CheckRule(new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString(), nmrCheckRules.Last().Head.Atom.ParamList), true, false), body));
         
         return nmrCheckRules.ToArray();
+    }
+
+    private CheckRule GenerateGeneralRule(List<CheckRule> rules)
+    {
+        var bodyParts = new List<BodyPart>();
+        var dualRules = new DualRuleGenerator();
+
+        foreach(var rule in rules)
+        {
+            if (rule.Head.Atom.ParamList.Length == 0)
+            {
+                bodyParts.Add(new BodyPart(rule.Head, null));
+            }
+            else
+            {
+                var body = dualRules.BuildForAllBody(rule.Head, rule.Head.Atom.ParamList.Select(p => p.Term).ToList());
+                bodyParts.Add(body);
+            }
+        }
+
+
+        return new CheckRule(new Literal(new Atoms.Atom("nmr_check"), true, false), bodyParts.ToArray());
     }
 }
