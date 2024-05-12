@@ -3,9 +3,11 @@ using AppollonParser;
 using Apollon.Lib.Graph;
 using Apollon.Lib.OLON;
 using Apollon.Lib.Rules;
+using Apollon.Lib.NMRCheck;
+using Apollon.Lib.DualRules;
 
-var code = "q :- not p.\n" +
-    "p :- q, d.";
+var code = "q :- not p.\n" +   "p :- q, d.";
+//var code = "a(X) :- b(X, Z), not c(Z, X). \n" + "c(X, b) :- a(X).\n";
 
 var parser = new ApollonParser();
 var program = parser.ParseFromString(code);
@@ -35,6 +37,9 @@ foreach (var olon in olons.Nodes)
 var rulePreprocessor = new RuleMetadataSetter(callGraph, olons);
 var processedRules = rulePreprocessor.SetMetadataOn(program.RuleList);
 
+IDualRuleGenerator dualRuleGenerator = new DualRuleGenerator();
+var dualRules = dualRuleGenerator.GenerateDualRules(program.Statements.ToArray());
+
 Console.WriteLine();
 Console.WriteLine("Processed Rules:");
 foreach (var rule in processedRules)
@@ -42,3 +47,5 @@ foreach (var rule in processedRules)
     Console.WriteLine($"OLON Rule: {(rule.IsOlonRule ? "true" : "false")} Ordinary Rule: {(rule.IsOrdiniaryRule ? "true" : "false")} || {rule}");
 }
 
+var nmrChecker = new NMRChecker();
+var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray());
