@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Apollon.Lib.DualRules;
 using Apollon.Lib.Graph;
 using Apollon.Lib.Linker;
+using Apollon.Lib.NMRCheck;
 using Apollon.Lib.OLON;
 using Apollon.Lib.Resolution;
 using Apollon.Lib.Resolution.SLD;
@@ -24,7 +25,11 @@ namespace Apollon.Lib
 
         public IVariableLinker VariableLinker { get; set; } = new VariableLinker();
 
-        public Program LoadedProgram { get; private set; }
+        public INMRCheckerGenerator nmrCheckGenerator { get; set; } = new NMRCheckerGenerator();
+
+        private CheckRule? NMRCheck { get; set; }
+
+        public Program? LoadedProgram { get; private set; }
 
         public void Load(Program program)
         {
@@ -37,8 +42,10 @@ namespace Apollon.Lib
             var rulePreprocessor = new RuleMetadataSetter(callGraph, olons);
             var processedRules = rulePreprocessor.SetMetadataOn(program.RuleTypesAsStatements.ToArray());
             var dualRules = dualRuleGenerator.GenerateDualRules(program.Statements.ToArray());
+            var nmrRules = nmrCheckGenerator.GenerateNMRCheckRules(processedRules);
 
-            ProcessedStatments = program.Statements.Union(dualRules).Select(s => VariableLinker.LinkVariables(s)).ToArray();
+            //NMRCheck = nmrRules.Last();
+            ProcessedStatments = program.Statements.Union(dualRules).Union(nmrRules).Select(s => VariableLinker.LinkVariables(s)).ToArray();
             LoadedProgram = program;
         }
 
@@ -49,7 +56,11 @@ namespace Apollon.Lib
                 throw new InvalidOperationException("No program loaded.");
             }
             var linkedGoals = VariableLinker.LinkVariables(new Statement(null, goals)).Body;
-            var goalsCopy = linkedGoals.Select(g => (BodyPart)g.Clone()).ToArray();
+
+            //var NMRCheckGoal = new BodyPart(((CheckRule)NMRCheck.Clone()).Head, null);
+            var goalsCopy = linkedGoals.Select(g => (BodyPart)g.Clone())
+                //.Append(NMRCheckGoal)
+                .ToArray();
 
             var res = Resolution.Resolute(ProcessedStatments.ToArray(), goalsCopy);
 

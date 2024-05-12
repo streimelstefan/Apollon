@@ -15,7 +15,7 @@ namespace Apollon.Lib.NMRCheck;
 /// not(nmr_check11) :- not q, p.
 /// not(nmr_check1) :- not(nmr_check11).
 /// </summary>
-public class NMRChecker : INMRChecker
+public class NMRCheckerGenerator : INMRCheckerGenerator
 {
     public CheckRule[] GenerateNMRCheckRules(PreprocessedStatement[] preprocessedStatements)
     {
