@@ -5,10 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Apollon.Lib.Resolution
+namespace Apollon.Lib.Linker
 {
-    public interface ICoinductiveCHSChecker
+    public interface IVariableLinker
     {
-        CCHSResult CheckCHSFor(Literal literal, CHS chs);
+
+        Statement LinkVariables(Statement statement);
+
     }
 }

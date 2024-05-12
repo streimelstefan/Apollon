@@ -2,6 +2,7 @@
 using Apollon.Lib.Atoms;
 using Apollon.Lib.Unification;
 using Apollon.Lib.Unification.DisagreementFinders;
+using Apollon.Lib.Unification.Substitutioners;
 using AppollonParser;
 using NUnit.Framework;
 using System;

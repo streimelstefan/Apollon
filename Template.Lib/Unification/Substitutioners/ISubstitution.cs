@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Apollon.Lib.Unification
+namespace Apollon.Lib.Unification.Substitutioners
 {
     public interface ISubstitution
     {
@@ -19,5 +19,7 @@ namespace Apollon.Lib.Unification
         void Add(Term variable, AtomParam term);
 
         public IEnumerable<Mapping> Mappings { get; }
+
+        public ISubstitution Induce(ISubstitution inductor);
     }
 }

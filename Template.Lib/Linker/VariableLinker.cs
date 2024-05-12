@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Apollon.Lib.Resolution
+namespace Apollon.Lib.Linker
 {
     public class VariableLinker : IVariableLinker
     {
@@ -55,7 +55,7 @@ namespace Apollon.Lib.Resolution
             }
         }
 
-        private void LinkInAtomParam(AtomParam atomParam, Dictionary<string, Term> variableTable) 
+        private void LinkInAtomParam(AtomParam atomParam, Dictionary<string, Term> variableTable)
         {
             if (atomParam.Term != null)
             {
@@ -67,7 +67,7 @@ namespace Apollon.Lib.Resolution
             }
         }
 
-        private void LinkInOperation(Operation operation, Dictionary<string, Term> variableTable) 
+        private void LinkInOperation(Operation operation, Dictionary<string, Term> variableTable)
         {
             LinkInAtomParam(operation.Variable, variableTable);
             LinkInAtom(operation.Condition.Atom, variableTable);

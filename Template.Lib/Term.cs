@@ -32,7 +32,12 @@ namespace Apollon.Lib
 
         public override string ToString()
         {
-            return Value;
+            if (ProhibitedValues.Empty()) {
+                return Value;
+            } else
+            {
+                return $"{Value} - {{{ProhibitedValues}}}";
+            }
         }
 
 
@@ -40,7 +45,7 @@ namespace Apollon.Lib
         {
             if (other == null) return false;
 
-            return Value == other.Value;
+            return Value == other.Value && ProhibitedValues.Equals(other.ProhibitedValues);
         }
 
         public bool IsNegativelyConstrained()

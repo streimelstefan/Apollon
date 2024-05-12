@@ -6,10 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Apollon.Lib.DualRules;
 using Apollon.Lib.Graph;
+using Apollon.Lib.Linker;
 using Apollon.Lib.OLON;
 using Apollon.Lib.Resolution;
+using Apollon.Lib.Resolution.SLD;
 using Apollon.Lib.Rules;
 using Apollon.Lib.Unification;
+using Apollon.Lib.Unification.Substitutioners;
 
 namespace Apollon.Lib
 {
@@ -77,7 +80,16 @@ namespace Apollon.Lib
             }
 
             // remove all answers that are not in the original program
-            var final = res.CHS.Literals.Where(l => LoadedProgram.AllLiterals.Where(pl => unifier.Unify(pl, l).IsSuccess).Any());
+            var final = new List<Literal>();
+            var allLiterals = LoadedProgram.AllLiterals.ToArray();
+            foreach (var literal in res.CHS.Literals)
+            {
+                // if literal exists in programm add it to final
+                if (allLiterals.Where(l => unifier.Unify(l, literal).IsSuccess).Any())
+                {
+                    final.Add(literal);
+                }
+            }
 
             return new ResolutionResult(new CHS(final), sub);
         }

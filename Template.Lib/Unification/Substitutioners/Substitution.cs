@@ -1,14 +1,9 @@
 ﻿using Apollon.Lib.Atoms;
 using Apollon.Lib.Rules;
 using Apollon.Lib.Rules.Operations;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Apollon.Lib.Unification.Substitutioners;
 
-namespace Apollon.Lib.Unification
+namespace Apollon.Lib.Unification.Substitutioners
 {
     public class Substitution : ISubstitution
     {
@@ -32,6 +27,13 @@ namespace Apollon.Lib.Unification
 
         public void Add(Term variable, AtomParam term)
         {
+            if (mappings.ContainsKey(variable.Value))
+            {
+                if (!mappings[variable.Value].Equals(term))
+                {
+                    throw new InvalidOperationException("Cannot add new substitution under the existing name");
+                }
+            }
             mappings[variable.Value] = term;
         }
 
@@ -68,7 +70,7 @@ namespace Apollon.Lib.Unification
                     return param;
                 }
 
-                var setting =  mappings[param.Term.Value];
+                var setting = mappings[param.Term.Value];
 
                 if (setting.Term != null && setting.Term.IsVariable)
                 {
@@ -151,7 +153,7 @@ namespace Apollon.Lib.Unification
 
         public Literal Apply(Literal literal)
         {
-            var copy = (Literal) literal.Clone();
+            var copy = (Literal)literal.Clone();
             Apply(copy.Atom);
 
             return copy;
@@ -164,6 +166,20 @@ namespace Apollon.Lib.Unification
             ApplyOperation(copy);
 
             return copy;
+        }
+
+        public ISubstitution Induce(ISubstitution inductor)
+        {
+            var newSub = new Substitution(Mappings);
+            foreach (var mapping in newSub.Mappings)
+            {
+                foreach (var key in mappings.Where(v => v.Value.Term != null).Where(v => v.Value.Term.Value == mapping.Variable.Value).Select(v => v.Key))
+                {
+                    newSub.mappings[key] = mapping.MapsTo;
+                }
+            }
+
+            return newSub;
         }
     }
 }

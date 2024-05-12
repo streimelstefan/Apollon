@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Apollon.Lib.Resolution;
+using Apollon.Lib.Resolution.CoSLD;
 
 namespace Apollon.Test.Integration
 {

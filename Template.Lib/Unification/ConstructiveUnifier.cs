@@ -1,6 +1,7 @@
 ﻿using Apollon.Lib.Atoms;
 using Apollon.Lib.Rules;
 using Apollon.Lib.Unification.DisagreementFinders;
+using Apollon.Lib.Unification.Substitutioners;
 using System;
 using System.Collections.Generic;
 using System.Linq;
