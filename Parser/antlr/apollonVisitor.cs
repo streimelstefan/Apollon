@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from c://Users//strei//Documents//dev//Apollon//Parser//antlr//apollon.g4 by ANTLR 4.13.1
+// Generated from c://Users//200320//Desktop//Apollon-main//Parser//antlr//apollon.g4 by ANTLR 4.13.1
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -91,6 +91,36 @@ public interface IapollonVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitLiteral([NotNull] apollonParser.LiteralContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="apollonParser.variable_placeholder"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitVariable_placeholder([NotNull] apollonParser.Variable_placeholderContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="apollonParser.docu_string"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDocu_string([NotNull] apollonParser.Docu_stringContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="apollonParser.docu_string_part"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDocu_string_part([NotNull] apollonParser.Docu_string_partContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="apollonParser.docu"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDocu([NotNull] apollonParser.DocuContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="apollonParser.docu_head"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDocu_head([NotNull] apollonParser.Docu_headContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="apollonParser.naf_literal"/>.
 	/// </summary>

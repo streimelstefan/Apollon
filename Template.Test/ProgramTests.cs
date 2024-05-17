@@ -1,5 +1,6 @@
 ﻿using Apollon.Lib;
 using Apollon.Lib.Atoms;
+using Apollon.Lib.Docu;
 using Apollon.Lib.Rules;
 using NUnit.Framework;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace Apollon.Test
             var rules = new Rule[] { new Rule(new Literal(new Atom("a"), false, false), new BodyPart[] { new BodyPart(new Literal(new Atom("b"), false, false), null) }) };
             var constraints = new Constraint[] { new Constraint(new Literal[] { new Literal(new Atom("a"), false, false) }) };
             var literals = new Literal[0];
-            var program = new Program(literals, rules, constraints);
+            var program = new Program(literals, rules, constraints, new Documentation[0]);
 
             var ruleStatements = program.RuleTypesAsStatements.ToArray();
 
@@ -31,7 +32,7 @@ namespace Apollon.Test
             var rules = new Rule[] { new Rule(new Literal(new Atom("a"), false, false), new BodyPart[] { new BodyPart(new Literal(new Atom("b"), false, false), null) }) };
             var constraints = new Constraint[] { new Constraint(new Literal[] { new Literal(new Atom("a"), false, false) }) };
             var literals = new Literal[] {new Literal(new Atom("a"), false, false)};
-            var program = new Program(literals, rules, constraints);
+            var program = new Program(literals, rules, constraints, new Documentation[0]);
 
             var ruleStatements = program.Statements.ToArray();
 

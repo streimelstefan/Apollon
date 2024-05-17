@@ -9,6 +9,7 @@ using Apollon.Lib;
 using Apollon.Lib.OLON;
 using Apollon.Lib.Rules;
 using Apollon.Lib.Atoms;
+using Apollon.Lib.Docu;
 
 namespace Template.Test.OLON
 {
@@ -24,7 +25,7 @@ namespace Template.Test.OLON
             var rule1 = new Rule(literal1, new BodyPart[] { new BodyPart(literal2Naf, null) });
             var rule2 = new Rule(literal2, new BodyPart[] { new BodyPart(literal1, null) });
             var rules = new Rule[] { rule1, rule2 };
-            var prgram = new Program(new Literal[] {}, rules, new Constraint[0]);
+            var prgram = new Program(new Literal[] {}, rules, new Constraint[0], new Documentation[0]);
 
             var graph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(prgram);
 
@@ -41,7 +42,7 @@ namespace Template.Test.OLON
             var rule1 = new Rule(literal1, new BodyPart[] { new BodyPart(literal2, null) });
             var rule2 = new Rule(literal2, new BodyPart[] { new BodyPart(literal1, null) });
             var rules = new Rule[] { rule1, rule2 };
-            var prgram = new Program(new Literal[] { }, rules, new Constraint[0]);
+            var prgram = new Program(new Literal[] { }, rules, new Constraint[0], new Documentation[0]);
 
             var graph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(prgram);
 
@@ -60,7 +61,7 @@ namespace Template.Test.OLON
             var rule1 = new Rule(literal1, new BodyPart[] { new BodyPart(literal2Naf, null) });
             var rule2 = new Rule(literal2, new BodyPart[] { new BodyPart(literal1, null) });
             var rules = new Rule[] { rule1, rule2 };
-            var prgram = new Program(new Literal[] { }, rules, new Constraint[0]);
+            var prgram = new Program(new Literal[] { }, rules, new Constraint[0], new Documentation[0]);
 
             var graph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(prgram);
 

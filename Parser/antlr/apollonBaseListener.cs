@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from c://Users//strei//Documents//dev//Apollon//Parser//antlr//apollon.g4 by ANTLR 4.13.1
+// Generated from c://Users//200320//Desktop//Apollon-main//Parser//antlr//apollon.g4 by ANTLR 4.13.1
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -155,6 +155,66 @@ public partial class apollonBaseListener : IapollonListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitLiteral([NotNull] apollonParser.LiteralContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.variable_placeholder"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterVariable_placeholder([NotNull] apollonParser.Variable_placeholderContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.variable_placeholder"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitVariable_placeholder([NotNull] apollonParser.Variable_placeholderContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.docu_string"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterDocu_string([NotNull] apollonParser.Docu_stringContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.docu_string"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitDocu_string([NotNull] apollonParser.Docu_stringContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.docu_string_part"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterDocu_string_part([NotNull] apollonParser.Docu_string_partContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.docu_string_part"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitDocu_string_part([NotNull] apollonParser.Docu_string_partContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.docu"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterDocu([NotNull] apollonParser.DocuContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.docu"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitDocu([NotNull] apollonParser.DocuContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.docu_head"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterDocu_head([NotNull] apollonParser.Docu_headContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.docu_head"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitDocu_head([NotNull] apollonParser.Docu_headContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="apollonParser.naf_literal"/>.
 	/// <para>The default implementation does nothing.</para>

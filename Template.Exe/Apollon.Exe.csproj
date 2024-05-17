@@ -5,6 +5,12 @@
     <ProjectReference Include="..\Template.Lib\Apollon.Lib.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Test.apo">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>

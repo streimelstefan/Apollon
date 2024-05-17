@@ -103,6 +103,11 @@ namespace Apollon.Lib.Unification.DisagreementFinders
 
         private DisagreementResult FindDisagreement(AtomParam param1, AtomParam param2)
         {
+            if (param1.Equals(param2))
+            {
+                return new DisagreementResult(new Disagreement());
+            }
+
             if (param1.Term != null && param1.Term.IsVariable || param2.Term != null && param2.Term.IsVariable)
             {
                 return new DisagreementResult(new Disagreement(param1, param2));

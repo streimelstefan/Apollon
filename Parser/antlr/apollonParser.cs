@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from c://Users//strei//Documents//dev//Apollon//Parser//antlr//apollon.g4 by ANTLR 4.13.1
+// Generated from c://Users//200320//Desktop//Apollon-main//Parser//antlr//apollon.g4 by ANTLR 4.13.1
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -36,25 +36,31 @@ public partial class apollonParser : Parser {
 	protected static DFA[] decisionToDFA;
 	protected static PredictionContextCache sharedContextCache = new PredictionContextCache();
 	public const int
-		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, NAF=6, NEGATION=7, EQUALS=8, NOT_EQUALS=9, 
-		COMMENT=10, WS=11, CLASICAL_TERM=12, VARIABLE_TERM=13, NUMBER=14;
+		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, NAF=7, NEGATION=8, EQUALS=9, 
+		NOT_EQUALS=10, COMMENT=11, WS=12, CLASICAL_TERM=13, VARIABLE_TERM=14, 
+		DOKU_SEPERATOR=15, NUMBER=16;
 	public const int
 		RULE_program = 0, RULE_query = 1, RULE_statement = 2, RULE_fact = 3, RULE_rule = 4, 
 		RULE_constraint = 5, RULE_head = 6, RULE_body = 7, RULE_body_part = 8, 
-		RULE_literal = 9, RULE_naf_literal = 10, RULE_atom = 11, RULE_atom_param_part = 12, 
-		RULE_general_term = 13, RULE_operation = 14, RULE_operator = 15;
+		RULE_literal = 9, RULE_variable_placeholder = 10, RULE_docu_string = 11, 
+		RULE_docu_string_part = 12, RULE_docu = 13, RULE_docu_head = 14, RULE_naf_literal = 15, 
+		RULE_atom = 16, RULE_atom_param_part = 17, RULE_general_term = 18, RULE_operation = 19, 
+		RULE_operator = 20;
 	public static readonly string[] ruleNames = {
 		"program", "query", "statement", "fact", "rule", "constraint", "head", 
-		"body", "body_part", "literal", "naf_literal", "atom", "atom_param_part", 
+		"body", "body_part", "literal", "variable_placeholder", "docu_string", 
+		"docu_string_part", "docu", "docu_head", "naf_literal", "atom", "atom_param_part", 
 		"general_term", "operation", "operator"
 	};
 
 	private static readonly string[] _LiteralNames = {
-		null, "','", "'.'", "':-'", "'('", "')'", "'not'", "'-'", "'='", "'!='"
+		null, "','", "'.'", "':-'", "'@('", "')'", "'('", "'not'", "'-'", "'='", 
+		"'!='", null, null, null, null, "'::'"
 	};
 	private static readonly string[] _SymbolicNames = {
-		null, null, null, null, null, null, "NAF", "NEGATION", "EQUALS", "NOT_EQUALS", 
-		"COMMENT", "WS", "CLASICAL_TERM", "VARIABLE_TERM", "NUMBER"
+		null, null, null, null, null, null, null, "NAF", "NEGATION", "EQUALS", 
+		"NOT_EQUALS", "COMMENT", "WS", "CLASICAL_TERM", "VARIABLE_TERM", "DOKU_SEPERATOR", 
+		"NUMBER"
 	};
 	public static readonly IVocabulary DefaultVocabulary = new Vocabulary(_LiteralNames, _SymbolicNames);
 
@@ -127,21 +133,21 @@ public partial class apollonParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 35;
+			State = 45;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 5256L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 10504L) != 0)) {
 				{
 				{
-				State = 32;
+				State = 42;
 				statement();
 				}
 				}
-				State = 37;
+				State = 47;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 			}
-			State = 38;
+			State = 48;
 			Match(Eof);
 			}
 		}
@@ -195,27 +201,27 @@ public partial class apollonParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 40;
+			State = 50;
 			body_part();
-			State = 45;
+			State = 55;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			while (_la==T__0) {
 				{
 				{
-				State = 41;
+				State = 51;
 				Match(T__0);
-				State = 42;
+				State = 52;
 				body_part();
 				}
 				}
-				State = 47;
+				State = 57;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 			}
-			State = 48;
+			State = 58;
 			Match(T__1);
-			State = 49;
+			State = 59;
 			Match(Eof);
 			}
 		}
@@ -239,6 +245,9 @@ public partial class apollonParser : Parser {
 		}
 		[System.Diagnostics.DebuggerNonUserCode] public ConstraintContext constraint() {
 			return GetRuleContext<ConstraintContext>(0);
+		}
+		[System.Diagnostics.DebuggerNonUserCode] public DocuContext docu() {
+			return GetRuleContext<DocuContext>(0);
 		}
 		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode COMMENT() { return GetToken(apollonParser.COMMENT, 0); }
 		public StatementContext(ParserRuleContext parent, int invokingState)
@@ -269,34 +278,41 @@ public partial class apollonParser : Parser {
 		StatementContext _localctx = new StatementContext(Context, State);
 		EnterRule(_localctx, 4, RULE_statement);
 		try {
-			State = 55;
+			State = 66;
 			ErrorHandler.Sync(this);
 			switch ( Interpreter.AdaptivePredict(TokenStream,2,Context) ) {
 			case 1:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 51;
+				State = 61;
 				fact();
 				}
 				break;
 			case 2:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 52;
+				State = 62;
 				rule();
 				}
 				break;
 			case 3:
 				EnterOuterAlt(_localctx, 3);
 				{
-				State = 53;
+				State = 63;
 				constraint();
 				}
 				break;
 			case 4:
 				EnterOuterAlt(_localctx, 4);
 				{
-				State = 54;
+				State = 64;
+				docu();
+				}
+				break;
+			case 5:
+				EnterOuterAlt(_localctx, 5);
+				{
+				State = 65;
 				Match(COMMENT);
 				}
 				break;
@@ -347,9 +363,9 @@ public partial class apollonParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 57;
+			State = 68;
 			literal();
-			State = 58;
+			State = 69;
 			Match(T__1);
 			}
 		}
@@ -401,13 +417,13 @@ public partial class apollonParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 60;
+			State = 71;
 			head();
-			State = 61;
+			State = 72;
 			Match(T__2);
-			State = 62;
+			State = 73;
 			body();
-			State = 63;
+			State = 74;
 			Match(T__1);
 			}
 		}
@@ -460,27 +476,27 @@ public partial class apollonParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 65;
+			State = 76;
 			Match(T__2);
-			State = 66;
+			State = 77;
 			naf_literal();
-			State = 71;
+			State = 82;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			while (_la==T__0) {
 				{
 				{
-				State = 67;
+				State = 78;
 				Match(T__0);
-				State = 68;
+				State = 79;
 				naf_literal();
 				}
 				}
-				State = 73;
+				State = 84;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 			}
-			State = 74;
+			State = 85;
 			Match(T__1);
 			}
 		}
@@ -529,7 +545,7 @@ public partial class apollonParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 76;
+			State = 87;
 			literal();
 			}
 		}
@@ -582,21 +598,21 @@ public partial class apollonParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 78;
+			State = 89;
 			body_part();
-			State = 83;
+			State = 94;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			while (_la==T__0) {
 				{
 				{
-				State = 79;
+				State = 90;
 				Match(T__0);
-				State = 80;
+				State = 91;
 				body_part();
 				}
 				}
-				State = 85;
+				State = 96;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 			}
@@ -648,13 +664,13 @@ public partial class apollonParser : Parser {
 		Body_partContext _localctx = new Body_partContext(Context, State);
 		EnterRule(_localctx, 16, RULE_body_part);
 		try {
-			State = 88;
+			State = 99;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
 			case VARIABLE_TERM:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 86;
+				State = 97;
 				operation();
 				}
 				break;
@@ -663,7 +679,7 @@ public partial class apollonParser : Parser {
 			case CLASICAL_TERM:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 87;
+				State = 98;
 				naf_literal();
 				}
 				break;
@@ -718,18 +734,371 @@ public partial class apollonParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 91;
+			State = 102;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			if (_la==NEGATION) {
 				{
-				State = 90;
+				State = 101;
 				Match(NEGATION);
 				}
 			}
 
-			State = 93;
+			State = 104;
 			atom();
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class Variable_placeholderContext : ParserRuleContext {
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode VARIABLE_TERM() { return GetToken(apollonParser.VARIABLE_TERM, 0); }
+		public Variable_placeholderContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_variable_placeholder; } }
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void EnterRule(IParseTreeListener listener) {
+			IapollonListener typedListener = listener as IapollonListener;
+			if (typedListener != null) typedListener.EnterVariable_placeholder(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void ExitRule(IParseTreeListener listener) {
+			IapollonListener typedListener = listener as IapollonListener;
+			if (typedListener != null) typedListener.ExitVariable_placeholder(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IapollonVisitor<TResult> typedVisitor = visitor as IapollonVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitVariable_placeholder(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public Variable_placeholderContext variable_placeholder() {
+		Variable_placeholderContext _localctx = new Variable_placeholderContext(Context, State);
+		EnterRule(_localctx, 20, RULE_variable_placeholder);
+		try {
+			EnterOuterAlt(_localctx, 1);
+			{
+			State = 106;
+			Match(T__3);
+			State = 107;
+			Match(VARIABLE_TERM);
+			State = 108;
+			Match(T__4);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class Docu_stringContext : ParserRuleContext {
+		[System.Diagnostics.DebuggerNonUserCode] public Docu_string_partContext[] docu_string_part() {
+			return GetRuleContexts<Docu_string_partContext>();
+		}
+		[System.Diagnostics.DebuggerNonUserCode] public Docu_string_partContext docu_string_part(int i) {
+			return GetRuleContext<Docu_string_partContext>(i);
+		}
+		public Docu_stringContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_docu_string; } }
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void EnterRule(IParseTreeListener listener) {
+			IapollonListener typedListener = listener as IapollonListener;
+			if (typedListener != null) typedListener.EnterDocu_string(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void ExitRule(IParseTreeListener listener) {
+			IapollonListener typedListener = listener as IapollonListener;
+			if (typedListener != null) typedListener.ExitDocu_string(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IapollonVisitor<TResult> typedVisitor = visitor as IapollonVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitDocu_string(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public Docu_stringContext docu_string() {
+		Docu_stringContext _localctx = new Docu_stringContext(Context, State);
+		EnterRule(_localctx, 22, RULE_docu_string);
+		int _la;
+		try {
+			EnterOuterAlt(_localctx, 1);
+			{
+			State = 111;
+			ErrorHandler.Sync(this);
+			_la = TokenStream.LA(1);
+			do {
+				{
+				{
+				State = 110;
+				docu_string_part();
+				}
+				}
+				State = 113;
+				ErrorHandler.Sync(this);
+				_la = TokenStream.LA(1);
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & 24592L) != 0) );
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class Docu_string_partContext : ParserRuleContext {
+		[System.Diagnostics.DebuggerNonUserCode] public General_termContext general_term() {
+			return GetRuleContext<General_termContext>(0);
+		}
+		[System.Diagnostics.DebuggerNonUserCode] public Variable_placeholderContext variable_placeholder() {
+			return GetRuleContext<Variable_placeholderContext>(0);
+		}
+		public Docu_string_partContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_docu_string_part; } }
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void EnterRule(IParseTreeListener listener) {
+			IapollonListener typedListener = listener as IapollonListener;
+			if (typedListener != null) typedListener.EnterDocu_string_part(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void ExitRule(IParseTreeListener listener) {
+			IapollonListener typedListener = listener as IapollonListener;
+			if (typedListener != null) typedListener.ExitDocu_string_part(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IapollonVisitor<TResult> typedVisitor = visitor as IapollonVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitDocu_string_part(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public Docu_string_partContext docu_string_part() {
+		Docu_string_partContext _localctx = new Docu_string_partContext(Context, State);
+		EnterRule(_localctx, 24, RULE_docu_string_part);
+		try {
+			State = 117;
+			ErrorHandler.Sync(this);
+			switch (TokenStream.LA(1)) {
+			case CLASICAL_TERM:
+			case VARIABLE_TERM:
+				EnterOuterAlt(_localctx, 1);
+				{
+				State = 115;
+				general_term();
+				}
+				break;
+			case T__3:
+				EnterOuterAlt(_localctx, 2);
+				{
+				State = 116;
+				variable_placeholder();
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class DocuContext : ParserRuleContext {
+		[System.Diagnostics.DebuggerNonUserCode] public Docu_headContext docu_head() {
+			return GetRuleContext<Docu_headContext>(0);
+		}
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode DOKU_SEPERATOR() { return GetToken(apollonParser.DOKU_SEPERATOR, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public Docu_stringContext docu_string() {
+			return GetRuleContext<Docu_stringContext>(0);
+		}
+		public DocuContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_docu; } }
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void EnterRule(IParseTreeListener listener) {
+			IapollonListener typedListener = listener as IapollonListener;
+			if (typedListener != null) typedListener.EnterDocu(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void ExitRule(IParseTreeListener listener) {
+			IapollonListener typedListener = listener as IapollonListener;
+			if (typedListener != null) typedListener.ExitDocu(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IapollonVisitor<TResult> typedVisitor = visitor as IapollonVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitDocu(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public DocuContext docu() {
+		DocuContext _localctx = new DocuContext(Context, State);
+		EnterRule(_localctx, 26, RULE_docu);
+		int _la;
+		try {
+			EnterOuterAlt(_localctx, 1);
+			{
+			State = 119;
+			docu_head();
+			State = 122;
+			ErrorHandler.Sync(this);
+			_la = TokenStream.LA(1);
+			if (_la==DOKU_SEPERATOR) {
+				{
+				State = 120;
+				Match(DOKU_SEPERATOR);
+				State = 121;
+				docu_string();
+				}
+			}
+
+			State = 124;
+			Match(T__1);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class Docu_headContext : ParserRuleContext {
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode CLASICAL_TERM() { return GetToken(apollonParser.CLASICAL_TERM, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode NEGATION() { return GetToken(apollonParser.NEGATION, 0); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode[] VARIABLE_TERM() { return GetTokens(apollonParser.VARIABLE_TERM); }
+		[System.Diagnostics.DebuggerNonUserCode] public ITerminalNode VARIABLE_TERM(int i) {
+			return GetToken(apollonParser.VARIABLE_TERM, i);
+		}
+		public Docu_headContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_docu_head; } }
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void EnterRule(IParseTreeListener listener) {
+			IapollonListener typedListener = listener as IapollonListener;
+			if (typedListener != null) typedListener.EnterDocu_head(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override void ExitRule(IParseTreeListener listener) {
+			IapollonListener typedListener = listener as IapollonListener;
+			if (typedListener != null) typedListener.ExitDocu_head(this);
+		}
+		[System.Diagnostics.DebuggerNonUserCode]
+		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
+			IapollonVisitor<TResult> typedVisitor = visitor as IapollonVisitor<TResult>;
+			if (typedVisitor != null) return typedVisitor.VisitDocu_head(this);
+			else return visitor.VisitChildren(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public Docu_headContext docu_head() {
+		Docu_headContext _localctx = new Docu_headContext(Context, State);
+		EnterRule(_localctx, 28, RULE_docu_head);
+		int _la;
+		try {
+			EnterOuterAlt(_localctx, 1);
+			{
+			State = 127;
+			ErrorHandler.Sync(this);
+			_la = TokenStream.LA(1);
+			if (_la==NEGATION) {
+				{
+				State = 126;
+				Match(NEGATION);
+				}
+			}
+
+			State = 129;
+			Match(CLASICAL_TERM);
+			State = 142;
+			ErrorHandler.Sync(this);
+			_la = TokenStream.LA(1);
+			if (_la==T__5) {
+				{
+				State = 130;
+				Match(T__5);
+				State = 139;
+				ErrorHandler.Sync(this);
+				_la = TokenStream.LA(1);
+				if (_la==VARIABLE_TERM) {
+					{
+					State = 131;
+					Match(VARIABLE_TERM);
+					State = 136;
+					ErrorHandler.Sync(this);
+					_la = TokenStream.LA(1);
+					while (_la==T__0) {
+						{
+						{
+						State = 132;
+						Match(T__0);
+						State = 133;
+						Match(VARIABLE_TERM);
+						}
+						}
+						State = 138;
+						ErrorHandler.Sync(this);
+						_la = TokenStream.LA(1);
+					}
+					}
+				}
+
+				State = 141;
+				Match(T__4);
+				}
+			}
+
 			}
 		}
 		catch (RecognitionException re) {
@@ -774,22 +1143,22 @@ public partial class apollonParser : Parser {
 	[RuleVersion(0)]
 	public Naf_literalContext naf_literal() {
 		Naf_literalContext _localctx = new Naf_literalContext(Context, State);
-		EnterRule(_localctx, 20, RULE_naf_literal);
+		EnterRule(_localctx, 30, RULE_naf_literal);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 96;
+			State = 145;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
 			if (_la==NAF) {
 				{
-				State = 95;
+				State = 144;
 				Match(NAF);
 				}
 			}
 
-			State = 98;
+			State = 147;
 			literal();
 			}
 		}
@@ -838,47 +1207,47 @@ public partial class apollonParser : Parser {
 	[RuleVersion(0)]
 	public AtomContext atom() {
 		AtomContext _localctx = new AtomContext(Context, State);
-		EnterRule(_localctx, 22, RULE_atom);
+		EnterRule(_localctx, 32, RULE_atom);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 100;
+			State = 149;
 			Match(CLASICAL_TERM);
-			State = 113;
+			State = 162;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			if (_la==T__3) {
+			if (_la==T__5) {
 				{
-				State = 101;
-				Match(T__3);
-				State = 110;
+				State = 150;
+				Match(T__5);
+				State = 159;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 28800L) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 90368L) != 0)) {
 					{
-					State = 102;
+					State = 151;
 					atom_param_part();
-					State = 107;
+					State = 156;
 					ErrorHandler.Sync(this);
 					_la = TokenStream.LA(1);
 					while (_la==T__0) {
 						{
 						{
-						State = 103;
+						State = 152;
 						Match(T__0);
-						State = 104;
+						State = 153;
 						atom_param_part();
 						}
 						}
-						State = 109;
+						State = 158;
 						ErrorHandler.Sync(this);
 						_la = TokenStream.LA(1);
 					}
 					}
 				}
 
-				State = 112;
+				State = 161;
 				Match(T__4);
 				}
 			}
@@ -930,29 +1299,29 @@ public partial class apollonParser : Parser {
 	[RuleVersion(0)]
 	public Atom_param_partContext atom_param_part() {
 		Atom_param_partContext _localctx = new Atom_param_partContext(Context, State);
-		EnterRule(_localctx, 24, RULE_atom_param_part);
+		EnterRule(_localctx, 34, RULE_atom_param_part);
 		try {
-			State = 118;
+			State = 167;
 			ErrorHandler.Sync(this);
-			switch ( Interpreter.AdaptivePredict(TokenStream,11,Context) ) {
+			switch ( Interpreter.AdaptivePredict(TokenStream,18,Context) ) {
 			case 1:
 				EnterOuterAlt(_localctx, 1);
 				{
-				State = 115;
+				State = 164;
 				general_term();
 				}
 				break;
 			case 2:
 				EnterOuterAlt(_localctx, 2);
 				{
-				State = 116;
+				State = 165;
 				Match(NUMBER);
 				}
 				break;
 			case 3:
 				EnterOuterAlt(_localctx, 3);
 				{
-				State = 117;
+				State = 166;
 				literal();
 				}
 				break;
@@ -998,12 +1367,12 @@ public partial class apollonParser : Parser {
 	[RuleVersion(0)]
 	public General_termContext general_term() {
 		General_termContext _localctx = new General_termContext(Context, State);
-		EnterRule(_localctx, 26, RULE_general_term);
+		EnterRule(_localctx, 36, RULE_general_term);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 120;
+			State = 169;
 			_la = TokenStream.LA(1);
 			if ( !(_la==CLASICAL_TERM || _la==VARIABLE_TERM) ) {
 			ErrorHandler.RecoverInline(this);
@@ -1060,28 +1429,28 @@ public partial class apollonParser : Parser {
 	[RuleVersion(0)]
 	public OperationContext operation() {
 		OperationContext _localctx = new OperationContext(Context, State);
-		EnterRule(_localctx, 28, RULE_operation);
+		EnterRule(_localctx, 38, RULE_operation);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 122;
+			State = 171;
 			Match(VARIABLE_TERM);
-			State = 123;
+			State = 172;
 			@operator();
-			State = 126;
+			State = 175;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
 			case NAF:
 			case NEGATION:
 			case CLASICAL_TERM:
 				{
-				State = 124;
+				State = 173;
 				naf_literal();
 				}
 				break;
 			case NUMBER:
 				{
-				State = 125;
+				State = 174;
 				Match(NUMBER);
 				}
 				break;
@@ -1130,12 +1499,12 @@ public partial class apollonParser : Parser {
 	[RuleVersion(0)]
 	public OperatorContext @operator() {
 		OperatorContext _localctx = new OperatorContext(Context, State);
-		EnterRule(_localctx, 30, RULE_operator);
+		EnterRule(_localctx, 40, RULE_operator);
 		int _la;
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 128;
+			State = 177;
 			_la = TokenStream.LA(1);
 			if ( !(_la==EQUALS || _la==NOT_EQUALS) ) {
 			ErrorHandler.RecoverInline(this);
@@ -1158,45 +1527,61 @@ public partial class apollonParser : Parser {
 	}
 
 	private static int[] _serializedATN = {
-		4,1,14,131,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,
+		4,1,16,180,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,
 		7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,2,14,7,14,
-		2,15,7,15,1,0,5,0,34,8,0,10,0,12,0,37,9,0,1,0,1,0,1,1,1,1,1,1,5,1,44,8,
-		1,10,1,12,1,47,9,1,1,1,1,1,1,1,1,2,1,2,1,2,1,2,3,2,56,8,2,1,3,1,3,1,3,
-		1,4,1,4,1,4,1,4,1,4,1,5,1,5,1,5,1,5,5,5,70,8,5,10,5,12,5,73,9,5,1,5,1,
-		5,1,6,1,6,1,7,1,7,1,7,5,7,82,8,7,10,7,12,7,85,9,7,1,8,1,8,3,8,89,8,8,1,
-		9,3,9,92,8,9,1,9,1,9,1,10,3,10,97,8,10,1,10,1,10,1,11,1,11,1,11,1,11,1,
-		11,5,11,106,8,11,10,11,12,11,109,9,11,3,11,111,8,11,1,11,3,11,114,8,11,
-		1,12,1,12,1,12,3,12,119,8,12,1,13,1,13,1,14,1,14,1,14,1,14,3,14,127,8,
-		14,1,15,1,15,1,15,0,0,16,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,0,
-		2,1,0,12,13,1,0,8,9,130,0,35,1,0,0,0,2,40,1,0,0,0,4,55,1,0,0,0,6,57,1,
-		0,0,0,8,60,1,0,0,0,10,65,1,0,0,0,12,76,1,0,0,0,14,78,1,0,0,0,16,88,1,0,
-		0,0,18,91,1,0,0,0,20,96,1,0,0,0,22,100,1,0,0,0,24,118,1,0,0,0,26,120,1,
-		0,0,0,28,122,1,0,0,0,30,128,1,0,0,0,32,34,3,4,2,0,33,32,1,0,0,0,34,37,
-		1,0,0,0,35,33,1,0,0,0,35,36,1,0,0,0,36,38,1,0,0,0,37,35,1,0,0,0,38,39,
-		5,0,0,1,39,1,1,0,0,0,40,45,3,16,8,0,41,42,5,1,0,0,42,44,3,16,8,0,43,41,
-		1,0,0,0,44,47,1,0,0,0,45,43,1,0,0,0,45,46,1,0,0,0,46,48,1,0,0,0,47,45,
-		1,0,0,0,48,49,5,2,0,0,49,50,5,0,0,1,50,3,1,0,0,0,51,56,3,6,3,0,52,56,3,
-		8,4,0,53,56,3,10,5,0,54,56,5,10,0,0,55,51,1,0,0,0,55,52,1,0,0,0,55,53,
-		1,0,0,0,55,54,1,0,0,0,56,5,1,0,0,0,57,58,3,18,9,0,58,59,5,2,0,0,59,7,1,
-		0,0,0,60,61,3,12,6,0,61,62,5,3,0,0,62,63,3,14,7,0,63,64,5,2,0,0,64,9,1,
-		0,0,0,65,66,5,3,0,0,66,71,3,20,10,0,67,68,5,1,0,0,68,70,3,20,10,0,69,67,
-		1,0,0,0,70,73,1,0,0,0,71,69,1,0,0,0,71,72,1,0,0,0,72,74,1,0,0,0,73,71,
-		1,0,0,0,74,75,5,2,0,0,75,11,1,0,0,0,76,77,3,18,9,0,77,13,1,0,0,0,78,83,
-		3,16,8,0,79,80,5,1,0,0,80,82,3,16,8,0,81,79,1,0,0,0,82,85,1,0,0,0,83,81,
-		1,0,0,0,83,84,1,0,0,0,84,15,1,0,0,0,85,83,1,0,0,0,86,89,3,28,14,0,87,89,
-		3,20,10,0,88,86,1,0,0,0,88,87,1,0,0,0,89,17,1,0,0,0,90,92,5,7,0,0,91,90,
-		1,0,0,0,91,92,1,0,0,0,92,93,1,0,0,0,93,94,3,22,11,0,94,19,1,0,0,0,95,97,
-		5,6,0,0,96,95,1,0,0,0,96,97,1,0,0,0,97,98,1,0,0,0,98,99,3,18,9,0,99,21,
-		1,0,0,0,100,113,5,12,0,0,101,110,5,4,0,0,102,107,3,24,12,0,103,104,5,1,
-		0,0,104,106,3,24,12,0,105,103,1,0,0,0,106,109,1,0,0,0,107,105,1,0,0,0,
-		107,108,1,0,0,0,108,111,1,0,0,0,109,107,1,0,0,0,110,102,1,0,0,0,110,111,
-		1,0,0,0,111,112,1,0,0,0,112,114,5,5,0,0,113,101,1,0,0,0,113,114,1,0,0,
-		0,114,23,1,0,0,0,115,119,3,26,13,0,116,119,5,14,0,0,117,119,3,18,9,0,118,
-		115,1,0,0,0,118,116,1,0,0,0,118,117,1,0,0,0,119,25,1,0,0,0,120,121,7,0,
-		0,0,121,27,1,0,0,0,122,123,5,13,0,0,123,126,3,30,15,0,124,127,3,20,10,
-		0,125,127,5,14,0,0,126,124,1,0,0,0,126,125,1,0,0,0,127,29,1,0,0,0,128,
-		129,7,1,0,0,129,31,1,0,0,0,13,35,45,55,71,83,88,91,96,107,110,113,118,
-		126
+		2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,20,7,20,1,0,5,0,44,
+		8,0,10,0,12,0,47,9,0,1,0,1,0,1,1,1,1,1,1,5,1,54,8,1,10,1,12,1,57,9,1,1,
+		1,1,1,1,1,1,2,1,2,1,2,1,2,1,2,3,2,67,8,2,1,3,1,3,1,3,1,4,1,4,1,4,1,4,1,
+		4,1,5,1,5,1,5,1,5,5,5,81,8,5,10,5,12,5,84,9,5,1,5,1,5,1,6,1,6,1,7,1,7,
+		1,7,5,7,93,8,7,10,7,12,7,96,9,7,1,8,1,8,3,8,100,8,8,1,9,3,9,103,8,9,1,
+		9,1,9,1,10,1,10,1,10,1,10,1,11,4,11,112,8,11,11,11,12,11,113,1,12,1,12,
+		3,12,118,8,12,1,13,1,13,1,13,3,13,123,8,13,1,13,1,13,1,14,3,14,128,8,14,
+		1,14,1,14,1,14,1,14,1,14,5,14,135,8,14,10,14,12,14,138,9,14,3,14,140,8,
+		14,1,14,3,14,143,8,14,1,15,3,15,146,8,15,1,15,1,15,1,16,1,16,1,16,1,16,
+		1,16,5,16,155,8,16,10,16,12,16,158,9,16,3,16,160,8,16,1,16,3,16,163,8,
+		16,1,17,1,17,1,17,3,17,168,8,17,1,18,1,18,1,19,1,19,1,19,1,19,3,19,176,
+		8,19,1,20,1,20,1,20,0,0,21,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,
+		32,34,36,38,40,0,2,1,0,13,14,1,0,9,10,182,0,45,1,0,0,0,2,50,1,0,0,0,4,
+		66,1,0,0,0,6,68,1,0,0,0,8,71,1,0,0,0,10,76,1,0,0,0,12,87,1,0,0,0,14,89,
+		1,0,0,0,16,99,1,0,0,0,18,102,1,0,0,0,20,106,1,0,0,0,22,111,1,0,0,0,24,
+		117,1,0,0,0,26,119,1,0,0,0,28,127,1,0,0,0,30,145,1,0,0,0,32,149,1,0,0,
+		0,34,167,1,0,0,0,36,169,1,0,0,0,38,171,1,0,0,0,40,177,1,0,0,0,42,44,3,
+		4,2,0,43,42,1,0,0,0,44,47,1,0,0,0,45,43,1,0,0,0,45,46,1,0,0,0,46,48,1,
+		0,0,0,47,45,1,0,0,0,48,49,5,0,0,1,49,1,1,0,0,0,50,55,3,16,8,0,51,52,5,
+		1,0,0,52,54,3,16,8,0,53,51,1,0,0,0,54,57,1,0,0,0,55,53,1,0,0,0,55,56,1,
+		0,0,0,56,58,1,0,0,0,57,55,1,0,0,0,58,59,5,2,0,0,59,60,5,0,0,1,60,3,1,0,
+		0,0,61,67,3,6,3,0,62,67,3,8,4,0,63,67,3,10,5,0,64,67,3,26,13,0,65,67,5,
+		11,0,0,66,61,1,0,0,0,66,62,1,0,0,0,66,63,1,0,0,0,66,64,1,0,0,0,66,65,1,
+		0,0,0,67,5,1,0,0,0,68,69,3,18,9,0,69,70,5,2,0,0,70,7,1,0,0,0,71,72,3,12,
+		6,0,72,73,5,3,0,0,73,74,3,14,7,0,74,75,5,2,0,0,75,9,1,0,0,0,76,77,5,3,
+		0,0,77,82,3,30,15,0,78,79,5,1,0,0,79,81,3,30,15,0,80,78,1,0,0,0,81,84,
+		1,0,0,0,82,80,1,0,0,0,82,83,1,0,0,0,83,85,1,0,0,0,84,82,1,0,0,0,85,86,
+		5,2,0,0,86,11,1,0,0,0,87,88,3,18,9,0,88,13,1,0,0,0,89,94,3,16,8,0,90,91,
+		5,1,0,0,91,93,3,16,8,0,92,90,1,0,0,0,93,96,1,0,0,0,94,92,1,0,0,0,94,95,
+		1,0,0,0,95,15,1,0,0,0,96,94,1,0,0,0,97,100,3,38,19,0,98,100,3,30,15,0,
+		99,97,1,0,0,0,99,98,1,0,0,0,100,17,1,0,0,0,101,103,5,8,0,0,102,101,1,0,
+		0,0,102,103,1,0,0,0,103,104,1,0,0,0,104,105,3,32,16,0,105,19,1,0,0,0,106,
+		107,5,4,0,0,107,108,5,14,0,0,108,109,5,5,0,0,109,21,1,0,0,0,110,112,3,
+		24,12,0,111,110,1,0,0,0,112,113,1,0,0,0,113,111,1,0,0,0,113,114,1,0,0,
+		0,114,23,1,0,0,0,115,118,3,36,18,0,116,118,3,20,10,0,117,115,1,0,0,0,117,
+		116,1,0,0,0,118,25,1,0,0,0,119,122,3,28,14,0,120,121,5,15,0,0,121,123,
+		3,22,11,0,122,120,1,0,0,0,122,123,1,0,0,0,123,124,1,0,0,0,124,125,5,2,
+		0,0,125,27,1,0,0,0,126,128,5,8,0,0,127,126,1,0,0,0,127,128,1,0,0,0,128,
+		129,1,0,0,0,129,142,5,13,0,0,130,139,5,6,0,0,131,136,5,14,0,0,132,133,
+		5,1,0,0,133,135,5,14,0,0,134,132,1,0,0,0,135,138,1,0,0,0,136,134,1,0,0,
+		0,136,137,1,0,0,0,137,140,1,0,0,0,138,136,1,0,0,0,139,131,1,0,0,0,139,
+		140,1,0,0,0,140,141,1,0,0,0,141,143,5,5,0,0,142,130,1,0,0,0,142,143,1,
+		0,0,0,143,29,1,0,0,0,144,146,5,7,0,0,145,144,1,0,0,0,145,146,1,0,0,0,146,
+		147,1,0,0,0,147,148,3,18,9,0,148,31,1,0,0,0,149,162,5,13,0,0,150,159,5,
+		6,0,0,151,156,3,34,17,0,152,153,5,1,0,0,153,155,3,34,17,0,154,152,1,0,
+		0,0,155,158,1,0,0,0,156,154,1,0,0,0,156,157,1,0,0,0,157,160,1,0,0,0,158,
+		156,1,0,0,0,159,151,1,0,0,0,159,160,1,0,0,0,160,161,1,0,0,0,161,163,5,
+		5,0,0,162,150,1,0,0,0,162,163,1,0,0,0,163,33,1,0,0,0,164,168,3,36,18,0,
+		165,168,5,16,0,0,166,168,3,18,9,0,167,164,1,0,0,0,167,165,1,0,0,0,167,
+		166,1,0,0,0,168,35,1,0,0,0,169,170,7,0,0,0,170,37,1,0,0,0,171,172,5,14,
+		0,0,172,175,3,40,20,0,173,176,3,30,15,0,174,176,5,16,0,0,175,173,1,0,0,
+		0,175,174,1,0,0,0,176,39,1,0,0,0,177,178,7,1,0,0,178,41,1,0,0,0,20,45,
+		55,66,82,94,99,102,113,117,122,127,136,139,142,145,156,159,162,167,175
 	};
 
 	public static readonly ATN _ATN =

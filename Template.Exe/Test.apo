@@ -1,0 +1,27 @@
+nat(X) :: @(X) is a natural number.
+nat(0).
+nat(s(N)) :- nat(N).
+
+nat2(X) :: @(X) is a natural number.
+nat2(X) :- X = 0.
+nat2(X) :- X = s(N), nat(N).
+
+edge(X,Y) :: @(X) and @(Y) are directly connected.
+edge(a,b).
+edge(b,c).
+edge(c,d).
+
+path(X,Y) :: there exists a path from @(X) to @(Y).
+path(X,Y) :- edge(X,Y).
+path(X,Y) :- edge(X,Z), path(Z,Y).
+
+other(0).
+
+another(X) :: @(X) is awesome.
+another(X) :- other(X).
+
+someNot(ZZ) :: @(ZZ) is stupid.
+someNot(ZZ) :- not another(ZZ), not nat(ZZ).
+
+someNeg(Y) :: @(Y) makes sense.
+someNeg(Y) :- -nat(Y).

@@ -1,4 +1,5 @@
-﻿using Apollon.Lib.Rules;
+﻿using Apollon.Lib.Docu;
+using Apollon.Lib.Rules;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,8 @@ namespace Apollon.Lib
         public Rule[] RuleList { get; private set; }
 
         public Constraint[] ConstraintList { get; private set; }
+
+        public IDocumentation[] Documentation {  get; private set; }
 
         public IEnumerable<Statement> RuleTypesAsStatements
         {
@@ -47,14 +50,16 @@ namespace Apollon.Lib
         }
 
 
-        public Program(Literal[] literalList, Rule[] ruleList, Constraint[] constraints)
+        public Program(Literal[] literalList, Rule[] ruleList, Constraint[] constraints, IDocumentation[] documentation)
         {
             LiteralList = literalList;
             RuleList = ruleList;
             ConstraintList = constraints;
+            Documentation = documentation;
+
         }
 
-        public Program() : this(new Literal[0], new Rule[0], new Constraint[0])
+        public Program() : this(new Literal[0], new Rule[0], new Constraint[0], new Documentation[0])
         {
         }
 
