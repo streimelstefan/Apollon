@@ -119,5 +119,18 @@ namespace Apollon.Test.Integration
 
             Assert.IsFalse(res.CHS.IsEmpty);
         }
+
+        [Test]
+        public void ShouldResolveForAlls()
+        {
+            var code = "faster(bunny, turtle).\r\nfaster(cat, bunny).\r\n\r\nis_faster(X, Y) :- faster(X, Y).\r\nis_faster(X, Y) :- faster(X, Z), is_faster(Z, Y).\r\n\r\nfastest(X) :- not is_faster(Y, X). ";
+            var query = _parser.ParseQueryFromString("fastest(bunny).");
+            var program = _parser.ParseFromString(code);
+            _solver.Load(program);
+
+            var res = _solver.Solve(query);
+
+            Assert.IsFalse(res.CHS.IsEmpty);
+        }
     }
 }

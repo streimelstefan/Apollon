@@ -24,9 +24,12 @@ namespace Apollon.Lib.Resolution.CoSLD
         private ICoinductiveCHSChecker _chsChecker = new CHSChecker();
         private ICallStackChecker _callStackChecker = new CallStackChecker();
 
+        private Statement[] _allStatements = new Statement[0];
+
         public ResolutionResult Resolute(Statement[] statements, BodyPart[] goals)
         {
             // Initialize the call stack and CHS (coinductive hypothesis set)
+            _allStatements = statements;
             var callStack = new Stack<Literal>();
             CHS chs = new CHS();
 
@@ -48,16 +51,20 @@ namespace Apollon.Lib.Resolution.CoSLD
             foreach (var goal in goals)
             {
                 CoResolutionResult res = new CoResolutionResult();
-                if (goal.Literal != null)
+
+                if (goal.ForAll != null)
+                {
+                    res = ResolveForAllGoal(statements, goal, callStack, chs);
+                } else if (goal.Literal != null)
                 {
                     var substituted = substitution.Apply(goal.Literal);
                     res = ResolveLiteralGoal(statements, substituted, callStack, chs);
-                }
-
-                if (goal.Operation != null)
+                } else if (goal.Operation != null)
                 {
                     res = ResolveOperation(goal.Operation, substitution);
                 }
+
+
 
                 if (!res.Success)
                 {
@@ -68,6 +75,30 @@ namespace Apollon.Lib.Resolution.CoSLD
             }
 
             return new CoResolutionResult(true, sub);
+        }
+
+        private CoResolutionResult ResolveForAllGoal(Statement[] statements, BodyPart goal, Stack<Literal> callStack, CHS chs)
+        {
+            var forallRuleHead = GetForAllRule(goal);
+            var forallRules = statements
+                .Where(s => _unifier.Unify(s.Head, forallRuleHead).IsSuccess)
+                .Select(s => (Statement)s.Clone())
+                .Select(s => new Statement[] { s });
+
+            var currentGoal = new BodyPart[] { new BodyPart(forallRuleHead, null) };
+            var sub = new Substitution();
+
+            foreach (var forallRule in forallRules)
+            {
+                var res = ResolveAllGoals(forallRule, currentGoal, callStack, chs, new Substitution());
+
+                if (!res.Success)
+                {
+                    return new CoResolutionResult();
+                }
+            }
+
+            return new CoResolutionResult(true, new Substitution());
         }
 
         // Recursively resolves a goal
@@ -104,7 +135,7 @@ namespace Apollon.Lib.Resolution.CoSLD
                 if (unificationRes.Value == null) continue;
 
                 // we expand the goal with this statment if it succeeds the goal gets added to the chs.
-                var result = ResolveAllGoals(statements, statement.Body, callStack, chs, unificationRes.Value);
+                var result = ResolveAllGoals(_allStatements, statement.Body, callStack, chs, unificationRes.Value);
 
                 // this rule did not succeed try to find another one.
                 if (!result.Success) continue;
@@ -172,6 +203,19 @@ namespace Apollon.Lib.Resolution.CoSLD
             }
 
             return paramIndex;
+        }
+
+        private Literal GetForAllRule(BodyPart forall)
+        {
+            if (forall.ForAll == null && (forall.Child == null || forall.Literal == null))
+                throw new ArgumentException($"Body part needs to be a forall body part. Got ${forall}");
+
+            if (forall.Child != null) 
+                return GetForAllRule(forall.Child);
+            if (forall.Literal != null)
+                return forall.Literal;
+
+            throw new InvalidOperationException("Got body part that has neither a child or a literal, weird...");
         }
     }
 }
