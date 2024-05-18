@@ -65,6 +65,31 @@ namespace Apollon.Lib.Rules
             Operation = operation;
         }
 
+        public BodyPart(Literal? literal, Operation? operation, Term? term, BodyPart? child)
+        {
+            if (term != null && literal == null && child == null)
+            {
+                throw new ArgumentException("If body part is forall either literal or child need to be set.");
+            }
+            if (term != null && operation != null)
+            {
+                throw new ArgumentException("If body part is forall operation is not allowed to be set.");
+            }
+            if (operation != null && (literal != null || term != null || child != null))
+            {
+                throw new ArgumentException("If operation is set nothing else is allowed to be set.");
+            }
+            if (operation == null && literal == null && term == null &&  child == null)
+            {
+                throw new ArgumentException("All parameters are not allowed to be null.");
+            }
+
+            Literal = literal;
+            Operation = operation;
+            ForAll = term;
+            Child = child;
+        }
+
         public BodyPart(Term term, Literal literal)
         {
             ForAll = term;
@@ -121,6 +146,8 @@ namespace Apollon.Lib.Rules
         {
             Literal? literal = null;
             Operation? operation = null;
+            Term? forall = null;
+            BodyPart? child = null;
 
             if (Literal != null)
             {
@@ -130,8 +157,16 @@ namespace Apollon.Lib.Rules
             {
                 operation = (Operation)Operation.Clone();
             }
+            if (Child != null)
+            {
+                child = (BodyPart)Child.Clone();
+            }
+            if (ForAll != null) 
+            {
+                forall = (Term)ForAll.Clone();
+            }
 
-            return new BodyPart(literal, operation);
+            return new BodyPart(literal, operation, forall, child);
         }
     }
 }
