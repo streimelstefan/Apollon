@@ -20,6 +20,6 @@ namespace Apollon.Lib.Unification.Substitutioners
 
         public IEnumerable<Mapping> Mappings { get; }
 
-        public ISubstitution Induce(ISubstitution inductor);
+        public void BackPropagate(ISubstitution inductor);
     }
 }

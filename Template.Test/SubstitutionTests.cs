@@ -121,6 +121,25 @@ namespace Apollon.Test
             Assert.AreEqual("likes(0) :- 0() != 0().", substituted.ToString());
         }
 
+        [Test]
+        public void ShouldBackPropagateSimpleMappings()
+        {
+            var newSub = new Substitution();
+            newSub.Add(new Term("X"), new AtomParam(new Literal(new Atom("a"), false, false)));
+
+            _sub.Add(new Term("Y"), new AtomParam(new Term("X")));
+
+            _sub.BackPropagate(newSub);
+
+            var mappings = _sub.Mappings;
+            Assert.AreEqual(1, mappings);
+            var mapping = mappings.First();
+
+            Assert.IsNotNull(mapping);
+            Assert.AreEqual(true, mapping.MapsTo.IsLiteral);
+            Assert.AreEqual("Y -> a()", mapping.MapsTo.ToString());
+        }
+
 
     }
 }

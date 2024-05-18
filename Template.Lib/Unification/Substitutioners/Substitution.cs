@@ -2,6 +2,7 @@
 using Apollon.Lib.Rules;
 using Apollon.Lib.Rules.Operations;
 using Apollon.Lib.Unification.Substitutioners;
+using System.Runtime.ExceptionServices;
 
 namespace Apollon.Lib.Unification.Substitutioners
 {
@@ -168,18 +169,29 @@ namespace Apollon.Lib.Unification.Substitutioners
             return copy;
         }
 
-        public ISubstitution Induce(ISubstitution inductor)
+        public void BackPropagate(ISubstitution inductor)
         {
-            var newSub = new Substitution(Mappings);
-            foreach (var mapping in newSub.Mappings)
+            bool changesMade = false;
+
+            var candidates = mappings
+                .Where(im => im.Value.IsTerm) // we only care about the term values since they can be variables
+                .Where(im => im.Value.Term.IsVariable) // only the values that are variables
+                .Where(im => inductor.Mappings.Where(m => m.Variable.Value == im.Value.Term.Value).Any()) // only those that look like this ... -> Y | Y -> ...
+                .Select(im => (im, inductor.Mappings.Where(m => m.Variable.Value == im.Value.Term.Value).First()));
+
+            foreach (var candiate in candidates)
             {
-                foreach (var key in mappings.Where(v => v.Value.Term != null).Where(v => v.Value.Term.Value == mapping.Variable.Value).Select(v => v.Key))
+                if (candiate.Item2.MapsTo.Term != null && candiate.Item2.MapsTo.Term.IsVariable)
                 {
-                    newSub.mappings[key] = mapping.MapsTo;
+                    // union our PVL with the others.
+                    // warning here can be ignores since only variable values are allowed to be in the candidate.
+                    PVL.Union(candiate.im.Value.Term.ProhibitedValues, (PVL)candiate.Item2.Variable.ProhibitedValues.Clone());
+                } else
+                {
+                    // set mappsTo of the other to mappsTo of ours
+                    mappings[candiate.im.Key] = (AtomParam)candiate.Item2.MapsTo.Clone();
                 }
             }
-
-            return newSub;
         }
     }
 }
