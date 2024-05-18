@@ -132,12 +132,48 @@ namespace Apollon.Test
             _sub.BackPropagate(newSub);
 
             var mappings = _sub.Mappings;
-            Assert.AreEqual(1, mappings);
+            Assert.AreEqual(1, mappings.Count());
             var mapping = mappings.First();
 
             Assert.IsNotNull(mapping);
             Assert.AreEqual(true, mapping.MapsTo.IsLiteral);
-            Assert.AreEqual("Y -> a()", mapping.MapsTo.ToString());
+            Assert.AreEqual("Y -> a()", mapping.ToString());
+        }
+
+        [Test]
+        public void ShouldShouldUnionPVLsWhenBackPropagating()
+        {
+            var newSub = new Substitution();
+            newSub.Add(new Term("X"), new AtomParam(new Term("Y", new PVL(new AtomParam[] {new AtomParam(new Term("a"))}))));
+
+            _sub.Add(new Term("Y"), new AtomParam(new Term("X")));
+
+            _sub.BackPropagate(newSub);
+
+            var mappings = _sub.Mappings;
+            Assert.AreEqual(1, mappings.Count());
+            var mapping = mappings.First();
+
+            Assert.IsNotNull(mapping);
+            Assert.AreEqual("Y - {\\a} -> X - {\\a}", mapping.ToString());
+        }
+
+        [Test]
+        public void ShouldDoNothingIfThereIsNothingToBackPropagate()
+        {
+            var newSub = new Substitution();
+            newSub.Add(new Term("Y"), new AtomParam(new Term("X", new PVL(new AtomParam[] { new AtomParam(new Term("a")) }))));
+
+            _sub.Add(new Term("Y"), new AtomParam(new Term("X")));
+
+            _sub.BackPropagate(newSub);
+
+            var mappings = _sub.Mappings;
+            Assert.AreEqual(1, mappings.Count());
+            var mapping = mappings.First();
+
+            Assert.IsNotNull(mapping);
+            Assert.AreEqual("Y -> X", mapping.ToString());
         }
 
 

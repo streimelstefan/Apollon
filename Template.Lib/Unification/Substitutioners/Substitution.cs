@@ -22,7 +22,16 @@ namespace Apollon.Lib.Unification.Substitutioners
         {
             get
             {
-                return mappings.Select(m => new Mapping(new Term(m.Key), m.Value));
+                return mappings.Select(m => { 
+                    if (m.Value.Term != null && m.Value.Term.IsVariable)
+                    {
+                        return new Mapping(new Term(m.Key, (PVL)m.Value.Term.ProhibitedValues.Clone()), m.Value);
+                    } else
+                    {
+                        return new Mapping(new Term(m.Key), m.Value);
+                    }
+                });
+
             }
         }
 
