@@ -118,6 +118,16 @@ namespace Apollon.Test.Integration
             var res = _solver.Solve(query);
 
             Assert.IsFalse(res.CHS.IsEmpty);
+
+            var literals = res.CHS.Literals;
+            Assert.AreEqual(5, literals.Count());
+            Assert.AreEqual("not q(3)", literals[0].ToString()); // this should be not q(3) but not sure how or if to implement that.
+            // it should be set to three when a value gets checked in the chs. But we losse al context once a literal enters the chs.
+            // so not sure how to fix that currently.
+            Assert.AreEqual("p(3)", literals[1].ToString()); // this should be p(3) but not sure how or if to implement that.
+            Assert.AreEqual("not p(V/0 - {\\3() \\4()})", literals[2].ToString());
+            Assert.AreEqual("q(X - {\\3() \\4()})", literals[3].ToString());
+            Assert.AreEqual("r(X - {\\3() \\4()})", literals[4].ToString());
         }
 
         [Test]
@@ -131,6 +141,13 @@ namespace Apollon.Test.Integration
             var res = _solver.Solve(query);
 
             Assert.IsFalse(res.CHS.IsEmpty);
+
+            var literals = res.CHS.Literals;
+            Assert.AreEqual(4, literals.Count());
+            Assert.AreEqual("not faster(V/0 - {\\bunny() \\cat()}, bunny)", literals[0].ToString());
+            Assert.AreEqual("not faster(V/0 - {\\bunny() \\cat()}, V/1)", literals[1].ToString());
+            Assert.AreEqual("not is_faster(V/0 - {\\bunny() \\cat()}, bunny)", literals[2].ToString());
+            Assert.AreEqual("fastest(bunny)", literals[3].ToString());
         }
     }
 }

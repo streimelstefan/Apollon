@@ -105,15 +105,7 @@ namespace Apollon.Lib.Unification
             
             if (param1.Term != null && param2.Term != null)
             {
-                if (param2.Term.IsVariable != param1.Term.IsVariable)
-                    return new UnificationResult($"Type missmatch => {param1} \\= {param2}");
-                if (param1.Term.IsVariable && param2.Term.IsVariable)
-                    return new UnificationResult(new Substitution());
-
-                if (param1.Term.Value !=  param2.Term.Value)
-                    return new UnificationResult($"Name missmatch => {param1} \\= {param2}");
-
-                return new UnificationResult(new Substitution());
+                return Unify(param1.Term, param2.Term);
             }
 
             throw new InvalidOperationException($"Unhandled Case in Exact Unification => {param1} {param2}");
@@ -129,6 +121,36 @@ namespace Apollon.Lib.Unification
                 return new UnificationResult($"Operation missmatch => {op1} \\= {op2}");
 
             return Unify(op1.Condition, op2.Condition);
+        }
+
+        public UnificationResult Unify(Term term1, Term term2)
+        {
+            if (term1.IsVariable != term2.IsVariable)
+                return new UnificationResult($"Type missmatch => {term1} \\= {term2}");
+            if (term1.IsVariable && term2.IsVariable)
+            {
+                var pvl1 = term1.ProhibitedValues.GetValues().ToArray();
+                var pvl2 = term2.ProhibitedValues.GetValues().ToArray();
+
+                // if both pvls are equal succeed if not fail.
+                if (pvl1.Length != pvl2.Length)
+                {
+                    return new UnificationResult($"PVL length missmatch => {term1} \\= {term2}");
+                }
+
+                for (int i = 0; i < pvl1.Length; i++)
+                {
+                    var res = Unify(pvl1[i], pvl2[i]);
+                    if (res.IsError) return res;
+                }
+
+                return new UnificationResult(new Substitution());
+            }
+
+            if (term1.Value != term2.Value)
+                return new UnificationResult($"Name missmatch => {term1} \\= {term2}");
+
+            return new UnificationResult(new Substitution());
         }
     }
 }
