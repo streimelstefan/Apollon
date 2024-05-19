@@ -66,24 +66,25 @@ namespace Apollon.Lib
         {
             // get the values of the variables of the query. as the result has the variables filled in.
             var unifier = new Unifier();
-            Substitution sub = new Substitution();
-            foreach (var goal in goals)
-            {
-                foreach (var literal in res.CHS.Literals)
-                {
-                    var goalRes = unifier.Unify(goal.Literal, literal);
-
-                    if (goalRes.IsError)
-                    {
-                        continue;
-                    }
-
-                    foreach (var mapping in goalRes.Value.Mappings)
-                    {
-                        sub.Add(mapping.Variable, mapping.MapsTo);
-                    }
-                }
-            }
+            var variableExtractor = new VariableExtractor();
+            // Substitution sub = new Substitution();
+            // foreach (var goal in goals)
+            // {
+            //     foreach (var literal in res.CHS.Literals)
+            //     {
+            //         var goalRes = unifier.Unify(goal.Literal, literal);
+            // 
+            //         if (goalRes.IsError)
+            //         {
+            //             continue;
+            //         }
+            // 
+            //         foreach (var mapping in goalRes.Value.Mappings)
+            //         {
+            //             sub.Add(mapping.Variable, mapping.MapsTo);
+            //         }
+            //     }
+            // }
 
             // remove all answers that are not in the original program
             var final = new List<Literal>();
@@ -97,7 +98,7 @@ namespace Apollon.Lib
                 }
             }
 
-            return new ResolutionResult(new CHS(final), sub);
+            return new ResolutionResult(new CHS(final), res.Substitution);
         }
     }
 }

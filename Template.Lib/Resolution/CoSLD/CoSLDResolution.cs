@@ -41,12 +41,12 @@ namespace Apollon.Lib.Resolution.CoSLD
                 return new ResolutionResult();
             }
 
-            return new ResolutionResult(chs, new Substitution());
+            return new ResolutionResult(chs, res.Substitution);
         }
 
         public CoResolutionResult ResolveAllGoals(Statement[] _statements, BodyPart[] goals, Stack<Literal> callStack, CHS chs, ISubstitution substitution)
         {
-            ISubstitution sub = new Substitution();
+            ISubstitution sub = substitution.Clone();
             var statements = _statements.Select(s => (Statement)s.Clone()).ToArray();
             foreach (var goal in goals)
             {
@@ -64,14 +64,13 @@ namespace Apollon.Lib.Resolution.CoSLD
                     res = ResolveOperation(goal.Operation, substitution);
                 }
 
-
-
                 if (!res.Success)
                 {
                     return new CoResolutionResult();
                 }
 
-                sub = new Substitution(res.Substitution.Mappings.Union(sub.Mappings).DistinctBy(m => m.Variable.Value));
+                sub.BackPropagate(res.Substitution);
+                sub.Contract();
             }
 
             return new CoResolutionResult(true, sub);
@@ -104,7 +103,7 @@ namespace Apollon.Lib.Resolution.CoSLD
         // Recursively resolves a goal
         private CoResolutionResult ResolveLiteralGoal(Statement[] statements, Literal goal, Stack<Literal> callStack, CHS chs)
         {
-            PreprocessLiteralGoal(goal);
+            var baseSub = PreprocessLiteralGoal(goal);
             var checkRes = CheckCHSAndCallStack(goal, callStack, chs);
             if (checkRes == CheckerResult.Succeed)
             {
@@ -119,7 +118,10 @@ namespace Apollon.Lib.Resolution.CoSLD
             var expansionRes = ResolveLiteralGoalByExpansion(statements, goal, callStack, chs);
             callStack.Pop();
 
-            return expansionRes;
+            baseSub.BackPropagate(expansionRes.Substitution);
+            baseSub.Contract();
+
+            return new CoResolutionResult(expansionRes.Success, baseSub);
         }
 
         private CoResolutionResult ResolveLiteralGoalByExpansion(Statement[] statements, Literal goal, Stack<Literal> callStack, CHS chs)
@@ -139,11 +141,12 @@ namespace Apollon.Lib.Resolution.CoSLD
 
                 // this rule did not succeed try to find another one.
                 if (!result.Success) continue;
+                var reverseUnification = _unifier.Unify(goal, statement.Head);
+                reverseUnification.Value.BackPropagate(result.Substitution);
+                reverseUnification.Value.Contract();
 
-                var goalSub = new Substitution(unificationRes.Value.Mappings.Union(result.Substitution.Mappings).DistinctBy(m => m.Variable.Value));
-                    // unificationRes.Value.Induce(result.Substitution);
-                chs.Add(goalSub.Apply(goal));
-                return new CoResolutionResult(true, unificationRes.Value);
+                chs.Add(reverseUnification.Value.Apply(goal));
+                return new CoResolutionResult(true, reverseUnification.Value);
             }
 
             // no statments where found that succeed for this statment. 
@@ -187,18 +190,42 @@ namespace Apollon.Lib.Resolution.CoSLD
         /// <param name="goal"></param>
         /// <param name="paramIndex"></param>
         /// <returns></returns>
-        private int PreprocessLiteralGoal(Literal goal, int paramIndex = 0)
+        private ISubstitution PreprocessLiteralGoal(Literal goal)
+        {
+            var sub = new Substitution();
+            var paramIndex = 0;
+            foreach (var param in goal.Atom.ParamList)
+            {
+                if (param.Term != null && param.Term.IsVariable)
+                {
+                    var newVariableName = $"RV/{paramIndex}";
+                    sub.Add(param.Term, new AtomParam(new Term(newVariableName)));
+                    param.Term.Value = newVariableName;
+                    paramIndex++;
+                }
+                else if (param.Literal != null)
+                {
+                    paramIndex = PreprocessLiteralGoal(param.Literal, sub, paramIndex);
+                }
+            }
+
+            return sub;
+        }
+
+        private int PreprocessLiteralGoal(Literal goal, ISubstitution sub, int paramIndex = 0)
         {
             foreach (var param in goal.Atom.ParamList)
             {
                 if (param.Term != null && param.Term.IsVariable)
                 {
-                    param.Term.Value = $"RV/{paramIndex}";
+                    var newVariableName = $"RV/{paramIndex}";
+                    sub.Add(param.Term, new AtomParam(new Term(newVariableName)));
+                    param.Term.Value = newVariableName;
                     paramIndex++;
                 }
                 else if (param.Literal != null)
                 {
-                    paramIndex = PreprocessLiteralGoal(param.Literal, paramIndex);
+                    paramIndex = PreprocessLiteralGoal(param.Literal, sub, paramIndex);
                 }
             }
 

@@ -159,23 +159,97 @@ namespace Apollon.Test
         }
 
         [Test]
-        public void ShouldDoNothingIfThereIsNothingToBackPropagate()
+        public void ShouldAddVariablesThatAreNotInduced()
         {
             var newSub = new Substitution();
-            newSub.Add(new Term("Y"), new AtomParam(new Term("X", new PVL(new AtomParam[] { new AtomParam(new Term("a")) }))));
+            newSub.Add(new Term("B"), new AtomParam(new Term("a", new PVL(new AtomParam[] { new AtomParam(new Term("a")) }))));
 
             _sub.Add(new Term("Y"), new AtomParam(new Term("X")));
 
             _sub.BackPropagate(newSub);
 
             var mappings = _sub.Mappings;
-            Assert.AreEqual(1, mappings.Count());
+            Assert.AreEqual(2, mappings.Count());
             var mapping = mappings.First();
 
             Assert.IsNotNull(mapping);
             Assert.AreEqual("Y -> X", mapping.ToString());
+            Assert.AreEqual("B -> a - {\\a}", mappings.Last().ToString());
+        }
+
+        [Test]
+        public void ShouldContractIfThereAreLists()
+        {
+            _sub.Add(new Term("X"), new AtomParam(new Term("Y")));
+            _sub.Add(new Term("Y"), new AtomParam(new Term("a")));
+
+            _sub.Contract();
+
+            var mappings = _sub.Mappings;
+
+            Assert.AreEqual(1, mappings.Count());
+            Assert.AreEqual("X -> a", mappings.First().ToString());
+        }
+
+        [Test]
+        public void ShouldContractIfThereAreListsWithMoreThenTwoElements()
+        {
+            _sub.Add(new Term("X"), new AtomParam(new Term("Y")));
+            _sub.Add(new Term("Y"), new AtomParam(new Term("Z")));
+            _sub.Add(new Term("Z"), new AtomParam(new Term("a")));
+
+            _sub.Contract();
+
+            var mappings = _sub.Mappings;
+
+            Assert.AreEqual(1, mappings.Count());
+            Assert.AreEqual("X -> a", mappings.First().ToString());
+        }
+
+        [Test]
+        public void ShouldDoNothingIfThereAreNoLists()
+        {
+            _sub.Add(new Term("X"), new AtomParam(new Term("Y")));
+            _sub.Add(new Term("Z"), new AtomParam(new Term("a")));
+
+            _sub.Contract();
+
+            var mappings = _sub.Mappings;
+
+            Assert.AreEqual(2, mappings.Count());
+            Assert.AreEqual("X -> Y", mappings.First().ToString());
+            Assert.AreEqual("Z -> a", mappings.Last().ToString());
+        }
+
+        [Test]
+        public void ShouldDoNothingIfTheSubIsEmpty()
+        {
+            _sub.Contract();
+
+            var mappings = _sub.Mappings;
+
+            Assert.AreEqual(0, mappings.Count());
+        }
+
+        [Test]
+        public void ShouldAddValueTermEvenIfItIsTheSameAsTheVariable()
+        {
+            _sub.Add(new Term("X"), new AtomParam(new Term("X")));
+
+            var mappings = _sub.Mappings;
+
+            Assert.AreEqual(1, mappings.Count());
         }
 
 
+        [Test]
+        public void ShouldAddValueTermIfThePVLsAreDifferent()
+        {
+            _sub.Add(new Term("X"), new AtomParam(new Term("X", new PVL(new AtomParam[] {new AtomParam(new Term("a"))}))));
+
+            var mappings = _sub.Mappings;
+
+            Assert.AreEqual(1, mappings.Count());
+        }
     }
 }

@@ -44,7 +44,24 @@ namespace Apollon.Lib.Unification.Substitutioners
                     throw new InvalidOperationException("Cannot add new substitution under the existing name");
                 }
             }
+            // if (term.Term != null && term.Term.IsVariable && variable.Equals(term.Term))
+            // {
+            //     return;
+            // }
+
             mappings[variable.Value] = term;
+        }
+
+        public bool TryAdd(Term variable, AtomParam term)
+        {
+            try
+            {
+                Add(variable, term);
+                return true;
+            } catch (Exception) 
+            {
+                return false;
+            }
         }
 
         public Statement Apply(Statement statement)
@@ -181,6 +198,7 @@ namespace Apollon.Lib.Unification.Substitutioners
         public void BackPropagate(ISubstitution inductor)
         {
             bool changesMade = false;
+            var inductorCopy = inductor.Clone();
 
             var candidates = mappings
                 .Where(im => im.Value.IsTerm) // we only care about the term values since they can be variables
@@ -200,7 +218,46 @@ namespace Apollon.Lib.Unification.Substitutioners
                     // set mappsTo of the other to mappsTo of ours
                     mappings[candiate.im.Key] = (AtomParam)candiate.Item2.MapsTo.Clone();
                 }
+                inductorCopy.Remove(candiate.Item2.Variable);
             }
+
+            // add all other mappings that do not need to be induced.
+            foreach (var missingMapping in inductorCopy.Mappings)
+            {
+                TryAdd(missingMapping.Variable, missingMapping.MapsTo);
+                //mappings[missingMapping.Variable.Value] = missingMapping.MapsTo;
+            }
+        }
+
+        public ISubstitution Clone()
+        {
+            return new Substitution(Mappings.Select(m => new Mapping((Term)m.Variable.Clone(), (AtomParam)m.MapsTo.Clone())));
+        }
+
+        public void Contract()
+        {
+            while (true)
+            {
+                var inductions = mappings
+                    .Where(im => im.Value.IsTerm) // we only care about the term values since they can be variables
+                    .Where(im => im.Value.Term.IsVariable) // only the values that are variables
+                    .Where(im => mappings.ContainsKey(im.Value.Term.Value));
+
+                if (!inductions.Any()) // no more changes need to be made
+                {
+                    return;
+                }
+
+                var induction = inductions.First();
+
+                mappings[induction.Key] = mappings[induction.Value.Term.Value];
+                mappings.Remove(induction.Value.Term.Value);
+            }
+        }
+
+        public void Remove(Term variable)
+        {
+            mappings.Remove(variable.Value);
         }
     }
 }

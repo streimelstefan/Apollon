@@ -18,8 +18,14 @@ namespace Apollon.Lib.Unification.Substitutioners
 
         void Add(Term variable, AtomParam term);
 
+        void Remove(Term variable);
+
         public IEnumerable<Mapping> Mappings { get; }
 
         public void BackPropagate(ISubstitution inductor);
+
+        public ISubstitution Clone();
+
+        public void Contract();
     }
 }

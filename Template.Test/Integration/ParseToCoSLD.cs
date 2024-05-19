@@ -102,8 +102,8 @@ namespace Apollon.Test.Integration
             var res = _solver.Solve(query);
 
             Assert.IsFalse(res.CHS.IsEmpty);
-            Assert.AreEqual("not q(RV/0)", res.CHS.Literals[0].ToString());
-            Assert.AreEqual("p(RV/0)", res.CHS.Literals[1].ToString());
+            Assert.AreEqual("not q(V/0)", res.CHS.Literals[0].ToString());
+            Assert.AreEqual("p(X)", res.CHS.Literals[1].ToString());
             Assert.AreEqual("{ X -> RV/0 }", res.Substitution.ToString());
         }
 
