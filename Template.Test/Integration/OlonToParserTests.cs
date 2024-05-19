@@ -83,5 +83,18 @@ namespace Apollon.Test.Integration
 
             Assert.AreEqual(4, processedRules.Length);
         }
+
+        [Test]
+        public void ShouldDetectNoOLONRules()
+        {
+            var code = "faster(bunny, turtle).\r\nfaster(cat, bunny).\r\n\r\nis_faster(X, Y) :- faster(X, Y).\r\nis_faster(X, Y) :- faster(X, Z), is_faster(Z, Y).\r\n\r\nfastest(X) :- not is_faster(Y, X).";
+            var program = _parser.ParseFromString(code);
+            var callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
+
+            var olonSet = OlonDetector.DetectOlonIn(callGraph);
+
+            Assert.IsNotNull(olonSet);
+            Assert.AreEqual(0, olonSet.Nodes.Count);
+        }
     }
 }
