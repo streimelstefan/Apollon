@@ -39,6 +39,14 @@ namespace Apollon.Lib.Unification.Substitutioners
         {
             if (mappings.ContainsKey(variable.Value))
             {
+                if (mappings[variable.Value].Term != null && mappings[variable.Value].Term.IsVariable &&
+                    term.Term != null && term.Term.IsVariable)
+                {
+                    // if the value to add and the mapsTo of the mapping here are both variables Unionize their PVLs.
+                    // and abort.
+                    PVL.Union(mappings[variable.Value].Term.ProhibitedValues, term.Term.ProhibitedValues);
+                    return;
+                } 
                 if (!mappings[variable.Value].Equals(term))
                 {
                     throw new InvalidOperationException("Cannot add new substitution under the existing name");
@@ -241,7 +249,8 @@ namespace Apollon.Lib.Unification.Substitutioners
                 var inductions = mappings
                     .Where(im => im.Value.IsTerm) // we only care about the term values since they can be variables
                     .Where(im => im.Value.Term.IsVariable) // only the values that are variables
-                    .Where(im => mappings.ContainsKey(im.Value.Term.Value));
+                    .Where(im => mappings.ContainsKey(im.Value.Term.Value))
+                    .Where(im => !(im.Value.Term != null && im.Value.Term.Value == im.Key)); // only the ones where the key is not the same as the value
 
                 if (!inductions.Any()) // no more changes need to be made
                 {

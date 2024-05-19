@@ -88,11 +88,14 @@ namespace Apollon.Lib
 
             // remove all answers that are not in the original program
             var final = new List<Literal>();
-            var allLiterals = LoadedProgram.AllLiterals.ToArray();
+            // ignore naf negation when selecting literals.
+            var allLiterals = LoadedProgram.AllLiterals.Select(l => { l.IsNAF = false; return l; }).ToArray();
             foreach (var literal in res.CHS.Literals)
             {
                 // if literal exists in programm add it to final
-                if (allLiterals.Where(l => unifier.Unify(l, literal).IsSuccess).Any())
+                var litCopy = (Literal)literal.Clone();
+                litCopy.IsNAF = false;
+                if (allLiterals.Where(l => unifier.Unify(l, litCopy).IsSuccess).Any())
                 {
                     final.Add(literal);
                 }

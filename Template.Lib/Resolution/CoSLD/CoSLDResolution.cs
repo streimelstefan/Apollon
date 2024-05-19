@@ -54,10 +54,10 @@ namespace Apollon.Lib.Resolution.CoSLD
 
                 if (goal.ForAll != null)
                 {
-                    res = ResolveForAllGoal(statements, goal, callStack, chs);
+                    res = ResolveForAllGoal(statements, goal, callStack, chs, sub);
                 } else if (goal.Literal != null)
                 {
-                    var substituted = substitution.Apply(goal.Literal);
+                    var substituted = sub.Apply(goal.Literal);
                     res = ResolveLiteralGoal(statements, substituted, callStack, chs);
                 } else if (goal.Operation != null)
                 {
@@ -76,7 +76,7 @@ namespace Apollon.Lib.Resolution.CoSLD
             return new CoResolutionResult(true, sub);
         }
 
-        private CoResolutionResult ResolveForAllGoal(Statement[] statements, BodyPart goal, Stack<Literal> callStack, CHS chs)
+        private CoResolutionResult ResolveForAllGoal(Statement[] statements, BodyPart goal, Stack<Literal> callStack, CHS chs, ISubstitution substitution)
         {
             var forallRuleHead = GetForAllRule(goal);
             var forallRules = statements
@@ -84,12 +84,13 @@ namespace Apollon.Lib.Resolution.CoSLD
                 .Select(s => (Statement)s.Clone())
                 .Select(s => new Statement[] { s });
 
-            var currentGoal = new BodyPart[] { new BodyPart(forallRuleHead, null) };
-            var sub = new Substitution();
+            var currentGoal = new BodyPart(forallRuleHead, null);
+            var sub = substitution.Clone(); 
 
             foreach (var forallRule in forallRules)
             {
-                var res = ResolveAllGoals(forallRule, currentGoal, callStack, chs, new Substitution());
+                var subbedGoal = new BodyPart[] { sub.Apply(new Statement(null, currentGoal)).Body[0] };
+                var res = ResolveAllGoals(forallRule, subbedGoal, callStack, chs, new Substitution());
 
                 if (!res.Success)
                 {

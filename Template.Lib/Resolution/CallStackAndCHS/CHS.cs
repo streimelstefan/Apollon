@@ -17,7 +17,7 @@ namespace Apollon.Lib.Resolution.CallStackAndCHS;
 public class CHS
 {
     public List<Literal> Literals { get; private set; } //List does preserve Order, as written on MSDN List<T> Class.
-    private IUnifier Unifier = new Unifier();
+    private IUnifier Unifier = new ExactUnifier();
 
     public bool IsEmpty
     {
