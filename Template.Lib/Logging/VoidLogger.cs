@@ -31,6 +31,11 @@ namespace Apollon.Lib.Logging
             } 
         }
 
+        public ILogger CreateChild()
+        {
+            return new VoidLogger();
+        }
+
         public void Debug(string message)
         {
         }

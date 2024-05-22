@@ -23,5 +23,7 @@ namespace Apollon.Lib.Logging
         void Error(string message);
 
         void Fatal(string message);
+
+        public ILogger CreateChild();
     }
 }

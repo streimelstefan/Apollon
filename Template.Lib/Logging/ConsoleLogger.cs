@@ -11,6 +11,15 @@ namespace Apollon.Lib.Logging
         public LogLevel Level { get; set; } = LogLevel.NoLogging;
         public int RecursionDepth { get; set; }
 
+        public ILogger CreateChild()
+        {
+            var newLogger = new ConsoleLogger();
+            newLogger.Level = Level;
+            newLogger.RecursionDepth = RecursionDepth;
+
+            return newLogger;
+        }
+
         public void Debug(string message)
         {
             if (Level > LogLevel.Debug)
