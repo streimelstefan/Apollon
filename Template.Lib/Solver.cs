@@ -7,7 +7,6 @@ using Apollon.Lib.OLON;
 using Apollon.Lib.Resolution;
 using Apollon.Lib.Resolution.CallStackAndCHS;
 using Apollon.Lib.Resolution.CoSLD;
-using Apollon.Lib.Resolution.SLD;
 using Apollon.Lib.Rules;
 using Apollon.Lib.Unification;
 using Apollon.Lib.Unification.Substitutioners;
