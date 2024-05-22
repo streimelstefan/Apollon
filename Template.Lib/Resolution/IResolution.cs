@@ -1,4 +1,5 @@
-﻿using Apollon.Lib.Rules;
+﻿using Apollon.Lib.Logging;
+using Apollon.Lib.Rules;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace Apollon.Lib.Resolution
     public interface IResolution
     {
 
-        ResolutionResult Resolute(Statement[] statements, BodyPart[] goals);
+        ResolutionResult Resolute(Statement[] statements, BodyPart[] goals, ILogger logger);
 
     }
 }

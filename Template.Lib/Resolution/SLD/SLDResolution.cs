@@ -1,4 +1,5 @@
-﻿using Apollon.Lib.Resolution.CallStackAndCHS;
+﻿using Apollon.Lib.Logging;
+using Apollon.Lib.Resolution.CallStackAndCHS;
 using Apollon.Lib.Rules;
 using Apollon.Lib.Rules.Operations;
 using Apollon.Lib.Unification;
@@ -14,7 +15,7 @@ namespace Apollon.Lib.Resolution.SLD
 {
     public class SLDResolution : IResolution
     {
-        public ResolutionResult Resolute(Statement[] statements, BodyPart[] goals)
+        public ResolutionResult Resolute(Statement[] statements, BodyPart[] goals, ILogger logger)
         {
             return RecResolution(statements, goals);
         }

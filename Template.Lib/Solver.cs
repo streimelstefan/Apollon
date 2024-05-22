@@ -1,6 +1,7 @@
 ﻿using Apollon.Lib.DualRules;
 using Apollon.Lib.Graph;
 using Apollon.Lib.Linker;
+using Apollon.Lib.Logging;
 using Apollon.Lib.NMRCheck;
 using Apollon.Lib.OLON;
 using Apollon.Lib.Resolution;
@@ -27,6 +28,8 @@ namespace Apollon.Lib
 
         public Program? LoadedProgram { get; private set; }
 
+        public ILogger Logger { get; set; } = new ConsoleLogger();
+
         public void Load(Program program)
         {
             IDualRuleGenerator dualRuleGenerator = new DualRuleGenerator();
@@ -42,6 +45,8 @@ namespace Apollon.Lib
             NMRCheck = nmrRules.Last();
             ProcessedStatments = program.Statements.Union(dualRules).Union(nmrRules).Select(s => VariableLinker.LinkVariables(s)).ToArray();
             LoadedProgram = program;
+
+            Logger.Info($"Loaded and preprocessed program: \n{string.Join("\n", ProcessedStatments)}");
         }
 
         public ResolutionResult Solve(BodyPart[] goals)
@@ -57,7 +62,7 @@ namespace Apollon.Lib
                 .Append(NMRCheckGoal)
                 .ToArray();
 
-            var res = Resolution.Resolute(ProcessedStatments.ToArray(), goalsCopy);
+            var res = Resolution.Resolute(ProcessedStatments.ToArray(), goalsCopy, Logger);
 
             return PostProcessResult(goals, res);
         }

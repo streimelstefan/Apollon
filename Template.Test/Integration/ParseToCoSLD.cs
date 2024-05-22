@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Apollon.Lib.Resolution;
 using Apollon.Lib.Resolution.CoSLD;
+using Apollon.Lib.Logging;
 
 namespace Apollon.Test.Integration
 {
@@ -24,6 +25,7 @@ namespace Apollon.Test.Integration
         public void Setup()
         {
             _solver = new Solver();
+            _solver.Logger.Level = LogLevel.Trace;
             _parser = new ApollonParser();
         }
 

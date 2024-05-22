@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,6 +9,28 @@ namespace Apollon.Lib.Logging
 {
     public class VoidLogger : ILogger
     {
+        public int RecursionDepth 
+        { 
+            get
+            {
+                return 0;
+            }
+
+            set
+            {
+            }
+        }
+        public LogLevel Level { 
+            get 
+            {
+                return LogLevel.Trace;
+            } 
+
+            set 
+            { 
+            } 
+        }
+
         public void Debug(string message)
         {
         }

@@ -8,6 +8,8 @@ namespace Apollon.Lib.Logging
 {
     public interface ILogger
     {
+        public LogLevel Level { get; set; }
+
         public int RecursionDepth { get; set; }
 
         void Trace(string message);
