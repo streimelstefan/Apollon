@@ -29,24 +29,23 @@ namespace Apollon.Lib.Resolution.CoSLD
 
         private Statement[] _allStatements = new Statement[0];
 
-        public ResolutionResult Resolute(Statement[] statements, BodyPart[] goals, ILogger logger)
+        public IEnumerable<ResolutionResult> Resolute(Statement[] statements, BodyPart[] goals, ILogger logger)
         {
             // Initialize the call stack and CHS (coinductive hypothesis set)
             _allStatements = statements;
             var callStack = new Stack<Literal>();
-            CHS chs = new CHS();
             // -1 because the resolve all goals will increase it at the start resulting in 0.
             logger.RecursionDepth = -1;
 
             // Start the resolution process
-            var res = ResolveAllGoals(new ResolutionRecursionState(goals, statements, callStack, chs, new Substitution(), logger));
+            var res = ResolveAllGoals(new ResolutionRecursionState(goals, statements, callStack, new CHS(), new Substitution(), logger));
 
             if (!res.Success)
             {
-                return new ResolutionResult();
+                yield return new ResolutionResult();
             }
 
-            return new ResolutionResult(chs, res.Substitution);
+            yield return new ResolutionResult(res.CHS, res.Substitution);
         }
 
         public CoResolutionResult ResolveAllGoals(ResolutionRecursionState state)
@@ -61,16 +60,16 @@ namespace Apollon.Lib.Resolution.CoSLD
                 if (goal.ForAll != null)
                 {
                     state.Logger.Info($"Current goal is: {goal}");
-                    res = ResolveForAllGoal(new ResolutionStepState(state, goal, statements));
+                    res = ResolveForAllGoal(ResolutionStepState.CloneConstructor(state, goal, statements));
                 } else if (goal.Literal != null)
                 {
                     var substituted = sub.Apply(goal.Literal);
                     state.Logger.Info($"Current goal is: {substituted}");
-                    res = ResolveLiteralGoal(new ResolutionLiteralState(state, substituted, statements));
+                    res = ResolveLiteralGoal(ResolutionLiteralState.CloneConstructor(state, substituted, statements));
                 } else if (goal.Operation != null)
                 {
                     state.Logger.Info($"Current goal is: {goal}");
-                    res = ResolveOperation(goal.Operation, state.Substitution);
+                    res = ResolveOperation(goal.Operation, state.Substitution, (ResolutionBaseState)state.Clone());
                 }
 
                 if (!res.Success)
@@ -80,12 +79,12 @@ namespace Apollon.Lib.Resolution.CoSLD
                     return new CoResolutionResult();
                 }
 
+                state.Chs = res.State.Chs;
                 sub.BackPropagate(res.Substitution);
                 sub.Contract();
             }
 
-            state.Logger.RecursionDepth--;
-            return new CoResolutionResult(true, sub);
+            return new CoResolutionResult(true, sub, state);
         }
 
         private CoResolutionResult ResolveForAllGoal(ResolutionStepState state)
@@ -102,15 +101,16 @@ namespace Apollon.Lib.Resolution.CoSLD
             foreach (var forallRule in forallRules)
             {
                 var subbedGoal = new BodyPart[] { sub.Apply(new Statement(null, currentGoal)).Body[0] };
-                var res = ResolveAllGoals(new ResolutionRecursionState(subbedGoal, forallRule, state.CallStack, state.Chs, new Substitution(), state.Logger));
+                var res = ResolveAllGoals(ResolutionRecursionState.CloneConstructor(subbedGoal, forallRule, state.CallStack, state.Chs, new Substitution(), state.Logger));
 
                 if (!res.Success)
                 {
                     return new CoResolutionResult();
                 }
+                state.Chs = res.CHS;
             }
 
-            return new CoResolutionResult(true, new Substitution());
+            return new CoResolutionResult(true, new Substitution(), state);
         }
 
         // Recursively resolves a goal
@@ -120,7 +120,7 @@ namespace Apollon.Lib.Resolution.CoSLD
             var checkRes = CheckCHSAndCallStack(state);
             if (checkRes == CheckerResult.Succeed)
             {
-                return new CoResolutionResult(true, new Substitution());
+                return new CoResolutionResult(true, new Substitution(), state);
             }
             if (checkRes == CheckerResult.Fail)
             {
@@ -130,13 +130,13 @@ namespace Apollon.Lib.Resolution.CoSLD
             state.Logger.Debug($"CallStack adding goal {state.CurrentGoal}");
             state.CallStack.Push(state.CurrentGoal);
             var expansionRes = ResolveLiteralGoalByExpansion(state);
-            state.CallStack.Pop();
+            //state.CallStack.Pop();
             state.Logger.Debug($"CallStack removing goal {state.CurrentGoal}");
 
             baseSub.BackPropagate(expansionRes.Substitution);
             baseSub.Contract();
 
-            return new CoResolutionResult(expansionRes.Success, baseSub);
+            return new CoResolutionResult(expansionRes.Success, baseSub, state);
         }
 
         private CoResolutionResult ResolveLiteralGoalByExpansion(ResolutionLiteralState state)
@@ -154,7 +154,7 @@ namespace Apollon.Lib.Resolution.CoSLD
                 state.Logger.Info($"Unified goal {state.CurrentGoal} with {statement} resulting in {unificationRes.Value}");
                 // we expand the goal with this statment if it succeeds the goal gets added to the chs.
                 var result = ResolveAllGoals(
-                    new ResolutionRecursionState(statement.Body, _allStatements, state.CallStack, state.Chs, unificationRes.Value, state.Logger));
+                    ResolutionRecursionState.CloneConstructor(statement.Body, _allStatements, state.CallStack, state.Chs, unificationRes.Value, state.Logger));
 
                 // this rule did not succeed try to find another one.
                 if (!result.Success) continue;
@@ -163,9 +163,10 @@ namespace Apollon.Lib.Resolution.CoSLD
                 reverseUnification.Value.Contract();
 
                 var goalToAdd = reverseUnification.Value.Apply(state.CurrentGoal);
+                state.Chs = result.CHS;
                 state.Chs.Add(goalToAdd);
                 state.Logger.Debug($"CHS added goal {goalToAdd} resulting in {state.Chs}");
-                return new CoResolutionResult(true, reverseUnification.Value);
+                return new CoResolutionResult(true, reverseUnification.Value, state);
             }
 
             // no statments where found that succeed for this statment. 
@@ -187,13 +188,13 @@ namespace Apollon.Lib.Resolution.CoSLD
 
 
 
-        private CoResolutionResult ResolveOperation(Operation operation, ISubstitution substitution)
+        private CoResolutionResult ResolveOperation(Operation operation, ISubstitution substitution, ResolutionBaseState state)
         {
             if (operation.Operator == Operator.Equals)
             {
                 var op = substitution.Apply(operation);
                 var unificationRes = _unifier.Unify(op.Condition, op.Variable.Literal);
-                return new CoResolutionResult(unificationRes.IsSuccess, unificationRes.Value ?? new Substitution());
+                return new CoResolutionResult(unificationRes.IsSuccess, unificationRes.Value ?? new Substitution(), state);
             }
             else
             {
@@ -203,7 +204,7 @@ namespace Apollon.Lib.Resolution.CoSLD
                 }
                 operation.Variable.Term.ProhibitedValues.AddValue(new AtomParam(operation.Condition));
                 var op = substitution.Apply(operation);
-                return new CoResolutionResult(!op.Condition.Equals(op.Variable.Literal), substitution);
+                return new CoResolutionResult(!op.Condition.Equals(op.Variable.Literal), substitution, state);
             }
         }
 

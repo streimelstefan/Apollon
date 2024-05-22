@@ -11,7 +11,7 @@ namespace Apollon.Lib.Resolution
     public interface IResolution
     {
 
-        ResolutionResult Resolute(Statement[] statements, BodyPart[] goals, ILogger logger);
+        IEnumerable<ResolutionResult> Resolute(Statement[] statements, BodyPart[] goals, ILogger logger);
 
     }
 }

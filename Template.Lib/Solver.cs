@@ -48,7 +48,7 @@ namespace Apollon.Lib
             Logger.Info($"Loaded and preprocessed program: \n{string.Join("\n", ProcessedStatments)}");
         }
 
-        public ResolutionResult Solve(BodyPart[] goals)
+        public IEnumerable<ResolutionResult> Solve(BodyPart[] goals)
         {
             if (ProcessedStatments == null)
             {
@@ -61,9 +61,12 @@ namespace Apollon.Lib
                 .Append(NMRCheckGoal)
                 .ToArray();
 
-            var res = Resolution.Resolute(ProcessedStatments.ToArray(), goalsCopy, Logger);
+            var results = Resolution.Resolute(ProcessedStatments.ToArray(), goalsCopy, Logger);
 
-            return PostProcessResult(goals, res);
+            foreach (var res in results)
+            {
+                yield return PostProcessResult(goals, res);
+            }
         }
 
         private ResolutionResult PostProcessResult(BodyPart[] goals, ResolutionResult res)

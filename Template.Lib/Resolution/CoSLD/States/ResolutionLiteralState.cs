@@ -14,6 +14,18 @@ namespace Apollon.Lib.Resolution.CoSLD.States
     {
         public Literal CurrentGoal { get; private set; }
 
+        public static ResolutionLiteralState CloneConstructor(ResolutionBaseState baseState, Literal currentGoal)
+        {
+            var obj = new ResolutionLiteralState(baseState, currentGoal);
+            return (ResolutionLiteralState)obj.Clone();
+        }
+
+        public static ResolutionLiteralState CloneConstructor(ResolutionBaseState baseState, Literal currentGoal, Statement[] statements)
+        {
+            var obj = new ResolutionLiteralState(baseState, currentGoal, statements);
+            return (ResolutionLiteralState)obj.Clone();
+        }
+
         public ResolutionLiteralState(Literal currentGoal, Statement[] statements, Stack<Literal> callStack, CHS chs, ISubstitution substitution, ILogger logger) 
             : base(statements, callStack, chs, substitution, logger)
         {
@@ -28,6 +40,13 @@ namespace Apollon.Lib.Resolution.CoSLD.States
         public ResolutionLiteralState(ResolutionBaseState baseState, Literal currentGoal, Statement[] statements)
             : this(currentGoal, statements, baseState.CallStack, baseState.Chs, baseState.Substitution, baseState.Logger)
         {
+        }
+
+        public override object Clone()
+        {
+            var baseObj = (ResolutionBaseState)base.Clone();
+
+            return new ResolutionLiteralState(baseObj, (Literal)CurrentGoal.Clone());
         }
     }
 }

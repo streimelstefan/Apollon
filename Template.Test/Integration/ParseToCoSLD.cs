@@ -38,7 +38,8 @@ namespace Apollon.Test.Integration
 
             var goal = new BodyPart(new Literal(new Atom("q", new AtomParam(new Term("a"))), false, false), null);
 
-            var res = _solver.Solve(new BodyPart[] { goal }).CHS;
+            var results = _solver.Solve(new BodyPart[] { goal });
+            var res = results.First().CHS;
 
             Assert.IsFalse(res.IsEmpty);
             Assert.AreEqual("{ (p(a)), (r(a)), (q(a)) }", res.ToString());
@@ -53,7 +54,8 @@ namespace Apollon.Test.Integration
 
             var goal = new BodyPart(new Literal(new Atom("q", new AtomParam(new Term("b"))), false, false), null);
 
-            var res = _solver.Solve(new BodyPart[] { goal }).CHS;
+            var results = _solver.Solve(new BodyPart[] { goal });
+            var res = results.First().CHS;
 
             Assert.IsTrue(res.IsEmpty);
         }
@@ -68,7 +70,8 @@ namespace Apollon.Test.Integration
 
             var goal = new BodyPart(new Literal(new Atom("q", new AtomParam(new Term("a"))), true, false), null);
 
-            var res = _solver.Solve(new BodyPart[] { goal });
+            var results = _solver.Solve(new BodyPart[] { goal });
+            var res = results.First();
 
             Assert.IsTrue(res.CHS.IsEmpty);
             Assert.IsFalse(res.Substitution.Mappings.Any());
@@ -83,7 +86,8 @@ namespace Apollon.Test.Integration
 
             var goal = new BodyPart(new Literal(new Atom("ancestor", new AtomParam(new Term("alice")), new AtomParam(new Term("X"))), false, false), null);
 
-            var res = _solver.Solve(new BodyPart[] { goal });
+            var results = _solver.Solve(new BodyPart[] { goal });
+            var res = results.First();
 
             Assert.IsFalse(res.CHS.IsEmpty);
             Assert.AreEqual("parent(alice, bob)", res.CHS.Literals[0].ToString());
@@ -101,7 +105,8 @@ namespace Apollon.Test.Integration
             var program = _parser.ParseFromString(code);
             _solver.Load(program);
 
-            var res = _solver.Solve(query);
+            var results = _solver.Solve(query);
+            var res = results.First();
 
             Assert.IsFalse(res.CHS.IsEmpty);
             Assert.AreEqual("not q(V/0)", res.CHS.Literals[0].ToString());
@@ -117,7 +122,8 @@ namespace Apollon.Test.Integration
             var program = _parser.ParseFromString(code);
             _solver.Load(program);
 
-            var res = _solver.Solve(query);
+            var results = _solver.Solve(query);
+            var res = results.First();
 
             Assert.IsFalse(res.CHS.IsEmpty);
 
@@ -140,7 +146,8 @@ namespace Apollon.Test.Integration
             var program = _parser.ParseFromString(code);
             _solver.Load(program);
 
-            var res = _solver.Solve(query);
+            var results = _solver.Solve(query);
+            var res = results.First();
 
             Assert.IsFalse(res.CHS.IsEmpty);
 

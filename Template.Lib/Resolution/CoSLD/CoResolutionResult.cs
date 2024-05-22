@@ -1,4 +1,5 @@
-﻿using Apollon.Lib.Unification;
+﻿using Apollon.Lib.Resolution.CallStackAndCHS;
+using Apollon.Lib.Resolution.CoSLD.States;
 using Apollon.Lib.Unification.Substitutioners;
 using System;
 using System.Collections.Generic;
@@ -8,18 +9,20 @@ using System.Threading.Tasks;
 
 namespace Apollon.Lib.Resolution.CoSLD
 {
-    public class CoResolutionResult
+    public class CoResolutionResult : ResolutionResult
     {
-        public bool Success { get; set; }
 
-        public ISubstitution Substitution { get; set; }
+        public ResolutionBaseState State { get; private set; }
 
-        public CoResolutionResult(bool success, ISubstitution substitution)
+        public CoResolutionResult(bool success, ISubstitution substitution, ResolutionBaseState state)
+            : base(success, state.Chs, substitution)
         {
-            Success = success;
-            Substitution = substitution;
+            State = state;
         }
 
-        public CoResolutionResult() : this(false, new Substitution()) { }
+
+        public CoResolutionResult() : base()
+        {
+        }
     }
 }

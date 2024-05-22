@@ -14,7 +14,7 @@ namespace Apollon.Lib.Resolution.CallStackAndCHS;
 /// Als Set hat es die Eigenschaft, dass alle Literale, die eingegeben werden, einzigartig sind.Das bedeutet, dass nur neue Literale in das Set hinzugefügt werden.Es gibt somit keine doppelten Literale im Set.Der check ob zwei Literale gleich sind muss Mithilfe von Unification gemacht werden.
 /// Anders zu Standard Sets muss bei der CHS die Reihenfolge von Literale geregelt sein. In dieser Hinsicht verhält sich der CHS wie ein Stack.
 /// </summary>
-public class CHS
+public class CHS : ICloneable
 {
     public List<Literal> Literals { get; private set; } //List does preserve Order, as written on MSDN List<T> Class.
     private IUnifier Unifier = new ExactUnifier();
@@ -92,5 +92,10 @@ public class CHS
     public override string ToString()
     {
         return $"{{ ({string.Join("), (", Literals.Select(l => l.ToString()))}) }}";
+    }
+
+    public object Clone()
+    {
+        return new CHS(Literals.Select(l => (Literal)l.Clone()));
     }
 }
