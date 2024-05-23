@@ -12,6 +12,18 @@ namespace Apollon.Lib.Resolution
     public class VariableExtractor
     {
 
+        public HashSet<Term> ExtractVariablesFrom(Statement statement)
+        {
+            var variables = ExtractVariablesFrom(statement.Body);
+
+            if (statement.Head != null)
+            {
+                ExtractVariablesFrom(statement.Head, variables);
+            }
+
+            return variables;
+        }
+
         public HashSet<Term> ExtractVariablesFrom(BodyPart[] bodyPart)
         {
             var variables = new HashSet<Term>();
@@ -20,6 +32,15 @@ namespace Apollon.Lib.Resolution
             {
                 ExtractVariablesFrom(part, variables);
             }
+
+            return variables;
+        }
+
+        public HashSet<Term> ExtractVariablesFrom(Literal literal)
+        {
+            var variables = new HashSet<Term>();
+
+            ExtractVariablesFrom(literal, variables);
 
             return variables;
         }

@@ -14,7 +14,7 @@ namespace Apollon.Lib.Resolution.CoSLD
 
         public ResolutionBaseState State { get; private set; }
 
-        public CoResolutionResult(bool success, ISubstitution substitution, ResolutionBaseState state)
+        public CoResolutionResult(bool success, Substitution substitution, ResolutionBaseState state)
             : base(success, state.Chs, substitution)
         {
             State = state;

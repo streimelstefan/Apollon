@@ -26,17 +26,17 @@ namespace Apollon.Lib.Unification
             return Unify(new Statement(null, unifier), new Statement(null, against), new Substitution());
         }
 
-        public UnificationResult Unify(Literal unifier, Literal against, ISubstitution sigma)
+        public UnificationResult Unify(Literal unifier, Literal against, Substitution sigma)
         {
             return Unify(new Statement(unifier), new Statement(against), sigma);
         }
 
-        public UnificationResult Unify(BodyPart unifier, BodyPart against, ISubstitution sigma)
+        public UnificationResult Unify(BodyPart unifier, BodyPart against, Substitution sigma)
         {
             return Unify(new Statement(null, unifier), new Statement(null, against), sigma);
         }
 
-        public UnificationResult Unify(Statement unifier, Statement against, ISubstitution sigma)
+        public UnificationResult Unify(Statement unifier, Statement against, Substitution sigma)
         {
             while (true)
             {

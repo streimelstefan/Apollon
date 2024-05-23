@@ -21,7 +21,7 @@ namespace Apollon.Lib.Docu
             Literal = literal;
         }
 
-        public StringBuilder GetDokuFor(ISubstitution sub)
+        public StringBuilder GetDokuFor(Substitution sub)
         {
             var stringBuilder = new StringBuilder();
 

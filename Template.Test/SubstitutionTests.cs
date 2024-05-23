@@ -16,7 +16,7 @@ namespace Apollon.Test
     [TestFixture]
     public class SubstitutionTests
     {
-        private ISubstitution _sub = new Substitution();
+        private Substitution _sub = new Substitution();
         private ApollonParser _parser = new ApollonParser();
 
         [SetUp]

@@ -20,9 +20,9 @@ namespace Apollon.Lib.Resolution.CoSLD.States
         public CHS Chs { get; set; }
 
         public ILogger Logger { get; private set; }
-        public ISubstitution Substitution { get; private set; }
+        public Substitution Substitution { get; private set; }
 
-        public ResolutionBaseState(Statement[] statements, Stack<Literal> callStack, CHS chs, ISubstitution substitution, ILogger logger)
+        public ResolutionBaseState(Statement[] statements, Stack<Literal> callStack, CHS chs, Substitution substitution, ILogger logger)
         {
             Statements = statements;
             CallStack = callStack;
