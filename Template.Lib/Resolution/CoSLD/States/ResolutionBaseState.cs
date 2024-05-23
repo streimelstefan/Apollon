@@ -35,7 +35,7 @@ namespace Apollon.Lib.Resolution.CoSLD.States
         {
             return new ResolutionBaseState(
                 Statements.Select(s => (Statement)s.Clone()).ToArray(),
-                new Stack<Literal>(CallStack.Select(l => (Literal)l.Clone())),
+                new Stack<Literal>(CallStack.Select(l => (Literal)l.Clone()).Reverse()),
                 (CHS)Chs.Clone(),
                 Substitution.Clone(),
                 Logger.CreateChild());

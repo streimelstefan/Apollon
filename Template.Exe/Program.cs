@@ -21,9 +21,13 @@ var goals = parser.ParseQueryFromString(query);
 var solver = new Solver();
 solver.Load(program);
 
-var result = solver.Solve(goals);
+var results = solver.Solve(goals);
 
 var resultBuilder = new ResultStringBuilder();
 
-Console.WriteLine(resultBuilder.CreateResultString(result));
+
+foreach (var result in results)
+{
+    Console.WriteLine(resultBuilder.CreateResultString(result));
+}
 
