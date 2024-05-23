@@ -1,3 +1,4 @@
-p(X) :- not q(X).
-q(X) :- not p(X).
-r(X) :- X != 3, X != 4, q(X).
+parent(alice, bob).
+parent(bob, charlie).
+ancestor(X, Y) :- parent(X, Y).
+ancestor(X, Y) :- parent(X, Z), ancestor(Z, Y).
