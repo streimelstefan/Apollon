@@ -38,14 +38,14 @@ namespace Apollon.Lib.Resolution.CoSLD
         public IEnumerable<ResolutionResult> Resolute(Statement[] statements, BodyPart[] goals, ILogger logger)
         {
             // Initialize the call stack and CHS (coinductive hypothesis set)
-            _allStatements = statements;
+            _allStatements = statements.Where(s => s.Head != null).ToArray();
             var callStack = new Stack<Literal>();
             // -1 because the resolve all goals will increase it at the start resulting in 0.
             logger.RecursionDepth = -1;
             variableIndex = 1;
 
             // Start the resolution process
-            var results = ResolveAllGoals(new ResolutionRecursionState(goals, statements, callStack, new CHS(), new Substitution(), logger));
+            var results = ResolveAllGoals(new ResolutionRecursionState(goals, _allStatements, callStack, new CHS(), new Substitution(), logger));
 
             foreach (var res in results)
             {
