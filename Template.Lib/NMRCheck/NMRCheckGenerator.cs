@@ -48,11 +48,22 @@ public class NMRCheckGenerator : INMRCheckGenerator
 
         var negator = new DualRuleGenerator();
 
-        var linkingVariables = negator.GetAllVariablesNotInHead(olonRule);
-        var ruleProcessed = negator.MoveAtomsFromHeadToBody(olonRule, linkingVariables);
-        
+        List<Term> linkingVariables;
+        Statement ruleProcessed;
+
+        if (olonRule.Head != null)
+        {
+            linkingVariables = negator.GetAllVariablesNotInHead(olonRule);
+            ruleProcessed = negator.MoveAtomsFromHeadToBody(olonRule, linkingVariables);
+        }
+        else
+        {
+            linkingVariables = new List<Term>();
+            ruleProcessed = olonRule;
+        }
+
         // Not sure if is negative can just be set to false.
-        var ruleHead = new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), ruleProcessed.Head.Atom.ParamList), true, false);
+        var ruleHead = new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), ruleProcessed.Head?.Atom.ParamList), true, false);
 
         // All Body part Rules
         for (int i = 0; i < ruleProcessed.Body.Length; i++)
@@ -66,14 +77,16 @@ public class NMRCheckGenerator : INMRCheckGenerator
 
             bodyParts[i] = (BodyPart)ruleProcessed.Body[i].Clone();
             negator.SwitchNegation(bodyParts[i]);
-            nmrCheckRules.Add(new CheckRule((Literal)ruleHead.Clone(), bodyParts));
+            nmrCheckRules.Add(new CheckRule((Literal)ruleHead, bodyParts));
         }
 
-        // Move head to Body Rule
-        var tmpList = ruleProcessed.Body.ToList();
-        tmpList.Add(new BodyPart(olonRule.Head, null));
-
-        nmrCheckRules.Add(new CheckRule(ruleHead, tmpList.ToArray()));
+        if (ruleProcessed.Head != null)
+        {
+            // Move head to Body Rule
+            var tmpList = ruleProcessed.Body.ToList();
+            tmpList.Add(new BodyPart(olonRule.Head, null));
+            nmrCheckRules.Add(new CheckRule(ruleHead, tmpList.ToArray()));
+        }
 
         BodyPart body;
         // Add the overruling Rule
@@ -81,8 +94,8 @@ public class NMRCheckGenerator : INMRCheckGenerator
         {
             // We need a forall rule here. 
             body = negator.BuildForAllBody(ruleHead, linkingVariables);
-            
-            //Adds the forall rule itself
+
+            // Adds the forall rule itself
             nmrCheckRules.Add(new CheckRule(new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), olonRule.Head.Atom.ParamList), true, false), body));
         }
 
@@ -90,7 +103,7 @@ public class NMRCheckGenerator : INMRCheckGenerator
         body = new BodyPart(new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), nmrCheckRules.Last().Head.Atom.ParamList), true, false), null);
 
         nmrCheckRules.Add(new CheckRule(new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString(), nmrCheckRules.Last().Head.Atom.ParamList), true, false), body));
-        
+
         return nmrCheckRules.ToArray();
     }
 
@@ -99,7 +112,7 @@ public class NMRCheckGenerator : INMRCheckGenerator
         var bodyParts = new List<BodyPart>();
         var dualRules = new DualRuleGenerator();
 
-        foreach(var rule in rules)
+        foreach (var rule in rules)
         {
             if (rule.Head.Atom.ParamList.Length == 0)
             {

@@ -1,7 +1,8 @@
 {
   "profiles": {
     "Apollon.Exe": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "./Test.apo -q true."
     }
   }
 }
