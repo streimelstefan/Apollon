@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Apollon.Lib.Unification
 {
-    public class UnificationResult : Maybe<ISubstitution, string>
+    public class UnificationResult : Maybe<Substitution, string>
     {
-        public UnificationResult(ISubstitution value) : base(value)
+        public UnificationResult(Substitution value) : base(value)
         {
         }
 
@@ -17,7 +17,7 @@ namespace Apollon.Lib.Unification
         {
         }
 
-        public UnificationResult(ISubstitution? value, string? error) : base(value, error)
+        public UnificationResult(Substitution? value, string? error) : base(value, error)
         {
         }
     }

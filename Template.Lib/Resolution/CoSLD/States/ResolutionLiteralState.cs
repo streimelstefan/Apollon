@@ -26,7 +26,7 @@ namespace Apollon.Lib.Resolution.CoSLD.States
             return (ResolutionLiteralState)obj.Clone();
         }
 
-        public ResolutionLiteralState(Literal currentGoal, Statement[] statements, Stack<Literal> callStack, CHS chs, ISubstitution substitution, ILogger logger) 
+        public ResolutionLiteralState(Literal currentGoal, Statement[] statements, Stack<Literal> callStack, CHS chs, Substitution substitution, ILogger logger) 
             : base(statements, callStack, chs, substitution, logger)
         {
             CurrentGoal = currentGoal;

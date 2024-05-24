@@ -15,13 +15,13 @@ namespace Apollon.Lib.Resolution
         public bool Success { get; private set; }
 
         public CHS CHS { get; private set; }
-        public ISubstitution Substitution { get; private set; }
+        public Substitution Substitution { get; private set; }
 
-        public ResolutionResult(CHS chs, ISubstitution substitution) : this(!chs.IsEmpty, chs, substitution)
+        public ResolutionResult(CHS chs, Substitution substitution) : this(!chs.IsEmpty, chs, substitution)
         {
         }
 
-        public ResolutionResult(bool success, CHS chs, ISubstitution substitution)
+        public ResolutionResult(bool success, CHS chs, Substitution substitution)
         {
             Success = success;
             CHS = chs;

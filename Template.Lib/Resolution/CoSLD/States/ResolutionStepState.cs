@@ -28,7 +28,7 @@ namespace Apollon.Lib.Resolution.CoSLD.States
             return (ResolutionStepState)obj.Clone();
         }
 
-        public ResolutionStepState(BodyPart currentGoal, Statement[] statements, Stack<Literal> callStack, CHS chs, ISubstitution substitution, ILogger logger)
+        public ResolutionStepState(BodyPart currentGoal, Statement[] statements, Stack<Literal> callStack, CHS chs, Substitution substitution, ILogger logger)
             : base(statements, callStack, chs, substitution, logger)
         {
             CurrentGoal = currentGoal;

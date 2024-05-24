@@ -27,7 +27,7 @@ namespace Apollon.Lib.Resolution.CallStackAndCHS
             Items = new List<CallStackItem>();
         }
 
-        public void Add(BodyPart currentGoal, Queue<Statement> applingRules, ISubstitution applyingSubstitution)
+        public void Add(BodyPart currentGoal, Queue<Statement> applingRules, Substitution applyingSubstitution)
         {
             if (Items.Select(i => i.CurrentGoal).Where(l => Unifier.Unify(l, currentGoal).IsSuccess).Any()) // if there is another literal in the chs that can be unified.
             {
@@ -88,9 +88,9 @@ namespace Apollon.Lib.Resolution.CallStackAndCHS
             public BodyPart CurrentGoal { get; private set; }
             public Queue<Statement> ApplingRules { get; private set; }
 
-            public ISubstitution ApplingSubstitution { get; private set; }
+            public Substitution ApplingSubstitution { get; private set; }
 
-            public CallStackItem(BodyPart goal, Queue<Statement> applingRules, ISubstitution applingSubstitution)
+            public CallStackItem(BodyPart goal, Queue<Statement> applingRules, Substitution applingSubstitution)
             {
                 CurrentGoal = goal;
                 ApplingRules = applingRules;

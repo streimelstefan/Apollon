@@ -13,7 +13,7 @@ namespace Apollon.Lib.Docu
 
         Literal Literal { get; }
 
-        StringBuilder GetDokuFor(ISubstitution sub);
+        StringBuilder GetDokuFor(Substitution sub);
 
     }
 }

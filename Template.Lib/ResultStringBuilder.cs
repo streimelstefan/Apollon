@@ -46,7 +46,7 @@ namespace Apollon.Lib
             return result.ToString();
         }
 
-        private StringBuilder BuildSubstitutionString(ISubstitution sub)
+        private StringBuilder BuildSubstitutionString(Substitution sub)
         {
             var res = new StringBuilder();
 

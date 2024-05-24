@@ -6,7 +6,7 @@ using System.Runtime.ExceptionServices;
 
 namespace Apollon.Lib.Unification.Substitutioners
 {
-    public class Substitution : ISubstitution
+    public class Substitution
     {
         private Dictionary<string, AtomParam> mappings = new Dictionary<string, AtomParam>();
 
@@ -203,7 +203,7 @@ namespace Apollon.Lib.Unification.Substitutioners
             return copy;
         }
 
-        public void BackPropagate(ISubstitution inductor)
+        public void BackPropagate(Substitution inductor)
         {
             bool changesMade = false;
             var inductorCopy = inductor.Clone();
@@ -237,7 +237,7 @@ namespace Apollon.Lib.Unification.Substitutioners
             }
         }
 
-        public ISubstitution Clone()
+        public Substitution Clone()
         {
             return new Substitution(Mappings.Select(m => new Mapping((Term)m.Variable.Clone(), (AtomParam)m.MapsTo.Clone())));
         }
@@ -267,6 +267,26 @@ namespace Apollon.Lib.Unification.Substitutioners
         public void Remove(Term variable)
         {
             mappings.Remove(variable.Value);
+        }
+
+        public void Clear()
+        {
+            mappings.Clear();
+        }
+
+        public void Intersect(HashSet<string> variables)
+        {
+            var newMappings = new Dictionary<string, AtomParam>();
+
+            foreach (var mapping in mappings)
+            {
+                if (variables.Contains(mapping.Key))
+                {
+                    newMappings.Add(mapping.Key, mapping.Value);
+                }
+            }
+
+            mappings = newMappings;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Apollon.Lib.DualRules;
+﻿using Apollon.Lib.Atoms;
+using Apollon.Lib.DualRules;
 using Apollon.Lib.Graph;
 using Apollon.Lib.Linker;
 using Apollon.Lib.Logging;
@@ -29,6 +30,7 @@ namespace Apollon.Lib
 
         public ILogger Logger { get; set; } = new ConsoleLogger();
 
+
         public void Load(Program program)
         {
             IDualRuleGenerator dualRuleGenerator = new DualRuleGenerator();
@@ -42,8 +44,23 @@ namespace Apollon.Lib
             var nmrRules = nmrCheckGenerator.GenerateNMRCheckRules(processedRules);
 
             NMRCheck = nmrRules.Last();
-            ProcessedStatments = program.Statements.Union(dualRules).Union(nmrRules).Select(s => VariableLinker.LinkVariables(s)).ToArray();
+            ProcessedStatments = program.Statements.Union(dualRules).Union(nmrRules).Select(s => (Statement)s.Clone()).Select(s => VariableLinker.LinkVariables(s)).ToArray();
             LoadedProgram = program;
+
+            var processedStatements = new List<Statement>();
+            var variableExtractor = new VariableExtractor();
+            var variableIndex = 1;
+            foreach (var s in ProcessedStatments)
+            {
+                var variables = variableExtractor.ExtractVariablesFrom(s);
+                foreach (var variable in variables)
+                {
+                    var newName = $"RV/{variableIndex}";
+
+                    variable.Value = newName;
+                    variableIndex++;
+                }
+            }
 
             Logger.Info($"Loaded and preprocessed program: \n{string.Join("\n", ProcessedStatments)}");
         }

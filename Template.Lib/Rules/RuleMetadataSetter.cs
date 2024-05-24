@@ -59,6 +59,11 @@ namespace Apollon.Lib.Rules
 
         public bool IsOlonRule(Statement statement)
         {
+            if (statement.Head == null)
+            {
+                return true;
+            }
+
             foreach (var node in _callGraph.GetNodesOfStatement(statement))
             {
                 if (_olons.Nodes.Contains(node))

@@ -16,13 +16,13 @@ namespace Apollon.Lib.Unification
     {
 
 
-        public UnificationResult Unify(Literal unifier, Literal against, ISubstitution sigma)
+        public UnificationResult Unify(Literal unifier, Literal against, Substitution sigma)
         {
 
             return Unify(unifier, against);
         }
 
-        public UnificationResult Unify(BodyPart unifier, BodyPart against, ISubstitution sigma)
+        public UnificationResult Unify(BodyPart unifier, BodyPart against, Substitution sigma)
         {
             return Unify(unifier, against);
         }

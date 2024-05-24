@@ -29,6 +29,10 @@ namespace Apollon.Lib.Resolution.CoSLD
 
         private Statement[] _allStatements = new Statement[0];
 
+        private int variableIndex = 1;
+
+        private VariableExtractor variableExtractor = new VariableExtractor();
+
         public IEnumerable<ResolutionResult> Resolute(Statement[] statements, BodyPart[] goals, ILogger logger)
         {
             // Initialize the call stack and CHS (coinductive hypothesis set)
@@ -36,6 +40,7 @@ namespace Apollon.Lib.Resolution.CoSLD
             var callStack = new Stack<Literal>();
             // -1 because the resolve all goals will increase it at the start resulting in 0.
             logger.RecursionDepth = -1;
+            variableIndex = 1;
 
             // Start the resolution process
             var results = ResolveAllGoals(new ResolutionRecursionState(goals, statements, callStack, new CHS(), new Substitution(), logger));
@@ -85,7 +90,11 @@ namespace Apollon.Lib.Resolution.CoSLD
             {
                 var substituted = state.Substitution.Apply(goal.Literal);
                 state.Logger.Info($"Current goal is: {substituted}");
-                results = ResolveLiteralGoal(ResolutionLiteralState.CloneConstructor(state, substituted, state.Statements));
+                
+                var nextState = ResolutionLiteralState.CloneConstructor(state, substituted, state.Statements);
+                nextState.Substitution.Clear();
+
+                results = ResolveLiteralGoal(nextState);
             }
             else if (goal.Operation != null)
             {
@@ -189,7 +198,7 @@ namespace Apollon.Lib.Resolution.CoSLD
         // Recursively resolves a goal
         private IEnumerable<CoResolutionResult> ResolveLiteralGoal(ResolutionLiteralState state)
         {
-            var baseSub = PreprocessLiteralGoal(state.CurrentGoal);
+            //var baseSub = PreprocessLiteralGoal(state.CurrentGoal);
             var checkRes = CheckCHSAndCallStack(state);
             if (checkRes == CheckerResult.Succeed)
             {
@@ -214,7 +223,7 @@ namespace Apollon.Lib.Resolution.CoSLD
                     yield return new CoResolutionResult();
                     yield break;
                 }
-                var subClone = baseSub.Clone();
+                var subClone = state.Substitution.Clone();
                 subClone.BackPropagate(expandsionRes.Substitution);
                 subClone.Contract();
 
@@ -225,6 +234,7 @@ namespace Apollon.Lib.Resolution.CoSLD
         private IEnumerable<CoResolutionResult> ResolveLiteralGoalByExpansion(ResolutionLiteralState state)
         {
             bool hasYielded = false;
+            var variablesInGoal = variableExtractor.ExtractVariablesFrom(state.CurrentGoal).Select(t => t.Value).ToHashSet();
             foreach (var statement in state.Statements)
             {
                 if (statement.Head == null)
@@ -245,10 +255,12 @@ namespace Apollon.Lib.Resolution.CoSLD
                     // this rule did not succeed try to find another one.
                     if (!result.Success) continue;
 
-                    var stateClone = (ResolutionLiteralState)state.Clone();
+                    var stateClone = (ResolutionLiteralState)state.Clone();                    
                     var reverseUnification = _unifier.Unify(stateClone.CurrentGoal, statement.Head);
+                    
                     reverseUnification.Value.BackPropagate(result.Substitution);
                     reverseUnification.Value.Contract();
+                    reverseUnification.Value.Intersect(variablesInGoal);
 
                     var goalToAdd = reverseUnification.Value.Apply(stateClone.CurrentGoal);
                     stateClone.Chs = result.CHS;
@@ -282,7 +294,7 @@ namespace Apollon.Lib.Resolution.CoSLD
 
 
 
-        private IEnumerable<CoResolutionResult> ResolveOperation(Operation operation, ISubstitution substitution, ResolutionBaseState state)
+        private IEnumerable<CoResolutionResult> ResolveOperation(Operation operation, Substitution substitution, ResolutionBaseState state)
         {
             if (operation.Operator == Operator.Equals)
             {
@@ -308,46 +320,43 @@ namespace Apollon.Lib.Resolution.CoSLD
         /// <param name="goal"></param>
         /// <param name="paramIndex"></param>
         /// <returns></returns>
-        private ISubstitution PreprocessLiteralGoal(Literal goal)
+        private Substitution PreprocessLiteralGoal(Literal goal)
         {
             var sub = new Substitution();
-            var paramIndex = 0;
             foreach (var param in goal.Atom.ParamList)
             {
                 if (param.Term != null && param.Term.IsVariable)
                 {
-                    var newVariableName = $"RV/{paramIndex}";
+                    var newVariableName = $"RV/{variableIndex}";
                     sub.Add(param.Term, new AtomParam(new Term(newVariableName)));
                     param.Term.Value = newVariableName;
-                    paramIndex++;
+                    variableIndex++;
                 }
                 else if (param.Literal != null)
                 {
-                    paramIndex = PreprocessLiteralGoal(param.Literal, sub, paramIndex);
+                    PreprocessLiteralGoal(param.Literal, sub);
                 }
             }
 
             return sub;
         }
 
-        private int PreprocessLiteralGoal(Literal goal, ISubstitution sub, int paramIndex = 0)
+        private void PreprocessLiteralGoal(Literal goal, Substitution sub)
         {
             foreach (var param in goal.Atom.ParamList)
             {
                 if (param.Term != null && param.Term.IsVariable)
                 {
-                    var newVariableName = $"RV/{paramIndex}";
+                    var newVariableName = $"RV/{variableIndex}";
                     sub.Add(param.Term, new AtomParam(new Term(newVariableName)));
                     param.Term.Value = newVariableName;
-                    paramIndex++;
+                    variableIndex++;
                 }
                 else if (param.Literal != null)
                 {
-                    paramIndex = PreprocessLiteralGoal(param.Literal, sub, paramIndex);
+                    PreprocessLiteralGoal(param.Literal, sub);
                 }
             }
-
-            return paramIndex;
         }
 
         private Literal GetForAllRule(BodyPart forall)
