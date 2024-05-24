@@ -1,4 +1,6 @@
 ﻿using Apollon.Lib.DualRules;
+using Apollon.Lib.Graph;
+using Apollon.Lib.Resolution;
 using Apollon.Lib.Rules;
 using System;
 using System.Collections.Generic;
@@ -17,15 +19,33 @@ namespace Apollon.Lib.NMRCheck;
 /// </summary>
 public class NMRCheckGenerator : INMRCheckGenerator
 {
-    public Statement[] GenerateNMRCheckRules(PreprocessedStatement[] preprocessedStatements)
+    public Statement[] GenerateNMRCheckRules(PreprocessedStatement[] preprocessedStatements, Program program)
     {
         // Can preprocessedStatements be null? 
-        var olonRules = preprocessedStatements.Where(x => x.IsOlonRule);
+        var olonRules = preprocessedStatements.Where(x => x.IsOlonRule).ToList();
 
         var nmrCheckRules = new List<Statement>();
         var generalRules = new List<Statement>();
         int counter = 1;
 
+        //// Generate constraints for negated literals
+        //var equalCheck = new LiteralParamCountEqualizer();
+
+        //var seenElements = new List<Literal>();
+        //var allLiterals = new List<Literal>(program.AllLiterals.ToList());
+
+        //foreach (var literal in allLiterals)
+        //{
+        //    var negatedLiteral = (Literal)literal.Clone();
+        //    negatedLiteral.IsNegative = !negatedLiteral.IsNegative;
+
+        //    var statement = new PreprocessedStatement(new Statement(null, new BodyPart[] {new BodyPart(literal, null), new BodyPart(negatedLiteral, null)}), false, false);
+        //    olonRules.Add(statement);
+        //}
+
+        //olonRules.Add(new PreprocessedStatement(new Statement(null, new BodyPart[] { new BodyPart(new Literal(new Atoms.Atom("a", new Atoms.AtomParam[1] { new Atoms.AtomParam(new Literal(new Atoms.Atom("X"), false, false)) }), false, false), null), new BodyPart(new Literal(new Atoms.Atom("a", new Atoms.AtomParam[1] { new Atoms.AtomParam(new Literal(new Atoms.Atom("X"), false, false)) }), false, true), null) }), false, false));
+
+        // Generate for classic OLON Rules
         foreach (var olonRule in olonRules)
         {
             nmrCheckRules.AddRange(GenerateRulesForOlonRule(olonRule, counter));
@@ -34,9 +54,28 @@ public class NMRCheckGenerator : INMRCheckGenerator
             generalRules.Add(nmrCheckRules.Last());
         }
 
+
+        //GenerateRulesForNegation(doubleLiteralList.First(), counter++);
+
         // Generate the NMR Rule
         var generalRule = GenerateGeneralRule(generalRules);
         nmrCheckRules.Add(generalRule);
+
+        return nmrCheckRules.ToArray();
+    }
+
+    private CheckRule[] GenerateRulesForNegation(Literal literal, int counterIndex)
+    {
+        var nmrCheckRules = new List<CheckRule>();
+
+        var literalClone = (Literal)literal.Clone();
+        literalClone.IsNAF = true;
+        literalClone.Atom.ParamList = new Atoms.AtomParam[1] { new Atoms.AtomParam(new Literal(new Atoms.Atom("X"), false, false)) };
+
+        var ruleHead = new Literal(new Atoms.Atom("chk" + counterIndex.ToString() + counterIndex.ToString(), new Atoms.AtomParam[] {new Atoms.AtomParam(new Literal(new Atoms.Atom("X"), false, false))}), true, false);
+        var ruleBody = new BodyPart[] {new BodyPart(literalClone, null)};
+
+        nmrCheckRules.Add(new CheckRule(ruleHead, ruleBody));
 
         return nmrCheckRules.ToArray();
     }
@@ -46,24 +85,43 @@ public class NMRCheckGenerator : INMRCheckGenerator
         string placeHolderName = "chk";
         var nmrCheckRules = new List<CheckRule>();
 
-        var negator = new DualRuleGenerator();
+        // Since NMR Check rule Generation follows similar rules to OLON Rules, we can reuse some of the functionality.
+        var dualRulesFunctions = new DualRuleGenerator();
 
         List<Term> linkingVariables;
         Statement ruleProcessed;
 
+        // Check whether the rule is a constraint or not and process it accordingly.
         if (olonRule.Head != null)
         {
-            linkingVariables = negator.GetAllVariablesNotInHead(olonRule);
-            ruleProcessed = negator.MoveAtomsFromHeadToBody(olonRule, linkingVariables);
+            linkingVariables = dualRulesFunctions.GetAllVariablesNotInHead(olonRule);
+            ruleProcessed = dualRulesFunctions.MoveAtomsFromHeadToBody(olonRule, linkingVariables);
         }
         else
         {
             linkingVariables = new List<Term>();
             ruleProcessed = olonRule;
+
+            var variableExtractor = new VariableExtractor();
+            var variables = variableExtractor.ExtractVariablesFrom(ruleProcessed);
+
+            foreach (var variable in variables)
+            {
+                if (!linkingVariables.Contains(variable))
+                {
+                    linkingVariables.Add(variable);
+                }
+            }
         }
 
         // Not sure if is negative can just be set to false.
-        var ruleHead = new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), ruleProcessed.Head?.Atom.ParamList ?? new Atoms.AtomParam[0]), true, false);
+        var atomParamList = new List<Atoms.AtomParam>();
+        foreach (var variable in linkingVariables)
+        {
+            atomParamList.Add(new Atoms.AtomParam(new Literal(new Atoms.Atom(variable.Value), false, false)));
+        }
+
+        var ruleHead = new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), ruleProcessed.Head?.Atom.ParamList ?? atomParamList.ToArray()), true, false);
 
         // All Body part Rules
         for (int i = 0; i < ruleProcessed.Body.Length; i++)
@@ -76,7 +134,7 @@ public class NMRCheckGenerator : INMRCheckGenerator
             }
 
             bodyParts[i] = (BodyPart)ruleProcessed.Body[i].Clone();
-            negator.SwitchNegation(bodyParts[i]);
+            dualRulesFunctions.SwitchNegation(bodyParts[i]);
             nmrCheckRules.Add(new CheckRule((Literal)ruleHead, bodyParts));
         }
 
@@ -93,10 +151,10 @@ public class NMRCheckGenerator : INMRCheckGenerator
         if (linkingVariables.Count > 0)
         {
             // We need a forall rule here. 
-            body = negator.BuildForAllBody(ruleHead, linkingVariables);
+            body = dualRulesFunctions.BuildForAllBody(ruleHead, linkingVariables);
 
             // Adds the forall rule itself
-            nmrCheckRules.Add(new CheckRule(new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), olonRule.Head.Atom.ParamList), true, false), body));
+            nmrCheckRules.Add(new CheckRule(new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), olonRule.Head?.Atom.ParamList), true, false), body));
         }
 
         var paramList = nmrCheckRules.Last().Head.Atom.ParamList ?? new Atoms.AtomParam[0];
