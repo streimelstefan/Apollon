@@ -30,7 +30,7 @@ public class NMRCheckTests
 
         NMRCheckGenerator nmrChecker = new NMRCheckGenerator();
 
-        var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray(), new Lib.Program());
+        var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray(), program);
         var nmrCheckRulesString = nmrCheckRules.Select(x => x.ToString()).ToArray();
 
         Assert.AreEqual(8, nmrCheckRules.Length);
@@ -57,7 +57,7 @@ public class NMRCheckTests
 
         NMRCheckGenerator nmrChecker = new NMRCheckGenerator();
 
-        var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray(), new Lib.Program());
+        var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray(), program);
         var nmrCheckRulesString = nmrCheckRules.Select(x => x.ToString()).ToArray();
 
         Assert.AreEqual(10, nmrCheckRules.Length);
@@ -86,7 +86,7 @@ public class NMRCheckTests
 
         NMRCheckGenerator nmrChecker = new NMRCheckGenerator();
 
-        var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray(), new Lib.Program());
+        var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray(), program);
         var nmrCheckRulesString = nmrCheckRules.Select(x => x.ToString()).ToArray();
 
         Assert.AreEqual(3, nmrCheckRules.Length);
@@ -108,7 +108,7 @@ public class NMRCheckTests
 
         NMRCheckGenerator nmrChecker = new NMRCheckGenerator();
 
-        var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray(), new Lib.Program());
+        var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray(), program);
         var nmrCheckRulesString = nmrCheckRules.Select(x => x.ToString()).ToArray();
 
         Assert.AreEqual(3, nmrCheckRules.Length);
@@ -130,10 +130,10 @@ public class NMRCheckTests
 
         NMRCheckGenerator nmrChecker = new NMRCheckGenerator();
 
-        var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray(), new Lib.Program());
+        var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray(), program);
         var nmrCheckRulesString = nmrCheckRules.Select(x => x.ToString()).ToArray();
 
-        Assert.AreEqual(3, nmrCheckRules.Length);
+        Assert.AreEqual(5, nmrCheckRules.Length);
         Assert.Contains("not chk11(X) :- not -a(X).", nmrCheckRulesString);
         Assert.Contains("not chk11(X) :- -a(X), not a(X).", nmrCheckRulesString);
         Assert.Contains("not chk11() :- forall(X, not chk11(X)).", nmrCheckRulesString);

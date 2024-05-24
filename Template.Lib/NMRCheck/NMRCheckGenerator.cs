@@ -28,22 +28,6 @@ public class NMRCheckGenerator : INMRCheckGenerator
         var generalRules = new List<Statement>();
         int counter = 1;
 
-        //// Generate constraints for negated literals
-        //var equalCheck = new LiteralParamCountEqualizer();
-
-        //var seenElements = new List<Literal>();
-        //var allLiterals = new List<Literal>(program.AllLiterals.ToList());
-
-        //foreach (var literal in allLiterals)
-        //{
-        //    var negatedLiteral = (Literal)literal.Clone();
-        //    negatedLiteral.IsNegative = !negatedLiteral.IsNegative;
-
-        //    var statement = new PreprocessedStatement(new Statement(null, new BodyPart[] {new BodyPart(literal, null), new BodyPart(negatedLiteral, null)}), false, false);
-        //    olonRules.Add(statement);
-        //}
-
-        //olonRules.Add(new PreprocessedStatement(new Statement(null, new BodyPart[] { new BodyPart(new Literal(new Atoms.Atom("a", new Atoms.AtomParam[1] { new Atoms.AtomParam(new Literal(new Atoms.Atom("X"), false, false)) }), false, false), null), new BodyPart(new Literal(new Atoms.Atom("a", new Atoms.AtomParam[1] { new Atoms.AtomParam(new Literal(new Atoms.Atom("X"), false, false)) }), false, true), null) }), false, false));
 
         // Generate for classic OLON Rules
         foreach (var olonRule in olonRules)
@@ -54,8 +38,33 @@ public class NMRCheckGenerator : INMRCheckGenerator
             generalRules.Add(nmrCheckRules.Last());
         }
 
+        // Generate constraints for negated literals
+        var equalCheck = new LiteralParamCountEqualizer();
 
-        //GenerateRulesForNegation(doubleLiteralList.First(), counter++);
+        var seenElements = new List<Literal>();
+        var allLiterals = new List<Literal>(program.AllLiterals.ToList());
+
+        foreach (var literal in allLiterals)
+        {
+            var literalClone = (Literal)literal.Clone();
+            literalClone.IsNegative = !literalClone.IsNegative;
+
+            if (seenElements.Contains(literal) || seenElements.Contains(literalClone))
+            {
+                continue;
+            }
+
+            // Element has not been seen yet
+            var duplicateLiteral = allLiterals.FirstOrDefault(x => equalCheck.AreEqual(x, literalClone));
+
+            if (duplicateLiteral != null)
+            {
+                nmrCheckRules.AddRange(GenerateRulesForNegation(literal, counter));
+                generalRules.Add(nmrCheckRules.Last());
+            }
+            counter++;
+            seenElements.Add(literal);
+        }
 
         // Generate the NMR Rule
         var generalRule = GenerateGeneralRule(generalRules);
@@ -66,16 +75,45 @@ public class NMRCheckGenerator : INMRCheckGenerator
 
     private CheckRule[] GenerateRulesForNegation(Literal literal, int counterIndex)
     {
+        var placeHolderName = "chk";
+
         var nmrCheckRules = new List<CheckRule>();
 
-        var literalClone = (Literal)literal.Clone();
-        literalClone.IsNAF = true;
-        literalClone.Atom.ParamList = new Atoms.AtomParam[1] { new Atoms.AtomParam(new Literal(new Atoms.Atom("X"), false, false)) };
+        var literalParams = literal.Atom.ParamList;
 
-        var ruleHead = new Literal(new Atoms.Atom("chk" + counterIndex.ToString() + counterIndex.ToString(), new Atoms.AtomParam[] {new Atoms.AtomParam(new Literal(new Atoms.Atom("X"), false, false))}), true, false);
-        var ruleBody = new BodyPart[] {new BodyPart(literalClone, null)};
+        var dualRulesFunctions = new DualRuleGenerator();
+
+        // Create RuleHead that is used for the NMR Check Rule; Does still have the same parameters as the original literal.
+        var ruleHead = new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), literalParams), true, false);
+
+        // Body for the first check rule; Is NAF negated and normal negated.
+        var ruleBody = new BodyPart[] {new BodyPart(new Literal(literal.Atom, true, true), null)};
 
         nmrCheckRules.Add(new CheckRule(ruleHead, ruleBody));
+
+        // Body for the second check rule; First part is normal negated, second part is NAF negated.
+        ruleBody = new BodyPart[] { new BodyPart(new Literal(literal.Atom, false, true), null), new BodyPart(new Literal(literal.Atom, true, false), null) };
+
+        nmrCheckRules.Add(new CheckRule(ruleHead, ruleBody));
+
+        var ruleHeadWithoutParams = new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), new Atoms.AtomParam[0]), true, false);
+
+        var forallVariables = new List<Term>();
+
+        foreach (var param in literalParams)
+        {
+            forallVariables.Add(param.Term);
+        }
+
+        var bodyPart = dualRulesFunctions.BuildForAllBody(ruleHead, forallVariables);
+
+        ruleBody = new BodyPart[] { bodyPart };
+
+        nmrCheckRules.Add(new CheckRule(ruleHeadWithoutParams, ruleBody));
+
+        bodyPart = new BodyPart(new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), new Atoms.AtomParam[0]), true, false), null);
+
+        nmrCheckRules.Add(new CheckRule(new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString(), new Atoms.AtomParam[0]), true, false), bodyPart));
 
         return nmrCheckRules.ToArray();
     }
