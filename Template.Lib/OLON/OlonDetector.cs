@@ -28,10 +28,10 @@ namespace Apollon.Lib.OLON
             }
 
             // add all target nodes of constraint rules
-            foreach (var node in callGraph.Edges.Where(e => e.Source == null).Select(e => e.Target))
-            {
-                olonSet.Nodes.Add(node);
-            }
+            // foreach (var node in callGraph.Edges.Where(e => e.Source == null).Select(e => e.Target))
+            // {
+            //     olonSet.Nodes.Add(node);
+            // }
 
             return olonSet;
         }
