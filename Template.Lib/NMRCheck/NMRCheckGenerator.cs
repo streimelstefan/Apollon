@@ -57,11 +57,12 @@ public class NMRCheckGenerator : INMRCheckGenerator
             // Element has not been seen yet
             var duplicateLiteral = allLiterals.FirstOrDefault(x => equalCheck.AreEqual(x, literalClone));
 
-            if (duplicateLiteral != null)
+            if (duplicateLiteral != null && seenElements.FirstOrDefault(x => x.Atom.Name == duplicateLiteral.Atom.Name) == null)
             {
                 nmrCheckRules.AddRange(GenerateRulesForNegation(literal, counter));
                 generalRules.Add(nmrCheckRules.Last());
             }
+
             counter++;
             seenElements.Add(literal);
         }

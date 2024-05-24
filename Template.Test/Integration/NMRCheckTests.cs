@@ -140,4 +140,28 @@ public class NMRCheckTests
         Assert.Contains("not chk1() :- not chk11().", nmrCheckRulesString);
         Assert.Contains("nmr_check() :- not chk1().", nmrCheckRulesString);
     }
+
+    [Test]
+    public void ShouldGenerateCorrectRuleBasedOnNegationWithMoreParameters()
+    {
+        var program = _parser.ParseFromFile("../../../TestPrograms/NMRRuleWithNegationAnd2Parameters.apo");
+
+        var callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
+
+        var olonSet = OlonDetector.DetectOlonIn(callGraph);
+
+        var processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleTypesAsStatements.ToArray());
+
+        NMRCheckGenerator nmrChecker = new NMRCheckGenerator();
+
+        var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray(), program);
+        var nmrCheckRulesString = nmrCheckRules.Select(x => x.ToString()).ToArray();
+
+        Assert.AreEqual(5, nmrCheckRules.Length);
+        Assert.Contains("not chk11(X, Y) :- not -a(X, Y).", nmrCheckRulesString);
+        Assert.Contains("not chk11(X, Y) :- -a(X, Y), not a(X, Y).", nmrCheckRulesString);
+        Assert.Contains("not chk11() :- forall(X, forall(Y, not chk11(X, Y))).", nmrCheckRulesString);
+        Assert.Contains("not chk1() :- not chk11().", nmrCheckRulesString);
+        Assert.Contains("nmr_check() :- not chk1().", nmrCheckRulesString);
+    }
 }
