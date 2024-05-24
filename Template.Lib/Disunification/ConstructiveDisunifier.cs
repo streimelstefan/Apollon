@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Apollon.Lib.Disunification
 {
-    public class ConstructiveDisunifier : IDisunifier
+    public class ConstructiveDisunifier
     {
 
         public IUnifier _unifier = new Unifier();
@@ -22,7 +22,7 @@ namespace Apollon.Lib.Disunification
             return Disunify(unifier, against, new Substitution());
         }
 
-        public UnificationResult Disunify(AtomParam unifier, AtomParam against, ISubstitution sigma)
+        public UnificationResult Disunify(AtomParam unifier, AtomParam against, Substitution sigma)
         {
             throw new NotImplementedException();
         }

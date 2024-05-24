@@ -63,7 +63,7 @@ public class NMRCheckGenerator : INMRCheckGenerator
         }
 
         // Not sure if is negative can just be set to false.
-        var ruleHead = new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), ruleProcessed.Head?.Atom.ParamList), true, false);
+        var ruleHead = new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), ruleProcessed.Head?.Atom.ParamList ?? new Atoms.AtomParam[0]), true, false);
 
         // All Body part Rules
         for (int i = 0; i < ruleProcessed.Body.Length; i++)
@@ -99,10 +99,12 @@ public class NMRCheckGenerator : INMRCheckGenerator
             nmrCheckRules.Add(new CheckRule(new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), olonRule.Head.Atom.ParamList), true, false), body));
         }
 
-        // That feels so fcking wrong.
-        body = new BodyPart(new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), nmrCheckRules.Last().Head.Atom.ParamList), true, false), null);
+        var paramList = nmrCheckRules.Last().Head.Atom.ParamList ?? new Atoms.AtomParam[0];
 
-        nmrCheckRules.Add(new CheckRule(new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString(), nmrCheckRules.Last().Head.Atom.ParamList), true, false), body));
+        // That feels so fcking wrong.
+        body = new BodyPart(new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), paramList), true, false), null);
+
+        nmrCheckRules.Add(new CheckRule(new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString(), paramList), true, false), body));
 
         return nmrCheckRules.ToArray();
     }

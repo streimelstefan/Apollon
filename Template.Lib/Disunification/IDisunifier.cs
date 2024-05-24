@@ -12,7 +12,7 @@ namespace Apollon.Lib.Disunification
 {
     public interface IDisunifier
     {
-        UnificationResult Disunify(AtomParam unifier, AtomParam against, ISubstitution sigma);
+        UnificationResult Disunify(AtomParam unifier, AtomParam against, Substitution sigma);
         UnificationResult Disunify(AtomParam unifier, AtomParam against);
 
     }

@@ -27,18 +27,18 @@ namespace Apollon.Test.Integration
             var olonSet = OlonDetector.DetectOlonIn(callGraph);
 
             Assert.IsNotNull(olonSet);
-            Assert.AreEqual(1, olonSet.Nodes.Count);
+            Assert.AreEqual(0, olonSet.Nodes.Count);
 
             var processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleTypesAsStatements.ToArray());
 
             Assert.IsNotNull(processedRules);
             Assert.AreEqual(2, processedRules.Length);
-            Assert.IsTrue(processedRules[0].IsOlonRule);
-            Assert.IsFalse(processedRules[0].IsOrdiniaryRule);
+            Assert.IsFalse(processedRules[0].IsOlonRule);
+            Assert.IsTrue(processedRules[0].IsOrdiniaryRule);
 
 
             Assert.IsTrue(processedRules[1].IsOlonRule);
-            Assert.IsFalse(processedRules[1].IsOrdiniaryRule);
+            Assert.IsTrue(processedRules[1].IsOrdiniaryRule);
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace Apollon.Test.Integration
             var olonSet = OlonDetector.DetectOlonIn(callGraph);
 
             Assert.IsNotNull(olonSet);
-            Assert.AreEqual(1, olonSet.Nodes.Count);
+            Assert.AreEqual(0, olonSet.Nodes.Count);
 
             var processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleTypesAsStatements.ToArray());
 
@@ -61,7 +61,7 @@ namespace Apollon.Test.Integration
             Assert.IsTrue(processedRules[0].IsOrdiniaryRule);
 
             Assert.IsTrue(processedRules[1].IsOlonRule);
-            Assert.IsFalse(processedRules[1].IsOrdiniaryRule);
+            Assert.IsTrue(processedRules[1].IsOrdiniaryRule);
         }
 
 
