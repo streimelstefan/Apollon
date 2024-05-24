@@ -60,6 +60,21 @@ namespace Apollon.Lib.Unification.Substitutioners
             mappings[variable.Value] = term;
         }
 
+        public void Add(Term variable, Term term)
+        {
+            Add(variable, new AtomParam(term));
+        }
+
+        public void ForceAdd(Term variable, AtomParam term)
+        {
+            mappings[variable.Value] = term;
+        }
+
+        public void ForceAdd(Term variable, Term term)
+        {
+            ForceAdd(variable, new AtomParam(term));
+        }
+
         public bool TryAdd(Term variable, AtomParam term)
         {
             try
@@ -152,6 +167,20 @@ namespace Apollon.Lib.Unification.Substitutioners
 
         private void ApplyOperation(Operation copy)
         {
+            if (copy.OutputtingVariable != null)
+            {
+                if (mappings.ContainsKey(copy.OutputtingVariable.Value))
+                {
+                    var mapped = mappings[copy.OutputtingVariable.Value];
+
+                    if (mapped.Term == null || !mapped.Term.IsVariable)
+                    {
+                        throw new InvalidOperationException($"Unable to map outputting variable of an is operation to a non variable value. {copy} | {copy.OutputtingVariable} -> {mapped}");
+                    }
+
+                    copy.OutputtingVariable = mapped.Term;
+                }
+            }
 
             if (copy.Variable.Term != null)
             {
@@ -168,10 +197,10 @@ namespace Apollon.Lib.Unification.Substitutioners
 
 
                     // make sure the operation variable is always a literal.
-                    if (copy.Variable.Term != null)
-                    {
-                        copy.Variable = new AtomParam(new Literal(new Atom(copy.Variable.Term.Value), false, false));
-                    }
+                    // if (copy.Variable.Term != null)
+                    // {
+                    //     copy.Variable = new AtomParam(new Literal(new Atom(copy.Variable.Term.Value), false, false));
+                    // }
                 }
             }
             if (copy.Variable.Literal != null)
@@ -272,6 +301,16 @@ namespace Apollon.Lib.Unification.Substitutioners
         public void Clear()
         {
             mappings.Clear();
+        }
+
+        public bool ContainsMappingFor(Term mapping)
+        {
+            return this.mappings.ContainsKey(mapping.Value);
+        }
+
+        public AtomParam GetMappingOf(Term mapping)
+        {
+            return mappings[mapping.Value];
         }
 
         public void Intersect(HashSet<string> variables)

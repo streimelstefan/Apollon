@@ -69,8 +69,12 @@ namespace Apollon.Lib.Linker
 
         private void LinkInOperation(Operation operation, Dictionary<string, Term> variableTable)
         {
+            if (operation.OutputtingVariable != null)
+            {
+                operation.OutputtingVariable = ReplaceTermIfNeeded(operation.OutputtingVariable, variableTable);
+            }
             LinkInAtomParam(operation.Variable, variableTable);
-            LinkInAtom(operation.Condition.Atom, variableTable);
+            LinkInAtomParam(operation.Condition, variableTable);
         }
 
         private Term ReplaceTermIfNeeded(Term term, Dictionary<string, Term> variableTable)

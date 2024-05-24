@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from c://Users//200320//Desktop//Apollon-main//Parser//antlr//apollon.g4 by ANTLR 4.13.1
+// Generated from c://Users//strei//Documents//dev//Apollon//Parser//antlr//apollon.g4 by ANTLR 4.13.1
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -192,6 +192,18 @@ public partial class apollonBaseListener : IapollonListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitDocu_string_part([NotNull] apollonParser.Docu_string_partContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.docu_string_string_part"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterDocu_string_string_part([NotNull] apollonParser.Docu_string_string_partContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.docu_string_string_part"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitDocu_string_string_part([NotNull] apollonParser.Docu_string_string_partContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="apollonParser.docu"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -264,29 +276,77 @@ public partial class apollonBaseListener : IapollonListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitGeneral_term([NotNull] apollonParser.General_termContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="apollonParser.operation"/>.
+	/// Enter a parse tree produced by <see cref="apollonParser.inline_operation"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterOperation([NotNull] apollonParser.OperationContext context) { }
+	public virtual void EnterInline_operation([NotNull] apollonParser.Inline_operationContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="apollonParser.operation"/>.
+	/// Exit a parse tree produced by <see cref="apollonParser.inline_operation"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitOperation([NotNull] apollonParser.OperationContext context) { }
+	public virtual void ExitInline_operation([NotNull] apollonParser.Inline_operationContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="apollonParser.operator"/>.
+	/// Enter a parse tree produced by <see cref="apollonParser.generating_operation"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterOperator([NotNull] apollonParser.OperatorContext context) { }
+	public virtual void EnterGenerating_operation([NotNull] apollonParser.Generating_operationContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="apollonParser.operator"/>.
+	/// Exit a parse tree produced by <see cref="apollonParser.generating_operation"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitOperator([NotNull] apollonParser.OperatorContext context) { }
+	public virtual void ExitGenerating_operation([NotNull] apollonParser.Generating_operationContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.generating_operation_variable"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterGenerating_operation_variable([NotNull] apollonParser.Generating_operation_variableContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.generating_operation_variable"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitGenerating_operation_variable([NotNull] apollonParser.Generating_operation_variableContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.generating_operation_operant"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterGenerating_operation_operant([NotNull] apollonParser.Generating_operation_operantContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.generating_operation_operant"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitGenerating_operation_operant([NotNull] apollonParser.Generating_operation_operantContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.inline_operators"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterInline_operators([NotNull] apollonParser.Inline_operatorsContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.inline_operators"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitInline_operators([NotNull] apollonParser.Inline_operatorsContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.generating_operators"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterGenerating_operators([NotNull] apollonParser.Generating_operatorsContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.generating_operators"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitGenerating_operators([NotNull] apollonParser.Generating_operatorsContext context) { }
 
 	/// <inheritdoc/>
 	/// <remarks>The default implementation does nothing.</remarks>

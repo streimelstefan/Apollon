@@ -20,7 +20,7 @@ namespace Apollon.Lib.Resolution.CoSLD.States
         public CHS Chs { get; set; }
 
         public ILogger Logger { get; private set; }
-        public Substitution Substitution { get; private set; }
+        public Substitution Substitution { get; set; }
 
         public ResolutionBaseState(Statement[] statements, Stack<Literal> callStack, CHS chs, Substitution substitution, ILogger logger)
         {
@@ -39,6 +39,14 @@ namespace Apollon.Lib.Resolution.CoSLD.States
                 (CHS)Chs.Clone(),
                 Substitution.Clone(),
                 Logger.CreateChild());
+        }
+
+        public virtual void LogState()
+        {
+            Logger.Silly($"State:");
+            Logger.Silly($"CHS: {Chs}");
+            Logger.Silly($"Callstack: [{string.Join(", ", CallStack.Select(l => l.ToString()))}]");
+            Logger.Silly($"Substitution: {Substitution}");
         }
     }
 }

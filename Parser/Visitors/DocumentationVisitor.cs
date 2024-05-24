@@ -32,9 +32,9 @@ namespace AppollonParser.Visitors
                     {
                         throw new ParseException(e.Message);
                     }
-                } else if (placeholder.general_term() != null)
+                } else if (placeholder.docu_string_string_part() != null)
                 {
-                    docuBuilder.AddDokuPart(placeholder.general_term().GetText());
+                    docuBuilder.AddDokuPart(placeholder.docu_string_string_part().GetText());
                 }
             }
 

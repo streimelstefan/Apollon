@@ -52,6 +52,10 @@ namespace Apollon.Lib.Logging
         {
         }
 
+        public void Silly(string message)
+        {
+        }
+
         public void Trace(string message)
         {
         }

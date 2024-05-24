@@ -56,6 +56,15 @@ namespace Apollon.Lib.Logging
             Console.WriteLine($"[INFO ]:{new string(' ', RecursionDepth * 2)} {message}");
         }
 
+        public void Silly(string message)
+        {
+            if (Level > LogLevel.Silly)
+            {
+                return;
+            }
+            Console.WriteLine($"[SILLY]:{new string(' ', RecursionDepth * 2)} {message}");
+        }
+
         public void Trace(string message)
         {
             if (Level > LogLevel.Trace)

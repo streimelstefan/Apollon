@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from c://Users//200320//Desktop//Apollon-main//Parser//antlr//apollon.g4 by ANTLR 4.13.1
+// Generated from c://Users//strei//Documents//dev//Apollon//Parser//antlr//apollon.g4 by ANTLR 4.13.1
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -161,6 +161,16 @@ public interface IapollonListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitDocu_string_part([NotNull] apollonParser.Docu_string_partContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.docu_string_string_part"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterDocu_string_string_part([NotNull] apollonParser.Docu_string_string_partContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.docu_string_string_part"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitDocu_string_string_part([NotNull] apollonParser.Docu_string_string_partContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="apollonParser.docu"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -221,23 +231,63 @@ public interface IapollonListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitGeneral_term([NotNull] apollonParser.General_termContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="apollonParser.operation"/>.
+	/// Enter a parse tree produced by <see cref="apollonParser.inline_operation"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterOperation([NotNull] apollonParser.OperationContext context);
+	void EnterInline_operation([NotNull] apollonParser.Inline_operationContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="apollonParser.operation"/>.
+	/// Exit a parse tree produced by <see cref="apollonParser.inline_operation"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitOperation([NotNull] apollonParser.OperationContext context);
+	void ExitInline_operation([NotNull] apollonParser.Inline_operationContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="apollonParser.operator"/>.
+	/// Enter a parse tree produced by <see cref="apollonParser.generating_operation"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterOperator([NotNull] apollonParser.OperatorContext context);
+	void EnterGenerating_operation([NotNull] apollonParser.Generating_operationContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="apollonParser.operator"/>.
+	/// Exit a parse tree produced by <see cref="apollonParser.generating_operation"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitOperator([NotNull] apollonParser.OperatorContext context);
+	void ExitGenerating_operation([NotNull] apollonParser.Generating_operationContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.generating_operation_variable"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterGenerating_operation_variable([NotNull] apollonParser.Generating_operation_variableContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.generating_operation_variable"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitGenerating_operation_variable([NotNull] apollonParser.Generating_operation_variableContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.generating_operation_operant"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterGenerating_operation_operant([NotNull] apollonParser.Generating_operation_operantContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.generating_operation_operant"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitGenerating_operation_operant([NotNull] apollonParser.Generating_operation_operantContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.inline_operators"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterInline_operators([NotNull] apollonParser.Inline_operatorsContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.inline_operators"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitInline_operators([NotNull] apollonParser.Inline_operatorsContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="apollonParser.generating_operators"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterGenerating_operators([NotNull] apollonParser.Generating_operatorsContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="apollonParser.generating_operators"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitGenerating_operators([NotNull] apollonParser.Generating_operatorsContext context);
 }

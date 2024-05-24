@@ -1,5 +1,6 @@
 ﻿using Apollon.Lib.Atoms;
 using Apollon.Lib.Graph;
+using Apollon.Lib.Resolution;
 using Apollon.Lib.Rules;
 using Apollon.Lib.Rules.Operations;
 using System;
@@ -14,6 +15,8 @@ namespace Apollon.Lib.DualRules
 {
     public class DualRuleGenerator : IDualRuleGenerator
     {
+        private OperationNAFSwitcher operationNAFSwitcher = new OperationNAFSwitcher();
+
         /// <summary>
         /// Generates dual rules for all the statements that are contained in the statement given.
         /// </summary>
@@ -279,7 +282,7 @@ namespace Apollon.Lib.DualRules
                         throw new InvalidOperationException();
                     }
 
-                    var operation = new Operation(new AtomParam(variable), Operator.Equals, condtion);
+                    var operation = new Operation(new AtomParam(variable), Operator.Equals, new AtomParam(condtion));
                     head.Add(new AtomParam(null, variable));
                     body.Add(new BodyPart(null, operation));
                 } else
@@ -298,13 +301,7 @@ namespace Apollon.Lib.DualRules
             // Maybe make this function into a whole class.
             if (bodyPart.Operation != null)
             {
-                if (bodyPart.Operation.Operator == Rules.Operations.Operator.Equals)
-                {
-                    bodyPart.Operation.Operator = Rules.Operations.Operator.NotEquals;
-                } else
-                {
-                    bodyPart.Operation.Operator = Rules.Operations.Operator.Equals;
-                }
+                this.operationNAFSwitcher.SwitchNaf(bodyPart.Operation);
             } else if (bodyPart.Literal != null)
             {
                 bodyPart.Literal.IsNAF = !bodyPart.Literal.IsNAF;
@@ -319,42 +316,59 @@ namespace Apollon.Lib.DualRules
         /// <returns></returns>
         public List<Term> GetAllVariablesNotInHead(Statement statement)
         {
-            var head = statement.Head;
-            if (head == null)
+            var variableExtractor = new VariableExtractor();
+
+            var statementVariabels = variableExtractor.ExtractVariablesFrom(statement).Select(t => t.Value).ToHashSet();
+            var headVariables = variableExtractor.ExtractVariablesFrom(statement.Head).Select(t => t.Value).ToHashSet();
+
+            var except = new List<Term>();
+
+            foreach (var term in statementVariabels)
             {
-                throw new ArgumentNullException(nameof(head), "Head of statement is not allowed to be null.");
-            }
-
-            var headVariables = head.Atom.ParamList.Where(p => p.Term != null && p.Term.IsVariable).Select(p => p.Term?.Value).ToList();
-            var bodyVariables = new Dictionary<string, int>();
-            foreach (var bodyPart in statement.Body)
-            {
-                var literal = bodyPart.Literal;
-                if (literal == null)
+                if (!headVariables.Contains(term))
                 {
-                    continue;
-                }
-
-                foreach (var param in literal.Atom.ParamList)
-                {
-                    var term = param.Term;
-                    if (term == null)
-                    {
-                        continue;
-                    }
-
-                    if (!term.IsVariable || headVariables.Contains(term.Value))
-                    {
-                        continue;
-                    }
-
-                    var currentCount = bodyVariables.GetValueOrDefault(term.Value, 0);
-                    currentCount++;
-                    bodyVariables[term.Value] = currentCount;
+                    except.Add(new Term(term));
                 }
             }
 
-            return bodyVariables.Keys.Select(k => new Term(k)).ToList();
+            return except;
+
+            //var head = statement.Head;
+            //if (head == null)
+            //{
+            //    throw new ArgumentNullException(nameof(head), "Head of statement is not allowed to be null.");
+            //}
+            //
+            //var headVariables = head.Atom.ParamList.Where(p => p.Term != null && p.Term.IsVariable).Select(p => p.Term?.Value).ToList();
+            //var bodyVariables = new Dictionary<string, int>();
+            //foreach (var bodyPart in statement.Body)
+            //{
+            //    var literal = bodyPart.Literal;
+            //    if (literal == null)
+            //    {
+            //        continue;
+            //    }
+            //
+            //    foreach (var param in literal.Atom.ParamList)
+            //    {
+            //        var term = param.Term;
+            //        if (term == null)
+            //        {
+            //            continue;
+            //        }
+            //
+            //        if (!term.IsVariable || headVariables.Contains(term.Value))
+            //        {
+            //            continue;
+            //        }
+            //
+            //        var currentCount = bodyVariables.GetValueOrDefault(term.Value, 0);
+            //        currentCount++;
+            //        bodyVariables[term.Value] = currentCount;
+            //    }
+            //}
+            //
+            //return bodyVariables.Keys.Select(k => new Term(k)).ToList();
         }
     }
 }

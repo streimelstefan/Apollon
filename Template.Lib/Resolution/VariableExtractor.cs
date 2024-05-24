@@ -82,12 +82,19 @@ namespace Apollon.Lib.Resolution
                 }
             }
         }
+
         private void ExtractVariablesFrom(Operation operation, HashSet<Term> variables) 
-        { 
+        {
+            if (operation.OutputtingVariable != null)
+            {
+                variables.Add(operation.OutputtingVariable);
+            }
+
             if (operation.Variable.Term != null && operation.Variable.Term.IsVariable)
             {
                 variables.Add(operation.Variable.Term);
             }
+
             ExtractVariablesFrom(operation.Condition, variables);
         }
 

@@ -236,7 +236,7 @@ namespace Template.Test.Parser
             var query = _parser.ParseQueryFromString("X = a.");
 
             Assert.IsNotNull(query);
-            Assert.AreEqual("X = a()", query[0].ToString());
+            Assert.AreEqual("X = a", query[0].ToString());
         }
 
         [Test]
@@ -279,7 +279,7 @@ namespace Template.Test.Parser
             Assert.IsNotNull(query);
             Assert.AreEqual(2, query.Length);
             Assert.AreEqual("a(X)", query[0].ToString());
-            Assert.AreEqual("X = a()", query[1].ToString());
+            Assert.AreEqual("X = a", query[1].ToString());
         }
 
     }

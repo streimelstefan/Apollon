@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from c://Users//200320//Desktop//Apollon-main//Parser//antlr//apollon.g4 by ANTLR 4.13.1
+// Generated from c://Users//strei//Documents//dev//Apollon//Parser//antlr//apollon.g4 by ANTLR 4.13.1
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -110,6 +110,12 @@ public interface IapollonVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitDocu_string_part([NotNull] apollonParser.Docu_string_partContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="apollonParser.docu_string_string_part"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDocu_string_string_part([NotNull] apollonParser.Docu_string_string_partContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="apollonParser.docu"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -146,15 +152,39 @@ public interface IapollonVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitGeneral_term([NotNull] apollonParser.General_termContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="apollonParser.operation"/>.
+	/// Visit a parse tree produced by <see cref="apollonParser.inline_operation"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitOperation([NotNull] apollonParser.OperationContext context);
+	Result VisitInline_operation([NotNull] apollonParser.Inline_operationContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="apollonParser.operator"/>.
+	/// Visit a parse tree produced by <see cref="apollonParser.generating_operation"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitOperator([NotNull] apollonParser.OperatorContext context);
+	Result VisitGenerating_operation([NotNull] apollonParser.Generating_operationContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="apollonParser.generating_operation_variable"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitGenerating_operation_variable([NotNull] apollonParser.Generating_operation_variableContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="apollonParser.generating_operation_operant"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitGenerating_operation_operant([NotNull] apollonParser.Generating_operation_operantContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="apollonParser.inline_operators"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitInline_operators([NotNull] apollonParser.Inline_operatorsContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="apollonParser.generating_operators"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitGenerating_operators([NotNull] apollonParser.Generating_operatorsContext context);
 }

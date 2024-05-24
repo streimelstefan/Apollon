@@ -62,8 +62,8 @@ namespace Apollon.Test
         [Test]
         public void ShouldUnifyOperationWithVariableNameDifferences()
         {
-            var op1 = new Operation(new AtomParam(new Term("X")), Operator.Equals, new Literal(new Atom("a"), false, false));
-            var op2 = new Operation(new AtomParam(new Term("Y")), Operator.Equals, new Literal(new Atom("a"), false, false));
+            var op1 = new Operation(new AtomParam(new Term("X")), Operator.Equals, new AtomParam(new Literal(new Atom("a"), false, false)));
+            var op2 = new Operation(new AtomParam(new Term("Y")), Operator.Equals, new AtomParam(new Literal(new Atom("a"), false, false)));
 
             var res = _unifier.Unify(new BodyPart(null, op1), new BodyPart(null, op2));
 

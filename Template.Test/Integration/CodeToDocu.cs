@@ -50,7 +50,7 @@ namespace Apollon.Test.Integration
             var docu = _docuGenerator.GenerateDokumentationFor(program);
 
             Assert.IsNotNull(docu);
-            Assert.AreEqual("X is awsome if\r\n  X is a().\r\n", docu);
+            Assert.AreEqual("X is awsome if\r\n  X is a.\r\n", docu);
         }
 
         [Test]
@@ -123,6 +123,126 @@ namespace Apollon.Test.Integration
 
             Assert.IsNotNull(docu);
             Assert.AreEqual("X is awesome if\r\n  other(X) holds.\r\nZZ is stupid if\r\n  there is no evidence that ZZ is awesome.\r\n", docu);
+        }
+
+        [Test]
+        public void ShouldSayIfItIsNotTheCaseThatWhenNegativeLiteral()
+        {
+            var code = "someNeg(Y) :: @(Y) makes sense.\r\nsomeNeg(Y) :- -nat(Y).";
+            var program = _parser.ParseFromString(code);
+
+            var docu = _docuGenerator.GenerateDokumentationFor(program);
+
+            Assert.IsNotNull(docu);
+            Assert.AreEqual("Y makes sense if\r\n  it is not the case that nat(Y) holds.\r\n", docu);
+        }
+
+        [Test]
+        public void ShouldCombineNafAndNegationDescriptions()
+        {
+            var code = "someNeg(Y) :: @(Y) makes sense.\r\nsomeNeg(Y) :- not -nat(Y).";
+            var program = _parser.ParseFromString(code);
+
+            var docu = _docuGenerator.GenerateDokumentationFor(program);
+
+            Assert.IsNotNull(docu);
+            Assert.AreEqual("Y makes sense if\r\n  there is no evidence that and it is not the case that nat(Y) holds.\r\n", docu);
+        }
+
+        [Test]
+        public void ShouldGenerateDocuForLessThenOperation()
+        {
+            var code = "a(X) :: @(X) is awesome.\r\na(X) :- X < 1";
+            var program = _parser.ParseFromString(code);
+
+            var docu = _docuGenerator.GenerateDokumentationFor(program);
+
+            Assert.IsNotNull(docu);
+            Assert.AreEqual("X is awesome if\r\n  X is less than 1.\r\n", docu);
+        }
+
+        [Test]
+        public void ShouldGenerateDocuForGreaterThenOperation()
+        {
+            var code = "a(X) :: @(X) is awesome.\r\na(X) :- X > 1";
+            var program = _parser.ParseFromString(code);
+
+            var docu = _docuGenerator.GenerateDokumentationFor(program);
+
+            Assert.IsNotNull(docu);
+            Assert.AreEqual("X is awesome if\r\n  X is greater than 1.\r\n", docu);
+        }
+
+        [Test]
+        public void ShouldGenerateDocuForGreaterThenOrEqualToOperation()
+        {
+            var code = "a(X) :: @(X) is awesome.\r\na(X) :- X >= 1";
+            var program = _parser.ParseFromString(code);
+
+            var docu = _docuGenerator.GenerateDokumentationFor(program);
+
+            Assert.IsNotNull(docu);
+            Assert.AreEqual("X is awesome if\r\n  X is greater than or equal to 1.\r\n", docu);
+        }
+
+        [Test]
+        public void ShouldGenerateDocuForLessThenOrEqualToOperation()
+        {
+            var code = "a(X) :: @(X) is awesome.\r\na(X) :- X <= 1";
+            var program = _parser.ParseFromString(code);
+
+            var docu = _docuGenerator.GenerateDokumentationFor(program);
+
+            Assert.IsNotNull(docu);
+            Assert.AreEqual("X is awesome if\r\n  X is less than or equal to 1.\r\n", docu);
+        }
+
+        [Test]
+        public void ShouldGenerateDocuForPlusOperation()
+        {
+            var code = "a(X) :: @(X) is awesome.\r\na(X) :- Y is X + 1";
+            var program = _parser.ParseFromString(code);
+
+            var docu = _docuGenerator.GenerateDokumentationFor(program);
+
+            Assert.IsNotNull(docu);
+            Assert.AreEqual("X is awesome if\r\n  Y is X plus 1.\r\n", docu);
+        }
+
+        [Test]
+        public void ShouldGenerateDocuForTimesOperation()
+        {
+            var code = "a(X) :: @(X) is awesome.\r\na(X) :- Y is X * 1";
+            var program = _parser.ParseFromString(code);
+
+            var docu = _docuGenerator.GenerateDokumentationFor(program);
+
+            Assert.IsNotNull(docu);
+            Assert.AreEqual("X is awesome if\r\n  Y is X times 1.\r\n", docu);
+        }
+
+        [Test]
+        public void ShouldGenerateDocuForDivideOperation()
+        {
+            var code = "a(X) :: @(X) is awesome.\r\na(X) :- Y is X / 1";
+            var program = _parser.ParseFromString(code);
+
+            var docu = _docuGenerator.GenerateDokumentationFor(program);
+
+            Assert.IsNotNull(docu);
+            Assert.AreEqual("X is awesome if\r\n  Y is X divided by 1.\r\n", docu);
+        }
+
+        [Test]
+        public void ShouldGenerateDocuForMinusOperation()
+        {
+            var code = "a(X) :: @(X) is awesome.\r\na(X) :- Y is X - 1";
+            var program = _parser.ParseFromString(code);
+
+            var docu = _docuGenerator.GenerateDokumentationFor(program);
+
+            Assert.IsNotNull(docu);
+            Assert.AreEqual("X is awesome if\r\n  Y is X minus 1.\r\n", docu);
         }
     }
 }

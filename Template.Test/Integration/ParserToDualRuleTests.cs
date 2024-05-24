@@ -42,7 +42,7 @@ namespace Apollon.Test.Integration
             Assert.IsTrue(rules[0].Body[0].IsOperation);
             Assert.AreEqual(Operator.NotEquals, rules[0].Body[0].Operation.Operator);
             Assert.AreEqual("V/0", rules[0].Body[0].Operation.Variable.Term.Value);
-            Assert.AreEqual("0", rules[0].Body[0].Operation.Condition.Atom.Name);
+            Assert.AreEqual("0", rules[0].Body[0].Operation.Condition.Literal.Atom.Name);
 
             Assert.AreEqual("a", rules[1].Head.Atom.Name);
             Assert.AreEqual("V/0", rules[1].Head.Atom.ParamList[0].Term.Value);
@@ -191,7 +191,72 @@ namespace Apollon.Test.Integration
             Assert.AreEqual("not ancestor1(X, Y, Z) :- parent(X, Z), not ancestor(Z, Y).", rules[7].ToString());
             Assert.AreEqual("not ancestor1(X, Y) :- forall(Z, not ancestor1(X, Y, Z)).", rules[8].ToString());
             Assert.AreEqual("not ancestor(V/0, V/1) :- not ancestor0(V/0, V/1), not ancestor1(V/0, V/1).", rules[9].ToString());
+        }
 
+        [Test]
+        public void ShouldConvertLessThenToGreaterThenOrEquals()
+        {
+            var code = "a(X) :- X < 2.";
+            var program = parser.ParseFromString(code);
+
+            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+
+            Assert.AreEqual(2, rules.Length);
+            Assert.AreEqual("not a0(X) :- X >= 2.", rules[0].ToString());
+            Assert.AreEqual("not a(V/0) :- not a0(V/0).", rules[1].ToString());
+        }
+
+        [Test]
+        public void ShouldConvertGreaterThenToLessThenOrEquals()
+        {
+            var code = "a(X) :- X > 2.";
+            var program = parser.ParseFromString(code);
+
+            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+
+            Assert.AreEqual(2, rules.Length);
+            Assert.AreEqual("not a0(X) :- X <= 2.", rules[0].ToString());
+            Assert.AreEqual("not a(V/0) :- not a0(V/0).", rules[1].ToString());
+        }
+
+        [Test]
+        public void ShouldConvertGreaterThenOrEqualToLessThen()
+        {
+            var code = "a(X) :- X >= 2.";
+            var program = parser.ParseFromString(code);
+
+            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+
+            Assert.AreEqual(2, rules.Length);
+            Assert.AreEqual("not a0(X) :- X < 2.", rules[0].ToString());
+            Assert.AreEqual("not a(V/0) :- not a0(V/0).", rules[1].ToString());
+        }
+
+        [Test]
+        public void ShouldConvertLessThanOrEqualToLessThen()
+        {
+            var code = "a(X) :- X <= 2.";
+            var program = parser.ParseFromString(code);
+
+            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+
+            Assert.AreEqual(2, rules.Length);
+            Assert.AreEqual("not a0(X) :- X > 2.", rules[0].ToString());
+            Assert.AreEqual("not a(V/0) :- not a0(V/0).", rules[1].ToString());
+        }
+
+        [Test]
+        public void ShouldNAFSwithIsOperations()
+        {
+            var code = "a(X) :- Y is X + 2.";
+            var program = parser.ParseFromString(code);
+
+            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+
+            Assert.AreEqual(3, rules.Length);
+            Assert.AreEqual("not a0(X, Y) :- not Y is X + 2.", rules[0].ToString());
+            Assert.AreEqual("not a0(X) :- forall(Y, not a0(X, Y)).", rules[1].ToString());
+            Assert.AreEqual("not a(V/0) :- not a0(V/0).", rules[2].ToString());
         }
 
     }

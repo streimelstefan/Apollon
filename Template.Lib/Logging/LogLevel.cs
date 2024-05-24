@@ -8,6 +8,7 @@ namespace Apollon.Lib.Logging
 {
     public enum LogLevel
     {
+        Silly,
         Trace,
         Debug,
         Info,

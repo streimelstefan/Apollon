@@ -10,5 +10,13 @@ namespace Apollon.Lib.Rules.Operations
     {
         Equals,
         NotEquals,
+        GreaterThan,
+        GreaterThanOrEqual,
+        LessThan,
+        LessThanOrEqual,
+        Plus,
+        Minus,
+        Times,
+        Divide,
     }
 }

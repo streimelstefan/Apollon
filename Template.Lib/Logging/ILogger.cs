@@ -12,6 +12,8 @@ namespace Apollon.Lib.Logging
 
         public int RecursionDepth { get; set; }
 
+        void Silly(string message);
+
         void Trace(string message);
 
         void Debug(string message);

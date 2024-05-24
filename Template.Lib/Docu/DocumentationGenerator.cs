@@ -79,14 +79,14 @@ namespace Apollon.Lib.Docu
             var subbed = sub.Apply(operation);
             var stringBuilder = new StringBuilder();
 
-            stringBuilder.Append(subbed.Variable.ToString());
-            if (operation.Operator == Operator.Equals)
+            if (operation.OutputtingVariable != null)
             {
+                stringBuilder.Append(operation.OutputtingVariable.ToString());
                 stringBuilder.Append(" is ");
-            } else if (operation.Operator == Operator.NotEquals)
-            {
-                stringBuilder.Append(" is not ");
             }
+
+            stringBuilder.Append(subbed.Variable.ToString());
+            stringBuilder.Append(operation.Operator.ToDocumentationString());
             stringBuilder.Append(subbed.Condition.ToString());
 
             return stringBuilder;
@@ -101,13 +101,22 @@ namespace Apollon.Lib.Docu
                 litCopy.IsNAF = false;
                 stringBuilder.Append("there is no evidence that ");
             }
+            if (literal.IsNAF && literal.IsNegative)
+            {
+                stringBuilder.Append("and ");
+            }
+            if (litCopy.IsNegative)
+            {
+                litCopy.IsNegative = false;
+                stringBuilder.Append("it is not the case that ");
+            }
 
             var documentation = GetMatchingDokumentationFor(litCopy, documentations);
             if (documentation.Value == null)
             {
                 if (isInHead) return stringBuilder;
 
-                stringBuilder.Append(literal.ToString());
+                stringBuilder.Append(litCopy.ToString());
                 stringBuilder.Append(" holds");
                 return stringBuilder;
             }

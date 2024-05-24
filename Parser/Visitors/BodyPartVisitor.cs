@@ -19,9 +19,12 @@ namespace AppollonParser.Visitors
             Operation? operation = null;
             Literal? literal = null;
 
-            if (context.operation() != null)
+            if (context.inline_operation() != null)
             {
-                operation = _operationVisitor.VisitOperation(context.operation());  
+                operation = _operationVisitor.VisitInline_operation(context.inline_operation());  
+            } else if (context.generating_operation() != null)
+            {
+                operation = _operationVisitor.VisitGenerating_operation(context.generating_operation());
             }
             if (context.naf_literal() != null)
             {

@@ -25,7 +25,7 @@ namespace Apollon.Test.Integration
         public void Setup()
         {
             _solver = new Solver();
-            _solver.Logger.Level = LogLevel.Trace;
+            _solver.Logger.Level = LogLevel.Silly;
             _parser = new ApollonParser();
         }
 
@@ -78,7 +78,7 @@ namespace Apollon.Test.Integration
         }
 
         [Test]
-        public void ShouldSuceedWithExampleProgram1()
+        public void ShouldSuceedWithExampleProgram1AndReturnTwoAnswerSets()
         {
             var code = "parent(alice, bob).\r\nparent(bob, charlie).\r\nancestor(X, Y) :- parent(X, Y).\r\nancestor(X, Y) :- parent(X, Z), ancestor(Z, Y).\r\n";
             var program = _parser.ParseFromString(code);
@@ -87,14 +87,24 @@ namespace Apollon.Test.Integration
             var goal = new BodyPart(new Literal(new Atom("ancestor", new AtomParam(new Term("alice")), new AtomParam(new Term("X"))), false, false), null);
 
             var results = _solver.Solve(new BodyPart[] { goal });
-            var res = results.First();
+            var res = results.ToArray();
+            Assert.AreEqual(res.Length, 2);
 
-            Assert.IsFalse(res.CHS.IsEmpty);
-            Assert.AreEqual("parent(alice, bob)", res.CHS.Literals[0].ToString());
-            Assert.AreEqual("ancestor(alice, bob)", res.CHS.Literals[1].ToString());
+            Assert.IsFalse(res[0].CHS.IsEmpty);
+            Assert.AreEqual("parent(alice, bob)", res[0].CHS.Literals[0].ToString());
+            Assert.AreEqual("ancestor(alice, bob)", res[0].CHS.Literals[1].ToString());
 
-            Assert.IsNotNull(res.Substitution);
-            Assert.AreEqual("{ X -> bob }", res.Substitution.ToString());
+            Assert.IsNotNull(res[0].Substitution);
+            Assert.AreEqual("{ X -> bob }", res[0].Substitution.ToString());
+
+            Assert.IsFalse(res[1].CHS.IsEmpty);
+            Assert.AreEqual("parent(alice, bob)", res[1].CHS.Literals[0].ToString());
+            Assert.AreEqual("parent(bob, charlie)", res[1].CHS.Literals[1].ToString());
+            Assert.AreEqual("ancestor(bob, charlie)", res[1].CHS.Literals[2].ToString());
+            Assert.AreEqual("ancestor(alice, charlie)", res[1].CHS.Literals[3].ToString());
+
+            Assert.IsNotNull(res[1].Substitution);
+            Assert.AreEqual("{ X -> charlie }", res[1].Substitution.ToString());
         }
 
         [Test]
@@ -133,9 +143,9 @@ namespace Apollon.Test.Integration
             // it should be set to three when a value gets checked in the chs. But we losse al context once a literal enters the chs.
             // so not sure how to fix that currently.
             //Assert.AreEqual("p(3)", literals[1].ToString()); // this should be p(3) but not sure how or if to implement that.
-            Assert.AreEqual("not p(RV/5 - {\\3() \\4()})", literals[2].ToString());
-            Assert.AreEqual("q(RV/2 - {\\3() \\4()})", literals[3].ToString());
-            Assert.AreEqual("r(RV/3 - {\\3() \\4()})", literals[4].ToString());
+            Assert.AreEqual("not p(RV/5 - {\\3 \\4})", literals[2].ToString());
+            Assert.AreEqual("q(RV/2 - {\\3 \\4})", literals[3].ToString());
+            Assert.AreEqual("r(RV/3 - {\\3 \\4})", literals[4].ToString());
         }
 
         [Test]
@@ -178,17 +188,17 @@ namespace Apollon.Test.Integration
         }
 
         [Test]
-        public void ShouldReturnTwoResults()
+        public void ShouldAddOne()
         {
-            var code = "parent(alice, bob).\r\nparent(bob, charlie).\r\nancestor(X, Y) :- parent(X, Y).\r\nancestor(X, Y) :- parent(X, Z), ancestor(Z, Y).\r\n";
+            var code = "addOne(X, Y) :- Y is X + 1.";
+            var query = _parser.ParseQueryFromString("addOne(1, X).");
             var program = _parser.ParseFromString(code);
             _solver.Load(program);
 
-            var goal = new BodyPart(new Literal(new Atom("ancestor", new AtomParam(new Term("alice")), new AtomParam(new Term("X"))), false, false), null);
-
-            var results = _solver.Solve(new BodyPart[] { goal });
+            var results = _solver.Solve(query);
             var res = results.First();
 
+            Assert.IsNotNull(res);
         }
     }
 }
