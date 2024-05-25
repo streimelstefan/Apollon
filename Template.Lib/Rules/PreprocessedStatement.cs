@@ -22,5 +22,10 @@ namespace Apollon.Lib.Rules
             return new PreprocessedStatement((Statement)base.Clone(), IsOlonRule, IsOrdiniaryRule);
         }
 
+        public override string ToString()
+        {
+            return $"{base.ToString()} IsOlon: {(IsOlonRule ? "True" : "False")} IsOrdinary: {(IsOrdiniaryRule ? "True" : "False")}";
+        }
+
     }
 }

@@ -15,5 +15,10 @@ namespace Apollon.Lib.Graph
         {
             Literal = literal;
         }
+
+        public override string ToString()
+        {
+            return Literal.ToString();
+        }
     }
 }

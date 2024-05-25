@@ -118,7 +118,7 @@ namespace Apollon.Test
             var substituted = _sub.Apply(rule);
 
             Assert.IsNotNull(substituted);
-            Assert.AreEqual("likes(0) :- 0() != 0.", substituted.ToString());
+            Assert.AreEqual("likes(0) :- 0 != 0.", substituted.ToString());
         }
 
         [Test]

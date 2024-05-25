@@ -14,28 +14,28 @@ using Apollon.Lib.Logging;
 var fileArgument = new Argument<string>("file", "The path to the file that will be parsed.");
 
 var queryOption = new Option<string>("--query", "The query that will be executed on the parsed file.");
-
-var loggingOption = new Option<LogLevel>("--logging-level", "The Logging Level that the program should execute with.");
-
-loggingOption.AddAlias("-l");
-
 queryOption.AddAlias("-q");
 
-var interactiveOption = new Option<bool>("--interactive", "The specified file will be read and preprocessed. After that interactive querries can be made.");
+var loggingOption = new Option<LogLevel>("--logging-level", "The Logging Level that the program should execute with.");
+loggingOption.AddAlias("-l");
+loggingOption.SetDefaultValue(LogLevel.NoLogging);
 
+var interactiveOption = new Option<bool>("--interactive", "The specified file will be read and preprocessed. After that interactive querries can be made.");
 interactiveOption.AddAlias("-i");
 
 var parseOnlyOption = new Option<bool>("--parse-only", "The specified file will only checked for syntactical and grammatical correctness.");
 
+var generateDocuOption = new Option<bool>("--generate-documentation", "Generates the documentation for the file loaded.");
+generateDocuOption.AddAlias("-d");
+
 var rootCommand = new RootCommand("Parser for s(ASP).");
 
 rootCommand.AddArgument(fileArgument);
-
 rootCommand.AddOption(queryOption);
-
 rootCommand.AddOption(interactiveOption);
-
 rootCommand.AddOption(parseOnlyOption);
+rootCommand.AddOption(loggingOption);
+rootCommand.AddOption(generateDocuOption);
 
 rootCommand.AddValidator(result =>
 {
@@ -45,7 +45,6 @@ rootCommand.AddValidator(result =>
         result.ErrorMessage = $"You must use either interactive Mode or specify a query!";
     }
 });
-
 fileArgument.AddValidator(result =>
 {
     if (!System.IO.File.Exists(result.Tokens[0].Value))
@@ -55,7 +54,7 @@ fileArgument.AddValidator(result =>
 });
 
 rootCommand.SetHandler(
-    (file, query, interactive, parseOnly) =>
+    (file, query, interactive, parseOnly, logLevel, genDocu) =>
 {
     var parser = new ApollonParser();
 
@@ -63,6 +62,14 @@ rootCommand.SetHandler(
 
     if (parseOnly)
     {
+        return;
+    }
+
+    if (genDocu)
+    {
+        var dokuGenerator = new DocumentationGenerator();
+
+        Console.WriteLine(dokuGenerator.GenerateDokumentationFor(program));
         return;
     }
 
@@ -102,6 +109,7 @@ rootCommand.SetHandler(
         var goals = parser.ParseQueryFromString(query);
 
         var solver = new Solver();
+        solver.Logger.Level = logLevel;
         solver.Load(program);
 
         var results = solver.Solve(goals);
@@ -117,32 +125,8 @@ rootCommand.SetHandler(
     fileArgument,
     queryOption,
     interactiveOption,
-    parseOnlyOption);
+    parseOnlyOption,
+    loggingOption,
+    generateDocuOption);
 
-//return await rootCommand.InvokeAsync(args);
 return rootCommand.Invoke(args);
-
-//var query = "p(X), r(Y).";
-
-//var parser = new ApollonParser();
-
-//var program = parser.ParseFromFile("./Test.apo");
-//var goals = parser.ParseQueryFromString(query);
-
-//// var dokuGenerator = new DocumentationGenerator();
-//// 
-//// Console.WriteLine(dokuGenerator.GenerateDokumentationFor(program));
-
-//var solver = new Solver();
-//solver.Load(program);
-
-//var results = solver.Solve(goals);
-
-//var resultBuilder = new ResultStringBuilder();
-
-
-//foreach (var result in results)
-//{
-//    Console.WriteLine(resultBuilder.CreateResultString(result));
-//}
-

@@ -1,4 +1,6 @@
 ﻿using Apollon.Lib.Atoms;
+using Apollon.Lib.Graph;
+using Apollon.Lib.Linker;
 using Apollon.Lib.Logging;
 using Apollon.Lib.Resolution.CallStackAndCHS;
 using Apollon.Lib.Resolution.Checkers;
@@ -35,6 +37,10 @@ namespace Apollon.Lib.Resolution.CoSLD
 
         private OperationResolver operationResolver = new OperationResolver();
 
+        private VariableLinker _linker = new VariableLinker();
+
+        private IEqualizer<Literal> preSelector = new LiteralParamCountEqualizer();
+
         public IEnumerable<ResolutionResult> Resolute(Statement[] statements, BodyPart[] goals, ILogger logger)
         {
             // Initialize the call stack and CHS (coinductive hypothesis set)
@@ -49,11 +55,6 @@ namespace Apollon.Lib.Resolution.CoSLD
 
             foreach (var res in results)
             {
-                if (!res.Success)
-                {
-                    yield return new ResolutionResult();
-                }
-
                 yield return new ResolutionResult(res.CHS, res.Substitution);
             }
         }
@@ -154,7 +155,11 @@ namespace Apollon.Lib.Resolution.CoSLD
             foreach (var result in results)
             {
                 state.Logger.Silly($"Forall goal {(result.Success ? "succeeded" : "failed")}.");
-                result.State.LogState();
+                if (result.Success)
+                {
+                    result.State.LogState();
+                }
+
                 yield return result;
             }
         }
@@ -250,11 +255,20 @@ namespace Apollon.Lib.Resolution.CoSLD
         {
             bool hasYielded = false;
             var variablesInGoal = variableExtractor.ExtractVariablesFrom(state.CurrentGoal).Select(t => t.Value).ToHashSet();
-            foreach (var statement in state.Statements)
+
+            var preselectedStatements = state.Statements
+                .Where(s => this.preSelector.AreEqual(s.Head, state.CurrentGoal))
+                .Select(s => this.LinkAndRenameVariablesIn(s))
+                .ToArray();
+
+            state.Logger
+                .Silly($"Preselected {preselectedStatements.Length} rules: [{string.Join(" | ", preselectedStatements.Select(s => s.ToString()))}]");
+
+            foreach (var statement in preselectedStatements)
             {
                 if (statement.Head == null)
                 {
-                    throw new InvalidOperationException("TODO: Implement Constraints");
+                    continue;
                 }
 
                 var unificationRes = _unifier.Unify(statement.Head, state.CurrentGoal);
@@ -348,6 +362,21 @@ namespace Apollon.Lib.Resolution.CoSLD
                 return forall.Literal;
 
             throw new InvalidOperationException("Got body part that has neither a child or a literal, weird...");
+        }
+
+        private Statement LinkAndRenameVariablesIn(Statement statement)
+        {
+            var linkedStatement = this._linker.LinkVariables(statement);
+            var variables = this.variableExtractor.ExtractVariablesFrom(linkedStatement);
+            foreach (var variable in variables)
+            {
+                var newName = $"RV/{this.variableIndex}";
+
+                variable.Value = newName;
+                this.variableIndex++;
+            }
+
+            return linkedStatement;
         }
     }
 }

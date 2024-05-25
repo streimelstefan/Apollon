@@ -7,7 +7,7 @@ query: body_part (',' body_part)* '.' EOF;
 statement: fact | rule | constraint | docu | COMMENT;
 fact: literal '.';
 rule: head ':-' body '.';
-constraint: ':-' naf_literal (',' naf_literal)* '.';
+constraint: ':-' body_part (',' body_part)* '.';
 head: literal;
 body: body_part (',' body_part)*;
 body_part:
@@ -21,7 +21,7 @@ docu_string: docu_string_part+;
 docu_string_part:
 	docu_string_string_part
 	| variable_placeholder;
-docu_string_string_part: general_term | 'is';
+docu_string_string_part: general_term | 'is' | 'not';
 docu: docu_head (DOKU_SEPERATOR docu_string)? '.';
 docu_head:
 	NEGATION? CLASICAL_TERM (

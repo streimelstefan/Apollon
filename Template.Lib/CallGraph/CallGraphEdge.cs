@@ -21,4 +21,9 @@ public class CallGraphEdge
         CreatorRule = creatorRule;
         IsNAF = isNaf;
     }
+
+    public override string ToString()
+    {
+        return $"{Source} -{(IsNAF ? "NAF" : string.Empty)}> {Target}";
+    }
 }

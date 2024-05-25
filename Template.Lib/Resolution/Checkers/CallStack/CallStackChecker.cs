@@ -1,4 +1,5 @@
-﻿using Apollon.Lib.Unification;
+﻿using Apollon.Lib.Resolution.CallStackAndCHS;
+using Apollon.Lib.Unification;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,8 +16,12 @@ namespace Apollon.Lib.Resolution.Checkers.CallStack
         public CheckerResult CheckCallStackFor(Literal literal, Stack<Literal> stack)
         {
             // if there is no loop continue.
+            if (IsPresentWithNAFSwitch(literal, stack))
+                return CheckerResult.Fail;
+            
             if (!stack.Where(l => _constructiveUnifier.Unify(literal, l).IsSuccess).Any()) return CheckerResult.Continue;
             var exactCallStack = stack.TakeWhile(l => _exactUnifer.Unify(l, literal).IsError).ToList();
+
 
             if (IsPositiveLoop(exactCallStack))
             {
@@ -45,6 +50,15 @@ namespace Apollon.Lib.Resolution.Checkers.CallStack
         private bool IsPositiveLoop(IEnumerable<Literal> chs)
         {
             return !chs.Where(l => l.IsNAF).Any() && chs.Count() > 0;
+        }
+
+
+        private bool IsPresentWithNAFSwitch(Literal literal, IEnumerable<Literal> chs)
+        {
+            var copy = (Literal)literal.Clone();
+            copy.IsNAF = !copy.IsNAF;
+
+            return chs.Where(l => _exactUnifer.Unify(l, copy).IsSuccess).Any();
         }
 
     }

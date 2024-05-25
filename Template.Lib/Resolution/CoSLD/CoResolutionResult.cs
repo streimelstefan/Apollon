@@ -12,7 +12,21 @@ namespace Apollon.Lib.Resolution.CoSLD
     public class CoResolutionResult : ResolutionResult
     {
 
-        public ResolutionBaseState State { get; private set; }
+        private ResolutionBaseState state;
+
+        public ResolutionBaseState State 
+        {
+            get
+            {
+                return this.state;
+            }
+
+            private set
+            {
+                ArgumentNullException.ThrowIfNull(value, nameof(this.State));
+                this.state = value;
+            }
+        }
 
         public CoResolutionResult(bool success, Substitution substitution, ResolutionBaseState state)
             : base(success, state.Chs, substitution)

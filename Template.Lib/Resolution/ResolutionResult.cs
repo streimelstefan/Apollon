@@ -23,6 +23,8 @@ namespace Apollon.Lib.Resolution
 
         public ResolutionResult(bool success, CHS chs, Substitution substitution)
         {
+            ArgumentNullException.ThrowIfNull(chs);
+            ArgumentNullException.ThrowIfNull(substitution);
             Success = success;
             CHS = chs;
             Substitution = substitution;

@@ -1,2 +1,4 @@
-b(X) :- a(X).
--a(3).
+p :- not q.
+q :- not r.
+r :- not p.
+q :- not p.

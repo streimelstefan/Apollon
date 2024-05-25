@@ -119,7 +119,7 @@ namespace Apollon.Test.Integration
             var res = results.First();
 
             Assert.IsFalse(res.CHS.IsEmpty);
-            Assert.AreEqual("not q(RV/6)", res.CHS.Literals[0].ToString());
+            Assert.AreEqual("not q(RV/4)", res.CHS.Literals[0].ToString());
             Assert.AreEqual("p(RV/1)", res.CHS.Literals[1].ToString());
             Assert.AreEqual("{ X -> RV/1 }", res.Substitution.ToString());
         }
@@ -143,9 +143,9 @@ namespace Apollon.Test.Integration
             // it should be set to three when a value gets checked in the chs. But we losse al context once a literal enters the chs.
             // so not sure how to fix that currently.
             //Assert.AreEqual("p(3)", literals[1].ToString()); // this should be p(3) but not sure how or if to implement that.
-            Assert.AreEqual("not p(RV/5 - {\\3 \\4})", literals[2].ToString());
-            Assert.AreEqual("q(RV/2 - {\\3 \\4})", literals[3].ToString());
-            Assert.AreEqual("r(RV/3 - {\\3 \\4})", literals[4].ToString());
+            Assert.AreEqual("not p(RV/11 - {\\3 \\4})", literals[2].ToString());
+            Assert.AreEqual("q(RV/8 - {\\3 \\4})", literals[3].ToString());
+            Assert.AreEqual("r(RV/6 - {\\3 \\4})", literals[4].ToString());
         }
 
         [Test]
@@ -163,9 +163,9 @@ namespace Apollon.Test.Integration
 
             var literals = res.CHS.Literals;
             Assert.AreEqual(4, literals.Count());
-            Assert.AreEqual("not faster(RV/16 - {\\bunny() \\cat()}, bunny)", literals[0].ToString());
-            Assert.AreEqual("not faster(RV/16 - {\\bunny() \\cat()}, RV/17)", literals[1].ToString());
-            Assert.AreEqual("not is_faster(RV/29 - {\\bunny() \\cat()}, bunny)", literals[2].ToString());
+            Assert.AreEqual("not faster(RV/13 - {\\bunny() \\cat()}, bunny)", literals[0].ToString());
+            Assert.AreEqual("not faster(RV/29 - {\\bunny() \\cat()}, RV/30)", literals[1].ToString());
+            Assert.AreEqual("not is_faster(RV/9 - {\\bunny() \\cat()}, bunny)", literals[2].ToString());
             Assert.AreEqual("fastest(bunny)", literals[3].ToString());
         }
 
@@ -199,6 +199,58 @@ namespace Apollon.Test.Integration
             var res = results.First();
 
             Assert.IsNotNull(res);
+        }
+
+        [Test]
+        public void ShouldRunHamCycle()
+        {
+            var program = _parser.ParseFromFile("../../../TestPrograms/Hamcycle.apo");
+            var query = _parser.ParseQueryFromString("chosen(1,2).");
+
+            _solver.Load(program);
+
+            var results = _solver.Solve(query);
+            var res = results.First();
+
+            Assert.IsNotNull(res);
+        }
+
+        [Test]
+        public void ShouldSucceedExampleProgram()
+        {
+            var code = "p :- not q.\r\nq :- not r.\r\nr :- not p.\r\nq :- not p."; 
+            var query = _parser.ParseQueryFromString("q.");
+            var program = _parser.ParseFromString(code);
+            _solver.Load(program);
+
+            var results = _solver.Solve(query);
+            var res = results.ToArray();
+
+            Assert.IsNotNull(res);
+            Assert.AreEqual(1, res.Length);
+
+            Assert.AreEqual("{ (not p()), (q()), (r()) }", res[0].CHS.ToString());
+            Assert.AreEqual(0, res[0].Substitution.Mappings.Count());
+            Assert.IsTrue(res[0].Success);
+        }
+
+        [Test]
+        public void ShouldSucceedExampleProgramWithGoalP()
+        {
+            var code = "p :- not q.\r\nq :- not r.\r\nr :- not p.\r\nq :- not p.";
+            var query = _parser.ParseQueryFromString("p.");
+            var program = _parser.ParseFromString(code);
+            _solver.Load(program);
+
+            var results = _solver.Solve(query);
+            var res = results.ToArray();
+
+            Assert.IsNotNull(res);
+            Assert.AreEqual(1, res.Length);
+
+            Assert.AreEqual("{ () }", res[0].CHS.ToString());
+            Assert.AreEqual(0, res[0].Substitution.Mappings.Count());
+            Assert.IsFalse(res[0].Success);
         }
     }
 }

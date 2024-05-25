@@ -36,10 +36,14 @@ namespace Apollon.Lib
             IDualRuleGenerator dualRuleGenerator = new DualRuleGenerator();
 
             var callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
+            this.LogCallGraphIfNeeded(callGraph);
+
             var olons = OlonDetector.DetectOlonIn(callGraph);
 
             var rulePreprocessor = new RuleMetadataSetter(callGraph, olons);
             var processedRules = rulePreprocessor.SetMetadataOn(program.RuleTypesAsStatements.ToArray());
+            this.LogProcessedRulesIfNeeded(processedRules);
+
             var dualRules = dualRuleGenerator.GenerateDualRules(program.Statements.ToArray());
             var nmrRules = nmrCheckGenerator.GenerateNMRCheckRules(processedRules, program);
 
@@ -50,17 +54,17 @@ namespace Apollon.Lib
             var processedStatements = new List<Statement>();
             var variableExtractor = new VariableExtractor();
             var variableIndex = 1;
-            foreach (var s in ProcessedStatments)
-            {
-                var variables = variableExtractor.ExtractVariablesFrom(s);
-                foreach (var variable in variables)
-                {
-                    var newName = $"RV/{variableIndex}";
-
-                    variable.Value = newName;
-                    variableIndex++;
-                }
-            }
+            // foreach (var s in ProcessedStatments)
+            // {
+            //     var variables = variableExtractor.ExtractVariablesFrom(s);
+            //     foreach (var variable in variables)
+            //     {
+            //         var newName = $"RV/{variableIndex}";
+            // 
+            //         variable.Value = newName;
+            //         variableIndex++;
+            //     }
+            // }
 
             Logger.Info($"Loaded and preprocessed program: \n{string.Join("\n", ProcessedStatments)}");
         }
@@ -91,24 +95,6 @@ namespace Apollon.Lib
             // get the values of the variables of the query. as the result has the variables filled in.
             var unifier = new Unifier();
             var variableExtractor = new VariableExtractor();
-            // Substitution sub = new Substitution();
-            // foreach (var goal in goals)
-            // {
-            //     foreach (var literal in res.CHS.Literals)
-            //     {
-            //         var goalRes = unifier.Unify(goal.Literal, literal);
-            // 
-            //         if (goalRes.IsError)
-            //         {
-            //             continue;
-            //         }
-            // 
-            //         foreach (var mapping in goalRes.Value.Mappings)
-            //         {
-            //             sub.Add(mapping.Variable, mapping.MapsTo);
-            //         }
-            //     }
-            // }
 
             // remove all answers that are not in the original program
             var final = new List<Literal>();
@@ -126,6 +112,39 @@ namespace Apollon.Lib
             }
 
             return new ResolutionResult(new CHS(final), res.Substitution);
+        }
+
+        private void LogProcessedRulesIfNeeded(IEnumerable<PreprocessedStatement> rules)
+        {
+            if (Logger.Level > LogLevel.Debug)
+            {
+                return;
+            }
+            Logger.Debug("Tagged Rules:");
+
+            foreach (var rule in rules)
+            {
+                Logger.Debug($"  {rule}");
+            }
+        }
+
+        private void LogCallGraphIfNeeded(CallGraph callGraph)
+        {
+            if (Logger.Level > LogLevel.Debug)
+            {
+                return;
+            }
+            Logger.Debug("Created Call Graph:");
+            Logger.Debug("  Nodes:");
+            foreach (var node in callGraph.Nodes)
+            {
+                Logger.Debug($"    {node}");
+            }
+            Logger.Debug("  Edges:");
+            foreach (var edge in callGraph.Edges)
+            {
+                Logger.Debug($"    {edge}");
+            }
         }
     }
 }

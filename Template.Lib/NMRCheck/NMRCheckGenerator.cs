@@ -1,4 +1,5 @@
-﻿using Apollon.Lib.DualRules;
+﻿using Apollon.Lib.Atoms;
+using Apollon.Lib.DualRules;
 using Apollon.Lib.Graph;
 using Apollon.Lib.Resolution;
 using Apollon.Lib.Rules;
@@ -193,7 +194,15 @@ public class NMRCheckGenerator : INMRCheckGenerator
             body = dualRulesFunctions.BuildForAllBody(ruleHead, linkingVariables);
 
             // Adds the forall rule itself
-            nmrCheckRules.Add(new CheckRule(new Literal(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), olonRule.Head?.Atom.ParamList), true, false), body));
+            nmrCheckRules.Add(
+                new CheckRule(
+                    new Literal(
+                        new Atom(
+                            placeHolderName + counterIndex.ToString() + counterIndex.ToString(), 
+                            olonRule.Head?.Atom.ParamList ?? new AtomParam[0]),
+                        true,
+                        false),
+                    body));
         }
 
         var paramList = nmrCheckRules.Last().Head.Atom.ParamList ?? new Atoms.AtomParam[0];

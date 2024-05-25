@@ -10,15 +10,15 @@ namespace AppollonParser.Visitors
 {
     public class ConstraintVisitor : apollonBaseVisitor<Constraint>
     {
-        private readonly NafLiteralVisitor _nafLiteralVisitor = new NafLiteralVisitor();
+        private readonly BodyPartVisitor bodyPartVisitor = new BodyPartVisitor();
 
         public override Constraint VisitConstraint(apollonParser.ConstraintContext context)
         {
-            var bodyParts = new List<Literal>();
+            var bodyParts = new List<BodyPart>();
 
-            foreach (var bodyPart in context.naf_literal())
+            foreach (var bodyPart in context.body_part())
             {
-                bodyParts.Add(_nafLiteralVisitor.VisitNaf_literal(bodyPart));
+                bodyParts.Add(bodyPartVisitor.VisitBody_part(bodyPart));
             }
 
             return new Constraint(bodyParts.ToArray());
