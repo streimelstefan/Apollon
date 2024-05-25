@@ -39,6 +39,10 @@ public class CHS : ICloneable
 
     public void Add(Literal literal)
     {
+        if (literal.Atom.Name.StartsWith("_"))
+        {
+            return;
+        }
         if (Literals.Where(l => Unifier.Unify(l, literal).IsSuccess).Any()) // if there is another literal in the chs that can be unified.
         {
             throw new ArgumentException("Literal already in CHS."); // Check is proffiecient, as shown in Tests.

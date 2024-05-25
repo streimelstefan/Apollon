@@ -129,7 +129,7 @@ namespace Apollon.Lib.DualRules
             {
                 // create dual rules for each statment
                 // the names of the rules just get appended by their index.
-                var rulename = $"{statementName}{index}";
+                var rulename = $"_{statementName}{index}";
 
                 // check if we need to build a forall clause or not
                 var rules = GenerateDualRulesFor(rulename, statement);

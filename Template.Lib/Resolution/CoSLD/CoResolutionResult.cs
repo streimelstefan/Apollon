@@ -33,10 +33,5 @@ namespace Apollon.Lib.Resolution.CoSLD
         {
             State = state;
         }
-
-
-        public CoResolutionResult() : base()
-        {
-        }
     }
 }

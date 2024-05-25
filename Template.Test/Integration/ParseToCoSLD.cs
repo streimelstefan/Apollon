@@ -163,8 +163,8 @@ namespace Apollon.Test.Integration
 
             var literals = res.CHS.Literals;
             Assert.AreEqual(4, literals.Count());
-            Assert.AreEqual("not faster(RV/13 - {\\bunny() \\cat()}, bunny)", literals[0].ToString());
-            Assert.AreEqual("not faster(RV/29 - {\\bunny() \\cat()}, RV/30)", literals[1].ToString());
+            Assert.AreEqual("not faster(RV/1 - {\\bunny() \\cat()}, bunny)", literals[0].ToString());
+            Assert.AreEqual("not faster(RV/1 - {\\bunny() \\cat()}, RV/25)", literals[1].ToString());
             Assert.AreEqual("not is_faster(RV/9 - {\\bunny() \\cat()}, bunny)", literals[2].ToString());
             Assert.AreEqual("fastest(bunny)", literals[3].ToString());
         }

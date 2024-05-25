@@ -77,7 +77,7 @@ public class NMRCheckGenerator : INMRCheckGenerator
 
     private CheckRule[] GenerateRulesForNegation(Literal literal, int counterIndex)
     {
-        var placeHolderName = "chk";
+        var placeHolderName = "_chk";
 
         var nmrCheckRules = new List<CheckRule>();
 
@@ -122,7 +122,7 @@ public class NMRCheckGenerator : INMRCheckGenerator
 
     private CheckRule[] GenerateRulesForOlonRule(PreprocessedStatement olonRule, int counterIndex)
     {
-        string placeHolderName = "chk";
+        string placeHolderName = "_chk";
         var nmrCheckRules = new List<CheckRule>();
 
         // Since NMR Check rule Generation follows similar rules to OLON Rules, we can reuse some of the functionality.
@@ -234,6 +234,6 @@ public class NMRCheckGenerator : INMRCheckGenerator
         }
 
 
-        return new Statement(new Literal(new Atoms.Atom("nmr_check"), false, false), bodyParts.ToArray());
+        return new Statement(new Literal(new Atoms.Atom("_nmr_check"), false, false), bodyParts.ToArray());
     }
 }

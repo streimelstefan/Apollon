@@ -24,12 +24,12 @@ namespace Apollon.Lib.Resolution.CoSLD
 {
     public class CoSLDResolution : IResolution
     {
-        private IUnifier _unifier = new ConstructiveUnifier();
+        private IUnifier unifier = new ConstructiveUnifier();
 
-        private ICoinductiveCHSChecker _chsChecker = new CHSChecker();
-        private ICallStackChecker _callStackChecker = new CallStackChecker();
+        private ICoinductiveCHSChecker chsChecker = new CHSChecker();
+        private ICallStackChecker callStackChecker = new CallStackChecker();
 
-        private Statement[] _allStatements = new Statement[0];
+        private Statement[] allStatements = new Statement[0];
 
         private int variableIndex = 1;
 
@@ -37,21 +37,23 @@ namespace Apollon.Lib.Resolution.CoSLD
 
         private OperationResolver operationResolver = new OperationResolver();
 
-        private VariableLinker _linker = new VariableLinker();
+        private VariableLinker linker = new VariableLinker();
 
         private IEqualizer<Literal> preSelector = new LiteralParamCountEqualizer();
+
+        private SubstitutionTree substitutionTree = new SubstitutionTree();
 
         public IEnumerable<ResolutionResult> Resolute(Statement[] statements, BodyPart[] goals, ILogger logger)
         {
             // Initialize the call stack and CHS (coinductive hypothesis set)
-            _allStatements = statements.Where(s => s.Head != null).ToArray();
+            this.allStatements = statements.Where(s => s.Head != null).ToArray();
             var callStack = new Stack<Literal>();
             // -1 because the resolve all goals will increase it at the start resulting in 0.
             logger.RecursionDepth = -1;
             variableIndex = 1;
 
             // Start the resolution process
-            var results = ResolveAllGoals(new ResolutionRecursionState(goals, _allStatements, callStack, new CHS(), new Substitution(), logger));
+            var results = ResolveAllGoals(new ResolutionRecursionState(goals, allStatements, callStack, new CHS(), new Substitution(), logger));
 
             foreach (var res in results)
             {
@@ -110,7 +112,7 @@ namespace Apollon.Lib.Resolution.CoSLD
                 if (!res.Success)
                 {
                     state.Logger.Debug($"Recursive resolution of goal {goal} using {state.Substitution} failed");
-                    yield return new CoResolutionResult();
+                    yield return res;
                     yield break;
                 }
 
@@ -125,6 +127,7 @@ namespace Apollon.Lib.Resolution.CoSLD
                 {
                     stateCopy.Logger.Silly($"GoalPart {goal} succeeded. Next gaol parts are [{string.Join(", ", nextGoals.Select(g => g.ToString()))}]");
                     stateCopy.LogState();
+                    stateCopy.Logger.Silly($"SubTree: {this.substitutionTree}");
                     var recurisveResults = ResolveAllGoalsPart(ResolutionRecursionState.CloneConstructor(stateCopy, nextGoals));
                     foreach (var recRes in recurisveResults)
                     {
@@ -135,6 +138,7 @@ namespace Apollon.Lib.Resolution.CoSLD
                 {
                     stateCopy.Logger.Silly($"GoalPart {goal} succeeded. No more next goal parts. Rule succeeded as a whole.");
                     stateCopy.LogState();
+                    stateCopy.Logger.Silly($"SubTree: {this.substitutionTree}");
                     yield return new CoResolutionResult(true, stateCopy.Substitution, stateCopy);
                 }
             }
@@ -144,7 +148,7 @@ namespace Apollon.Lib.Resolution.CoSLD
         {
             var forallRuleHead = GetForAllRule(state.CurrentGoal);
             var forallRules = state.Statements
-                .Where(s => _unifier.Unify(s.Head, forallRuleHead).IsSuccess)
+                .Where(s => unifier.Unify(s.Head, forallRuleHead).IsSuccess)
                 .Select(s => (Statement)s.Clone())
                 .Select(s => new Statement[] { s })
                 .ToList();
@@ -158,6 +162,7 @@ namespace Apollon.Lib.Resolution.CoSLD
                 if (result.Success)
                 {
                     result.State.LogState();
+                    result.State.Logger.Silly($"SubTree: {this.substitutionTree}");
                 }
 
                 yield return result;
@@ -181,7 +186,8 @@ namespace Apollon.Lib.Resolution.CoSLD
                 {
                     state.Logger.Silly($"Forall part {forallRule} failed.");
                     state.LogState();
-                    yield return new CoResolutionResult();
+                    state.Logger.Silly($"SubTree: {this.substitutionTree}");
+                    yield return result;
                     yield break;
                 }
 
@@ -196,6 +202,7 @@ namespace Apollon.Lib.Resolution.CoSLD
 
                     state.Logger.Silly($"Forall part {forallRule} succeeded. Rules to check [{string.Join(", ", forAllRulesClone.Select(l => l[0].ToString()))}]");
                     stateCopy.LogState();
+                    stateCopy.Logger.Silly($"SubTree: {this.substitutionTree}");
 
                     var recursiveResults = ResolveForAllGoalPart(
                         forAllRulesClone,
@@ -210,6 +217,7 @@ namespace Apollon.Lib.Resolution.CoSLD
                 {
                     state.Logger.Silly($"Forall part {forallRule} succeeded. No more rules to check.");
                     result.State.LogState();
+                    result.State.Logger.Silly($"SubTree: {this.substitutionTree}");
                     yield return new CoResolutionResult(true, result.Substitution, result.State);
                 }
             }
@@ -227,7 +235,7 @@ namespace Apollon.Lib.Resolution.CoSLD
             }
             if (checkRes == CheckerResult.Fail)
             {
-                yield return new CoResolutionResult();
+                yield return new CoResolutionResult(false, state.Substitution, state);
                 yield break;
             }
 
@@ -240,14 +248,15 @@ namespace Apollon.Lib.Resolution.CoSLD
                 state.Logger.Debug($"CallStack removing goal {state.CurrentGoal}");
                 if (!expandsionRes.Success)
                 {
-                    yield return new CoResolutionResult();
+                    yield return expandsionRes;
                     yield break;
                 }
+                var stateClone = (ResolutionLiteralState)expandsionRes.State.Clone();
                 var subClone = state.Substitution.Clone();
                 subClone.BackPropagate(expandsionRes.Substitution);
                 subClone.Contract();
 
-                yield return new CoResolutionResult(expandsionRes.Success, subClone, expandsionRes.State);
+                yield return new CoResolutionResult(expandsionRes.Success, subClone, stateClone);
             }
         }
 
@@ -257,7 +266,7 @@ namespace Apollon.Lib.Resolution.CoSLD
             var variablesInGoal = variableExtractor.ExtractVariablesFrom(state.CurrentGoal).Select(t => t.Value).ToHashSet();
 
             var preselectedStatements = state.Statements
-                .Where(s => this.preSelector.AreEqual(s.Head, state.CurrentGoal))
+                .Where(s => this.preSelector.AreEqual(state.CurrentGoal, s.Head))
                 .Select(s => this.LinkAndRenameVariablesIn(s))
                 .ToArray();
 
@@ -271,22 +280,31 @@ namespace Apollon.Lib.Resolution.CoSLD
                     continue;
                 }
 
-                var unificationRes = _unifier.Unify(statement.Head, state.CurrentGoal);
-                if (unificationRes.Value == null) continue;
+                var unificationRes = this.unifier.Unify(statement.Head, state.CurrentGoal);
+                if (unificationRes.Value == null)
+                {
+                    continue;
+                }
+
+                this.substitutionTree.AddAllOf(unificationRes.Value);
 
                 state.Logger.Info($"Unified goal {state.CurrentGoal} with {statement} resulting in {unificationRes.Value}");
                 // we expand the goal with this statment if it succeeds the goal gets added to the chs.
-                var results = ResolveAllGoals(
-                    ResolutionRecursionState.CloneConstructor(statement.Body, _allStatements, state.CallStack, state.Chs, unificationRes.Value, state.Logger));
+                var results = this.ResolveAllGoals(
+                    ResolutionRecursionState.CloneConstructor(statement.Body, this.allStatements, state.CallStack, state.Chs, unificationRes.Value, state.Logger));
 
                 foreach (var result in results)
                 {
                     // this rule did not succeed try to find another one.
-                    if (!result.Success) continue;
+                    if (!result.Success)
+                    {
+                        state.Chs.SafeUnion(result.CHS);
+                        continue;
+                    }
 
-                    var stateClone = (ResolutionLiteralState)state.Clone();                    
-                    var reverseUnification = _unifier.Unify(stateClone.CurrentGoal, statement.Head);
-                    
+                    var stateClone = (ResolutionLiteralState)state.Clone();
+                    var reverseUnification = this.unifier.Unify(stateClone.CurrentGoal, statement.Head);
+
                     reverseUnification.Value.BackPropagate(result.Substitution);
                     reverseUnification.Value.Contract();
                     reverseUnification.Value.Intersect(variablesInGoal);
@@ -294,11 +312,12 @@ namespace Apollon.Lib.Resolution.CoSLD
                     var goalToAdd = reverseUnification.Value.Apply(stateClone.CurrentGoal);
                     stateClone.Chs = result.CHS;
                     stateClone.Chs.Add(goalToAdd);
-                    stateClone.Logger.Debug($"CHS added goal {goalToAdd} resulting in {stateClone.Chs}");
                     stateClone.Substitution = reverseUnification.Value;
+                    stateClone.Logger.Debug($"CHS added goal {goalToAdd} resulting in {stateClone.Chs}");
 
                     state.Logger.Silly($"Literal Goal {state.CurrentGoal} succeeded with {statement}.");
                     stateClone.LogState();
+                    stateClone.Logger.Silly($"SubTree: {this.substitutionTree}");
 
                     yield return new CoResolutionResult(true, reverseUnification.Value, stateClone);
                     hasYielded = true;
@@ -309,18 +328,18 @@ namespace Apollon.Lib.Resolution.CoSLD
             {
                 // no statments where found that succeed for this statment. 
                 state.Logger.Silly($"Literal Goal {state.CurrentGoal} failed.");
-                yield return new CoResolutionResult();
+                yield return new CoResolutionResult(false, state.Substitution, state);
             }
         }
 
         public CheckerResult CheckCHSAndCallStack(ResolutionLiteralState state)
         {
-            var chsCheck = _chsChecker.CheckCHSFor(state.CurrentGoal, state.Chs);
+            var chsCheck = chsChecker.CheckCHSFor(state.CurrentGoal, state.Chs);
             state.Logger.Trace($"CHS marked goal {state.CurrentGoal} as {chsCheck} using {state.Chs}");
 
             if (chsCheck != CheckerResult.Continue) return chsCheck;
 
-            var callStackCheck = _callStackChecker.CheckCallStackFor(state.CurrentGoal, state.CallStack);
+            var callStackCheck = callStackChecker.CheckCallStackFor(state.CurrentGoal, state.CallStack);
 
             state.Logger.Trace($"CallStack marked goal {state.CurrentGoal} as {callStackCheck} using ({string.Join(", ", state.CallStack)})");
             return callStackCheck;
@@ -330,7 +349,11 @@ namespace Apollon.Lib.Resolution.CoSLD
 
         private IEnumerable<CoResolutionResult> ResolveOperation(Operation operation, ResolutionBaseState state)
         {
-            yield return operationResolver.ResolveOperation(operation, state);
+            var res = operationResolver.ResolveOperation(operation, state);
+
+            // this.substitutionTree.AddAllOf(res.Substitution);
+
+            yield return res;
         }
 
         private void PreprocessLiteralGoal(Literal goal, Substitution sub)
@@ -366,7 +389,7 @@ namespace Apollon.Lib.Resolution.CoSLD
 
         private Statement LinkAndRenameVariablesIn(Statement statement)
         {
-            var linkedStatement = this._linker.LinkVariables(statement);
+            var linkedStatement = this.linker.LinkVariables(statement);
             var variables = this.variableExtractor.ExtractVariablesFrom(linkedStatement);
             foreach (var variable in variables)
             {
