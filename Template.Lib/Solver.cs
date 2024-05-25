@@ -41,7 +41,7 @@ namespace Apollon.Lib
             var rulePreprocessor = new RuleMetadataSetter(callGraph, olons);
             var processedRules = rulePreprocessor.SetMetadataOn(program.RuleTypesAsStatements.ToArray());
             var dualRules = dualRuleGenerator.GenerateDualRules(program.Statements.ToArray());
-            var nmrRules = nmrCheckGenerator.GenerateNMRCheckRules(processedRules);
+            var nmrRules = nmrCheckGenerator.GenerateNMRCheckRules(processedRules, program);
 
             NMRCheck = nmrRules.Last();
             ProcessedStatments = program.Statements.Union(dualRules).Union(nmrRules).Select(s => (Statement)s.Clone()).Select(s => VariableLinker.LinkVariables(s)).ToArray();

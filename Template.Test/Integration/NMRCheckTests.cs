@@ -30,7 +30,7 @@ public class NMRCheckTests
 
         NMRCheckGenerator nmrChecker = new NMRCheckGenerator();
 
-        var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray());
+        var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray(), program);
         var nmrCheckRulesString = nmrCheckRules.Select(x => x.ToString()).ToArray();
 
         Assert.AreEqual(8, nmrCheckRules.Length);
@@ -57,7 +57,7 @@ public class NMRCheckTests
 
         NMRCheckGenerator nmrChecker = new NMRCheckGenerator();
 
-        var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray());
+        var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray(), program);
         var nmrCheckRulesString = nmrCheckRules.Select(x => x.ToString()).ToArray();
 
         Assert.AreEqual(10, nmrCheckRules.Length);
@@ -71,5 +71,97 @@ public class NMRCheckTests
         Assert.Contains("not chk22(X, V/0) :- V/0 = b(), a(X), c(X, b).", nmrCheckRulesString);
         Assert.Contains("not chk2(X, V/0) :- not chk22(X, V/0).", nmrCheckRulesString);
         Assert.AreEqual("nmr_check() :- forall(X, not chk1(X)), forall(X, forall(V/0, not chk2(X, V/0))).", nmrCheckRulesString[9]);
+    }
+
+    [Test]
+    public void ShouldGenerateCorrectConstraintRules()
+    {
+        var program = _parser.ParseFromFile("../../../TestPrograms/OLONRuleByConstraintRule.apo");
+
+        var callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
+
+        var olonSet = OlonDetector.DetectOlonIn(callGraph);
+
+        var processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleTypesAsStatements.ToArray());
+
+        NMRCheckGenerator nmrChecker = new NMRCheckGenerator();
+
+        var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray(), program);
+        var nmrCheckRulesString = nmrCheckRules.Select(x => x.ToString()).ToArray();
+
+        Assert.AreEqual(3, nmrCheckRules.Length);
+        Assert.Contains("not chk11() :- not b().", nmrCheckRulesString);
+        Assert.Contains("not chk1() :- not chk11().", nmrCheckRulesString);
+        Assert.Contains("nmr_check() :- not chk1().", nmrCheckRulesString);
+    }
+
+    [Test]
+    public void ShouldGenerateCorrectConstraintRules2()
+    {
+        var program = _parser.ParseFromFile("../../../TestPrograms/NMRRuleWithConstraint.apo");
+
+        var callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
+
+        var olonSet = OlonDetector.DetectOlonIn(callGraph);
+
+        var processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleTypesAsStatements.ToArray());
+
+        NMRCheckGenerator nmrChecker = new NMRCheckGenerator();
+
+        var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray(), program);
+        var nmrCheckRulesString = nmrCheckRules.Select(x => x.ToString()).ToArray();
+
+        Assert.AreEqual(3, nmrCheckRules.Length);
+        Assert.Contains("not chk11() :- not a(3).", nmrCheckRulesString);
+        Assert.Contains("not chk1() :- not chk11().", nmrCheckRulesString);
+        Assert.Contains("nmr_check() :- not chk1().", nmrCheckRulesString);
+    }
+
+    [Test]
+    public void ShouldGenerateCorrectRulesBasedOnNegation()
+    {
+        var program = _parser.ParseFromFile("../../../TestPrograms/NMRRuleWithNegation.apo");
+
+        var callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
+
+        var olonSet = OlonDetector.DetectOlonIn(callGraph);
+
+        var processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleTypesAsStatements.ToArray());
+
+        NMRCheckGenerator nmrChecker = new NMRCheckGenerator();
+
+        var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray(), program);
+        var nmrCheckRulesString = nmrCheckRules.Select(x => x.ToString()).ToArray();
+
+        Assert.AreEqual(5, nmrCheckRules.Length);
+        Assert.Contains("not chk11(X) :- not -a(X).", nmrCheckRulesString);
+        Assert.Contains("not chk11(X) :- -a(X), not a(X).", nmrCheckRulesString);
+        Assert.Contains("not chk11() :- forall(X, not chk11(X)).", nmrCheckRulesString);
+        Assert.Contains("not chk1() :- not chk11().", nmrCheckRulesString);
+        Assert.Contains("nmr_check() :- not chk1().", nmrCheckRulesString);
+    }
+
+    [Test]
+    public void ShouldGenerateCorrectRuleBasedOnNegationWithMoreParameters()
+    {
+        var program = _parser.ParseFromFile("../../../TestPrograms/NMRRuleWithNegationAnd2Parameters.apo");
+
+        var callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
+
+        var olonSet = OlonDetector.DetectOlonIn(callGraph);
+
+        var processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleTypesAsStatements.ToArray());
+
+        NMRCheckGenerator nmrChecker = new NMRCheckGenerator();
+
+        var nmrCheckRules = nmrChecker.GenerateNMRCheckRules(processedRules.Where(x => x.IsOlonRule).ToArray(), program);
+        var nmrCheckRulesString = nmrCheckRules.Select(x => x.ToString()).ToArray();
+
+        Assert.AreEqual(5, nmrCheckRules.Length);
+        Assert.Contains("not chk11(X, Y) :- not -a(X, Y).", nmrCheckRulesString);
+        Assert.Contains("not chk11(X, Y) :- -a(X, Y), not a(X, Y).", nmrCheckRulesString);
+        Assert.Contains("not chk11() :- forall(X, forall(Y, not chk11(X, Y))).", nmrCheckRulesString);
+        Assert.Contains("not chk1() :- not chk11().", nmrCheckRulesString);
+        Assert.Contains("nmr_check() :- not chk1().", nmrCheckRulesString);
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Apollon.Lib.NMRCheck;
 
@@ -17,5 +18,10 @@ public class CheckRule : Statement
         {
             throw new ArgumentOutOfRangeException(nameof(Body), Body.Length, "Body needs to have at least one literal.");
         }
+    }
+
+    public override string ToString()
+    {
+        return $"{Head} :- {string.Join(", ", Body?.Select(literal => literal?.ToString()))}.";
     }
 }
