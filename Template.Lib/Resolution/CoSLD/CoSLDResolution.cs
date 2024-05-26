@@ -274,66 +274,85 @@ namespace Apollon.Lib.Resolution.CoSLD
 
             ResolutionStepState stateCopy = (ResolutionStepState)state.Clone();
             var realGoal = goal.Literal;
+            var valueToTry = valuesToTry.First();
+            var nextValuesToTry = valuesToTry.Skip(1).ToList();
 
             // if child of the forall goal is a literal 
             // we need to see if the literal resolves. And apply the forall rules accordingly.
-            for (int i = 0; i < valuesToTry.Count(); i++)
+            var subToTry = new Substitution();
+            subToTry.Add(variable, valueToTry);
+
+            state.Logger.Info(
+                $"FORALL: Variable to try for {variable}: {valueToTry} - [{string.Join(", ", nextValuesToTry.Select(a => a.ToString()))}] ");
+            IEnumerable<CoResolutionForAllResult> results = new CoResolutionForAllResult[0];
+            if (goal.Child == null && goal.Literal != null)
             {
-                var subToTry = new Substitution();
-                subToTry.Add(variable, valuesToTry[i]);
+                var subbedRealGoal = subToTry.Apply(goal.Literal);
+                state.Logger.Info($"Current Goal is {subbedRealGoal}");
+                var intimResults = this.ResolveLiteralGoal(ResolutionLiteralState.CloneConstructor(state, subbedRealGoal));
+                results = intimResults.Select(r => new CoResolutionForAllResult(r.Success, r.Substitution, r.State, realGoal));
+            }
+            else if (goal.Child != null && goal.Child.ForAll != null)
+            {
+                stateCopy = (ResolutionStepState)state.Clone();
+                stateCopy.Substitution.BackPropagate(subToTry);
+                results = this.ResolveForAllGoalPart(stateCopy, goal.Child);
+            }
 
-                state.Logger.Silly(
-                    $"FORALL: Variable to try for {variable}: {valuesToTry[i]} - [{string.Join(", ", valuesToTry.Skip(i).Select(a => a.ToString()))}] ");
-                IEnumerable<CoResolutionForAllResult> results = new CoResolutionForAllResult[0];
-                if (goal.Child == null && goal.Literal != null)
+            foreach (var res in results)
+            {
+                // if the resolution was not successful we can abort.
+                if (!res.Success)
                 {
-                    var subbedRealGoal = subToTry.Apply(goal.Literal);
-                    state.Logger.Info($"Current Goal is {subbedRealGoal}");
-                    var intimResults = this.ResolveLiteralGoal(ResolutionLiteralState.CloneConstructor(state, subbedRealGoal));
-                    results = intimResults.Select(r => new CoResolutionForAllResult(r.Success, r.Substitution, r.State, realGoal));
+                    state.Logger.Silly($"Forall Variable Part {variable} of {state.CurrentGoal} failed.");
+                    state.LogState();
+                    state.Logger.Silly($"SubTree: {this.substitutionGroups}");
+                    continue;
                 }
-                else if (goal.Child != null && goal.Child.ForAll != null)
+
+                state.Chs = res.CHS;
+                subToTry.BackPropagate(res.Substitution);
+                subToTry.Contract();
+                var variableMapping = subToTry.Mappings.Where(m => m.Variable.Value == variable.Value).First();
+
+                stateCopy = (ResolutionStepState)state.Clone();
+                stateCopy.Substitution.BackPropagate(subToTry);
+                stateCopy.Substitution.BackPropagate(res.Substitution);
+                stateCopy.Chs = res.CHS;
+                stateCopy.KeepUnbound.Remove(variable);
+
+                // if variable is unbound return success and is not negativly constraint.
+                if (variableMapping.MapsTo.Term.IsNegativelyConstrained())
                 {
-                    stateCopy = (ResolutionStepState)state.Clone();
-                    stateCopy.Substitution.BackPropagate(subToTry);
-                    results = this.ResolveForAllGoalPart(stateCopy, goal.Child);
+                    stateCopy.Logger.Error("Uncertain how to handle case where constrainted varaible returns constraint again. Failing for now.");
+                    stateCopy.LogState();
+                    stateCopy.Logger.Silly($"SubTree: {this.substitutionGroups}");
+                    yield return new CoResolutionForAllResult(false, stateCopy.Substitution, stateCopy, realGoal);
+                    yield break;
                 }
 
-                foreach (var res in results)
+                if (nextValuesToTry.Count > 0)
                 {
-                    // if the resolution was not successful we can abort.
-                    if (!res.Success)
+                    var recResults = this.ResolveForAllConstraint(stateCopy, goal, nextValuesToTry);
+
+                    foreach (var recRes in recResults)
                     {
-                        state.Logger.Silly($"Forall Variable Part {variable} of {state.CurrentGoal} failed.");
-                        state.LogState();
-                        state.Logger.Silly($"SubTree: {this.substitutionGroups}");
-                        continue;
+                        if (!recRes.Success)
+                        {
+                            yield return new CoResolutionForAllResult(false, stateCopy.Substitution, stateCopy, realGoal);
+                        }
+                        else
+                        {
+                            yield return recRes;
+                        }
                     }
-
-                    state.Chs = res.CHS;
-                    subToTry.BackPropagate(res.Substitution);
-                    subToTry.Contract();
-                    var variableMapping = subToTry.Mappings.Where(m => m.Variable.Value == variable.Value).First();
-
-                    stateCopy = (ResolutionStepState)state.Clone();
-                    stateCopy.Substitution.BackPropagate(subToTry);
-                    stateCopy.Substitution.BackPropagate(res.Substitution);
-                    stateCopy.Chs = res.CHS;
-                    stateCopy.KeepUnbound.Remove(variable);
-
-                    // if variable is unbound return success and is not negativly constraint.
-                    if (variableMapping.MapsTo.Term.IsNegativelyConstrained())
-                    {
-                        stateCopy.Logger.Error("Uncertain how to handle case where constrainted varaible returns constraint again. Failing for now.");
-                        stateCopy.LogState();
-                        stateCopy.Logger.Silly($"SubTree: {this.substitutionGroups}");
-                        yield return new CoResolutionForAllResult(false, stateCopy.Substitution, stateCopy, realGoal);
-                        yield break;
-                    }
+                } else
+                {
+                    yield return new CoResolutionForAllResult(true, stateCopy.Substitution, stateCopy, realGoal);
                 }
             }
 
-            yield return new CoResolutionForAllResult(true, stateCopy.Substitution, stateCopy, realGoal);
+            //yield return new CoResolutionForAllResult(true, stateCopy.Substitution, stateCopy, realGoal);
         }
 
         // Recursively resolves a goal
