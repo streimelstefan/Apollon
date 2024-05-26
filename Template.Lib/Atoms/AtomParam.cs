@@ -98,5 +98,16 @@ namespace Apollon.Lib.Atoms
 
             throw new Exception("Unable to clone param that is neither an atom nor an term.");
         }
+
+        public void ConvertToTermIfPossible()
+        {
+            if (this.Literal == null || this.Literal.Atom.ParamList.Count() != 0 || this.Literal.IsNAF || this.Literal.IsNegative)
+            {
+                return;
+            }
+
+            this.Term = new Term(this.Literal.Atom.Name);
+            this.Literal = null;
+        }
     }
 }

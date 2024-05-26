@@ -1,4 +1,7 @@
-﻿using Apollon.Lib.Unification;
+﻿using Apollon.Lib.Linker;
+using Apollon.Lib.Resolution.CoSLD;
+using Apollon.Lib.Rules;
+using Apollon.Lib.Unification;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +21,8 @@ public class CHS : ICloneable
 {
     public List<Literal> Literals { get; private set; } //List does preserve Order, as written on MSDN List<T> Class.
     private IUnifier Unifier = new ExactUnifier();
+    private VariableExtractor variableExtractor = new VariableExtractor();
+    private VariableLinker variableLinker = new VariableLinker();
 
     public bool IsEmpty
     {
@@ -37,36 +42,45 @@ public class CHS : ICloneable
         Literals = new List<Literal>(literals);
     }
 
-    public void Add(Literal literal)
+    public void Add(Literal literal, SubstitutionGroups subGroups)
     {
-        if (literal.Atom.Name.StartsWith("_"))
-        {
-            return;
-        }
+        // if (literal.Atom.Name.StartsWith("_"))
+        // {
+        //     return;
+        // }
         if (Literals.Where(l => Unifier.Unify(l, literal).IsSuccess).Any()) // if there is another literal in the chs that can be unified.
         {
             throw new ArgumentException("Literal already in CHS."); // Check is proffiecient, as shown in Tests.
         }
 
         Literals.Add(literal);
+
+        //this.variableLinker.LinkVariables(new Statement(literal));
+        //var literalVariables = this.variableExtractor.ExtractVariablesFrom(literal);
+        //
+        //// replaces the gotten variable names with the names of their substitution groups.
+        //foreach (var variable in literalVariables)
+        //{
+        //    variable.Value = subGroups.GetSubstitionGroupNameOf(variable);
+        //}
     }
 
-    public void AddIfNotExists(Literal literal)
+    public void AddIfNotExists(Literal literal, SubstitutionGroups subGroups)
     {
         try
         {
-            Add(literal);
+            Add(literal, subGroups);
         }
         catch (Exception)
         {
         }
     }
 
-    public void SafeUnion(CHS chs)
+    public void SafeUnion(CHS chs, SubstitutionGroups substitutionGroups)
     {
         foreach (var literal in chs.Literals)
         {
-            AddIfNotExists(literal);
+            AddIfNotExists(literal, substitutionGroups);
         }
     }
 

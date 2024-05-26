@@ -34,13 +34,19 @@ namespace Apollon.Lib.Resolution.CoSLD.States
             CurrentGoal = currentGoal;
         }
 
+        public ResolutionStepState(BodyPart currentGoal, Statement[] statements, Stack<Literal> callStack, CHS chs, Substitution substitution, List<Term> keepUnbound, ILogger logger)
+            : base(statements, callStack, chs, substitution, keepUnbound, logger)
+        {
+            CurrentGoal = currentGoal;
+        }
+
         public ResolutionStepState(ResolutionBaseState baseState, BodyPart currentGoal)
-            : this(currentGoal, baseState.Statements, baseState.CallStack, baseState.Chs, baseState.Substitution, baseState.Logger)
+            : this(currentGoal, baseState.Statements, baseState.CallStack, baseState.Chs, baseState.Substitution, baseState.KeepUnbound, baseState.Logger)
         {
         }
 
         public ResolutionStepState(ResolutionBaseState baseState, BodyPart currentGoal, Statement[] statements)
-            : this(currentGoal, statements, baseState.CallStack, baseState.Chs, baseState.Substitution, baseState.Logger)
+            : this(currentGoal, statements, baseState.CallStack, baseState.Chs, baseState.Substitution, baseState.KeepUnbound, baseState.Logger)
         {
         }
         

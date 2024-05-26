@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Apollon.Lib;
 using Apollon.Lib.Atoms;
 using Apollon.Lib.Resolution.CallStackAndCHS;
+using Apollon.Lib.Resolution.CoSLD;
 
 namespace Template.Test;
 
@@ -27,8 +28,8 @@ public class CHSTests
         var literal = new Literal(new Atom("human", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
         var literal2 = new Literal(new Atom("human", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
 
-        _chs?.Add(literal);
-        Assert.Throws<ArgumentException>(() => _chs?.Add(literal2));
+        _chs?.Add(literal, new SubstitutionGroups());
+        Assert.Throws<ArgumentException>(() => _chs?.Add(literal2, new SubstitutionGroups()));
     }
 
     [Test]
@@ -37,8 +38,8 @@ public class CHSTests
         var literal = new Literal(new Atom("human", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
         var literal2 = new Literal(new Atom("informatiker", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
 
-        _chs?.Add(literal);
-        _chs?.Add(literal2);
+        _chs?.Add(literal, new SubstitutionGroups());
+        _chs?.Add(literal2, new SubstitutionGroups());
     }
 
     [Test]
@@ -49,7 +50,7 @@ public class CHSTests
 
         foreach (var name in names)
         {
-            _chs?.Add(new Literal(new Atom(name, new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false));
+            _chs?.Add(new Literal(new Atom(name, new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false), new SubstitutionGroups());
         }
 
         foreach(var name in names.Reverse()) // Reverse since CHS behaves like LIFO

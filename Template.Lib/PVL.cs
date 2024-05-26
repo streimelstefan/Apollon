@@ -48,17 +48,19 @@ public class PVL : IEquatable<PVL>, ICloneable
     /// <exception cref="ArgumentException">Is Thrown if Value is already in PVL or is negatively constrained.</exception>
     public void AddValue(AtomParam value)
     {
-        if (Values.Contains(value))
+        var valueToUse = (AtomParam)value.Clone();
+        valueToUse.ConvertToTermIfPossible();
+        if (Values.Contains(valueToUse))
         {
             throw new ArgumentException("Value already in PVL.");
         }
 
-        if (value.Term != null && value.Term.IsNegativelyConstrained())
+        if (valueToUse.Term != null && valueToUse.Term.IsNegativelyConstrained())
         {
             throw new ArgumentException("Value is negatively constrained and can therefore not be added.");
         }
 
-        Values.Add(value);  
+        Values.Add(valueToUse);
     }
 
     public static void Union(PVL first, PVL second)
@@ -90,6 +92,11 @@ public class PVL : IEquatable<PVL>, ICloneable
     public object Clone()
     {
         return new PVL(Values.Select(p => new AtomParam(p.Literal, p.Term)));
+    }
+
+    public void Clear()
+    {
+        this.Values.Clear();
     }
 
     public override string ToString()

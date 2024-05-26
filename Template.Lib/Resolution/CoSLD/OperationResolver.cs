@@ -1,6 +1,7 @@
 ﻿using Apollon.Lib.Atoms;
 using Apollon.Lib.Extensions;
 using Apollon.Lib.Resolution.CoSLD.States;
+using Apollon.Lib.Rules;
 using Apollon.Lib.Rules.Operations;
 using Apollon.Lib.Unification;
 using Apollon.Lib.Unification.Substitutioners;
@@ -45,7 +46,7 @@ namespace Apollon.Lib.Resolution.CoSLD
             } catch (Exception e)
             {
                 state.Logger.Warn($"Encountered error while resolving operation {operation}. Failing resolution. Error: {e.Message}");
-                return new CoResolutionResult();
+                return new CoResolutionResult(false, state.Substitution, state);
             }
         }
 
@@ -67,14 +68,17 @@ namespace Apollon.Lib.Resolution.CoSLD
         private CoResolutionResult ResolveEquals(Operation operation, ResolutionBaseState state)
         {
             this.ThrowIfGeneratingOperation(operation);
-            ArgumentNullException.ThrowIfNull(operation.Condition.Literal);
-            ArgumentNullException.ThrowIfNull(operation.Variable.Literal);
 
             var op = state.Substitution.Apply(operation);
-            var condition = this.ExtractAsLiteral(op.Condition, state);
-            var variable = this.ExtractAsLiteral(op.Variable, state);
+            op.Condition.ConvertToTermIfPossible();
+            op.Variable.ConvertToTermIfPossible();
+
+            var condition = new Literal(new Atom("tmp", op.Condition), false, false);
+            var variable = new Literal(new Atom("tmp", op.Variable), false, false);
 
             var unificationRes = this.constructiveUnifier.Unify(condition, variable);
+
+
             return new CoResolutionResult(unificationRes.IsSuccess, unificationRes.Value ?? new Substitution(), state);
         }
 
@@ -128,7 +132,7 @@ namespace Apollon.Lib.Resolution.CoSLD
                 return new CoResolutionResult(true, state.Substitution, state);
             }
 
-            return new CoResolutionResult();
+            return new CoResolutionResult(false, new Substitution(), state);
         }
 
         private CoResolutionResult ResolvePlus(Operation operation, ResolutionBaseState state)

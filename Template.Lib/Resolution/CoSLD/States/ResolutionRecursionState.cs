@@ -22,6 +22,13 @@ namespace Apollon.Lib.Resolution.CoSLD.States
             return (ResolutionRecursionState)obj.Clone();
         }
 
+        public static ResolutionRecursionState CloneConstructor(BodyPart[] goals, Statement[] statements, Stack<Literal> callStack, CHS chs, Substitution substitution, List<Term> keepUnbound, ILogger logger)
+        {
+            var obj = new ResolutionRecursionState(goals, statements, callStack, chs, substitution, keepUnbound, logger);
+
+            return (ResolutionRecursionState)obj.Clone();
+        }
+
         public static ResolutionRecursionState CloneConstructor(ResolutionBaseState baseState, BodyPart[] goals)
         {
             var obj = new ResolutionRecursionState(baseState, goals);
@@ -35,8 +42,14 @@ namespace Apollon.Lib.Resolution.CoSLD.States
             Goals = goals;
         }
 
+        public ResolutionRecursionState(BodyPart[] goals, Statement[] statements, Stack<Literal> callStack, CHS chs, Substitution substitution, List<Term> keepUnbound, ILogger logger)
+            : base(statements, callStack, chs, substitution, keepUnbound, logger)
+        {
+            Goals = goals;
+        }
+
         public ResolutionRecursionState(ResolutionBaseState baseState, BodyPart[] goals)
-            : this(goals, baseState.Statements, baseState.CallStack, baseState.Chs, baseState.Substitution, baseState.Logger)
+            : this(goals, baseState.Statements, baseState.CallStack, baseState.Chs, baseState.Substitution, baseState.KeepUnbound, baseState.Logger)
         {
         }
 

@@ -19,6 +19,8 @@ namespace Apollon.Lib.Resolution.CoSLD.States
 
         public CHS Chs { get; set; }
 
+        public List<Term> KeepUnbound { get; private set; } = new List<Term>();
+
         public ILogger Logger { get; private set; }
         public Substitution Substitution { get; set; }
 
@@ -31,6 +33,16 @@ namespace Apollon.Lib.Resolution.CoSLD.States
             Substitution = substitution;
         }
 
+        public ResolutionBaseState(Statement[] statements, Stack<Literal> callStack, CHS chs, Substitution substitution, List<Term> keepUnbound, ILogger logger)
+        {
+            Statements = statements;
+            CallStack = callStack;
+            Chs = chs;
+            Logger = logger;
+            Substitution = substitution;
+            KeepUnbound = keepUnbound;
+        }
+
         public virtual object Clone()
         {
             return new ResolutionBaseState(
@@ -38,6 +50,7 @@ namespace Apollon.Lib.Resolution.CoSLD.States
                 new Stack<Literal>(CallStack.Select(l => (Literal)l.Clone()).Reverse()),
                 (CHS)Chs.Clone(),
                 Substitution.Clone(),
+                new List<Term>(this.KeepUnbound.Select(l => (Term)l.Clone())),
                 Logger.CreateChild());
         }
 
@@ -47,6 +60,7 @@ namespace Apollon.Lib.Resolution.CoSLD.States
             Logger.Silly($"CHS: {Chs}");
             Logger.Silly($"Callstack: [{string.Join(", ", CallStack.Select(l => l.ToString()))}]");
             Logger.Silly($"Substitution: {Substitution}");
+            Logger.Silly($"Keep Unbound: [{string.Join(", ", KeepUnbound.Select(l => l.ToString()))}]");
         }
     }
 }

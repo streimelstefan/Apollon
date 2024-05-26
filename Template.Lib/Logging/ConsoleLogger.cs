@@ -62,7 +62,7 @@ namespace Apollon.Lib.Logging
             {
                 return;
             }
-            Console.WriteLine($"[SILLY]:{new string(' ', RecursionDepth * 2)} {message}");
+            Console.WriteLine($"[SILLY]:{new string(' ', RecursionDepth * 2)} |+| {message}");
         }
 
         public void Trace(string message)

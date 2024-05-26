@@ -1,5 +1,6 @@
 ﻿using Apollon.Lib.Resolution.CallStackAndCHS;
 using Apollon.Lib.Rules;
+using Apollon.Lib.Unification.Substitutioners;
 using System;
 using System.Collections.Generic;
 using System.Linq;

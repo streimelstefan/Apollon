@@ -12,24 +12,19 @@ namespace Apollon.Lib.Resolution.CoSLD
     /// <summary>
     /// A class that rememebers what variables point to what variables.
     /// </summary>
-    public class SubstitutionTree : ICloneable
+    public class SubstitutionGroups : ICloneable
     {
         /// <summary>
         /// The substition tree.
         /// </summary>
-        private List<KeyValuePair<string, string>> tree;
+        private List<HashSet<string>> groups;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SubstitutionTree"/> class.
+        /// Initializes a new instance of the <see cref="SubstitutionGroups"/> class.
         /// </summary>
-        public SubstitutionTree()
+        public SubstitutionGroups()
         {
-            this.tree = new List<KeyValuePair<string, string>>();
-        }
-
-        private SubstitutionTree(IEnumerable<KeyValuePair<string, string>> tree)
-        {
-            this.tree = new List<KeyValuePair<string, string>>(tree);
+            this.groups = new List<HashSet<string>>();
         }
 
         /// <summary>
@@ -60,12 +55,42 @@ namespace Apollon.Lib.Resolution.CoSLD
                 return;
             }
 
-            if (this.Contains(from.Value, to.Value))
+            foreach (var group in this.groups)
             {
-                return;
+                if (group.Contains(from.Value) || group.Contains(to.Value))
+                {
+                    group.Add(to.Value);
+                    group.Add(from.Value);
+                    return;
+                }
             }
 
-            this.tree.Add(new KeyValuePair<string, string>(from.Value, to.Value));
+            var newGroup = new HashSet<string>()
+            {
+                from.Value,
+                to.Value
+            };
+
+            this.groups.Add(newGroup);
+        }
+
+        public string GetSubstitionGroupNameOf(Term term)
+        {
+            if (!term.IsVariable)
+            {
+                throw new ArgumentException("Term given needs to be a variable");
+            }
+
+            for (int i = 0; i < this.groups.Count(); i++)
+            {
+                var group = this.groups[i];
+                if (group.Contains(term.Value))
+                {
+                    return $"GV/{i}";
+                }
+            }
+
+            throw new InvalidOperationException($"Unable to find substitution group of variable {term}");
         }
 
         /// <summary>
@@ -96,34 +121,16 @@ namespace Apollon.Lib.Resolution.CoSLD
 
             var fromValue = from.Value;
             var toValue = to.Value;
-            var visited = new HashSet<string>();  // To track visited nodes
-            var queue = new Queue<string>();      // Queue for BFS
 
-            queue.Enqueue(fromValue);
-            visited.Add(fromValue);
-
-            while (queue.Count > 0)
+            foreach (var group in this.groups)
             {
-                var current = queue.Dequeue();
-
-                // If we reach the target value, return true
-                if (current == toValue)
+                if (group.Contains(fromValue) && group.Contains(toValue))
                 {
                     return true;
                 }
-
-                // Enqueue all connected terms that haven't been visited
-                foreach (var neighbor in this.tree.Where(x => x.Key == current))
-                {
-                    if (!visited.Contains(neighbor.Value))
-                    {
-                        visited.Add(neighbor.Value);
-                        queue.Enqueue(neighbor.Value);
-                    }
-                }
             }
 
-            return false;  // If no connection found, return false
+            return false;
         }
 
         /// <summary>
@@ -132,7 +139,21 @@ namespace Apollon.Lib.Resolution.CoSLD
         /// <returns>A clone of the current object.</returns>
         public object Clone()
         {
-            return new SubstitutionTree(this.tree.Select(kv => new KeyValuePair<string, string>(kv.Key, kv.Value)));
+            var newSubTree = new SubstitutionGroups();
+
+            foreach (var group in this.groups)
+            {
+                var newGroup = new HashSet<string>();
+
+                foreach (var item in group)
+                {
+                    newGroup.Add(item);
+                }
+
+                newSubTree.groups.Add(newGroup);
+            }
+
+            return newSubTree;
         }
 
         /// <summary>
@@ -141,12 +162,7 @@ namespace Apollon.Lib.Resolution.CoSLD
         /// <returns>The string representation of the current object.</returns>
         public override string ToString()
         {
-            return $"{string.Join(", ", this.tree.Select(kv => $"({kv.Key} -> {kv.Value})"))}]";
-        }
-
-        private bool Contains(string from, string to)
-        {
-            return this.tree.Where(kv => kv.Key == from && kv.Value == to).Any();
+            return $"[{string.Join(", ", this.groups.Select(g => $"{{{string.Join(", ", g.Select(i => i.ToString()))}}}"))}]";
         }
     }
 }

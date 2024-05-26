@@ -35,6 +35,14 @@ namespace Apollon.Lib.Unification.Substitutioners
             }
         }
 
+        public IEnumerable<Mapping> BoundMappings
+        {
+            get
+            {
+                return this.Mappings.Where(m => m.MapsTo.IsLiteral || (m.MapsTo.Term != null && !m.MapsTo.Term.IsVariable));
+            }
+        }
+
         public void Add(Term variable, AtomParam term)
         {
             if (mappings.ContainsKey(variable.Value))
@@ -203,9 +211,21 @@ namespace Apollon.Lib.Unification.Substitutioners
                     // }
                 }
             }
+
             if (copy.Variable.Literal != null)
             {
-                Apply(copy.Variable.Literal.Atom);
+                this.Apply(copy.Variable.Literal.Atom);
+            }
+        }
+
+        public void RemovePVls()
+        {
+            foreach (var mapping in this.mappings)
+            {
+                if (mapping.Value.Term != null && mapping.Value.Term.IsVariable)
+                {
+                    mapping.Value.Term.ProhibitedValues.Clear();
+                }
             }
         }
 
@@ -221,6 +241,11 @@ namespace Apollon.Lib.Unification.Substitutioners
             Apply(copy.Atom);
 
             return copy;
+        }
+
+        public void ApplyInline(Literal literal)
+        {
+            Apply(literal.Atom);
         }
 
         public Operation Apply(Operation operation)

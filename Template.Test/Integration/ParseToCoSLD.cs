@@ -163,10 +163,30 @@ namespace Apollon.Test.Integration
 
             var literals = res.CHS.Literals;
             Assert.AreEqual(4, literals.Count());
-            Assert.AreEqual("not faster(RV/1 - {\\bunny() \\cat()}, bunny)", literals[0].ToString());
-            Assert.AreEqual("not faster(RV/1 - {\\bunny() \\cat()}, RV/25)", literals[1].ToString());
-            Assert.AreEqual("not is_faster(RV/9 - {\\bunny() \\cat()}, bunny)", literals[2].ToString());
+            Assert.AreEqual("not faster(RV/13 - {\\bunny \\cat}, bunny)", literals[0].ToString());
+            Assert.AreEqual("not faster(RV/32 - {\\bunny \\cat}, RV/33)", literals[1].ToString());
+            Assert.AreEqual("not is_faster(RV/9 - {\\bunny \\cat}, bunny)", literals[2].ToString());
             Assert.AreEqual("fastest(bunny)", literals[3].ToString());
+        }
+
+        [Test]
+        public void ShouldResolveForAllExampleFromThePaper()
+        {
+            var code = "p :- not q(X).\r\nq(Y) :- Y = a.\r\nq(Y) :- Y != a.";
+            var query = _parser.ParseQueryFromString("not p.");
+            var program = _parser.ParseFromString(code);
+            _solver.Load(program);
+
+            var results = _solver.Solve(query);
+            var res = results.First();
+
+            Assert.IsFalse(res.CHS.IsEmpty);
+
+            var literals = res.CHS.Literals;
+            Assert.AreEqual(3, literals.Count());
+            Assert.AreEqual("q(RV/5 - {\\a})", literals[0].ToString());
+            Assert.AreEqual("q(a)", literals[1].ToString());
+            Assert.AreEqual("not p()", literals[2].ToString());
         }
 
         [Test]
