@@ -1,16 +1,18 @@
-﻿using Apollon.Lib.Resolution.CallStackAndCHS;
-using Apollon.Lib.Rules;
-using Apollon.Lib.Unification.Substitutioners;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
+﻿namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
 {
+    using Apollon.Lib.Resolution.CallStackAndCHS;
+
+    /// <summary>
+    /// The CHS Checker checks the CHS for loops.
+    /// </summary>
     public interface ICoinductiveCHSChecker
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="literal"></param>
+        /// <param name="chs"></param>
+        /// <returns></returns>
         CheckerResult CheckCHSFor(Literal literal, CHS chs);
     }
 }

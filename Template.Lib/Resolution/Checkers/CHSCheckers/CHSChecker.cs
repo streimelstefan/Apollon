@@ -1,44 +1,57 @@
-﻿using Apollon.Lib.Atoms;
-using Apollon.Lib.Linker;
-using Apollon.Lib.Resolution.CallStackAndCHS;
-using Apollon.Lib.Rules;
-using Apollon.Lib.Unification;
-using Apollon.Lib.Unification.Substitutioners;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
+﻿namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
 {
+    using Apollon.Lib.Atoms;
+    using Apollon.Lib.Linker;
+    using Apollon.Lib.Resolution.CallStackAndCHS;
+    using Apollon.Lib.Rules;
+    using Apollon.Lib.Unification;
+
+    /// <summary>
+    /// The CHS Checker checks the CHS for loops.
+    /// </summary>
     public class CHSChecker : ICoinductiveCHSChecker
     {
-        private IUnifier _unifer = new ExactUnifier();
+        private IUnifier unifer = new ExactUnifier();
         private IUnifier constructiveUnifier = new ConstructiveUnifier();
-        private VariableExtractor _extractor = new VariableExtractor();
-        private VariableLinker _linker = new VariableLinker();  
+        private VariableExtractor extractor = new VariableExtractor();
+        private VariableLinker linker = new VariableLinker();
 
+        /// <summary>
+        /// Checks the CHS for loops.
+        /// </summary>
+        /// <param name="literal">The Literal that the loop should be checked for.</param>
+        /// <param name="chs">The stack of all Literals that should be checked.</param>
+        /// <returns>Returns an Enumerable containing the Result of the Check.</returns>
         public CheckerResult CheckCHSFor(Literal literal, CHS chs)
         {
-            if (IsPresentWithNAFSwitch(literal, chs))
+            if (this.IsPresentWithNAFSwitch(literal, chs))
+            {
                 return CheckerResult.Fail;
+            }
 
             // if the chs contains the literal
-            if (chs.Literals.Where(l => _unifer.Unify(literal, l).IsSuccess).Any()) return CheckerResult.Succeed;
+            if (chs.Literals.Where(l => this.unifer.Unify(literal, l).IsSuccess).Any())
+            {
+                return CheckerResult.Succeed;
+            }
 
-            this.ConstraintAgainsCHS(chs, literal);
+            this.ConstraintAgainstCHS(chs, literal);
 
             return CheckerResult.Continue;
         }
 
-        private void ConstraintAgainsCHS(CHS chs, Literal goal)
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="chs"></param>
+        /// <param name="goal"></param>
+        private void ConstraintAgainstCHS(CHS chs, Literal goal)
         {
             var goalCopy = (Literal)goal.Clone();
             goalCopy.IsNAF = !goalCopy.IsNAF;
 
-            this._linker.LinkVariables(new Statement(goal));
-            var goalVariables = this._extractor.ExtractVariablesFrom(goal);
+            this.linker.LinkVariables(new Statement(goal));
+            var goalVariables = this.extractor.ExtractVariablesFrom(goal);
 
             if (goalVariables.Count() == 0)
             {
@@ -71,7 +84,8 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
                                 try
                                 {
                                     goalVariable.ProhibitedValues.AddValue(mappedVariableCopy);
-                                } catch (Exception)
+                                }
+                                catch (Exception)
                                 {
                                 }
                             }
@@ -81,13 +95,18 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
             }
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="literal"></param>
+        /// <param name="chs"></param>
+        /// <returns></returns>
         private bool IsPresentWithNAFSwitch(Literal literal, CHS chs)
         {
             var copy = (Literal)literal.Clone();
             copy.IsNAF = !copy.IsNAF;
 
-            return chs.Literals.Where(l => _unifer.Unify(l, copy).IsSuccess).Any();
+            return chs.Literals.Where(l => this.unifer.Unify(l, copy).IsSuccess).Any();
         }
-
     }
 }

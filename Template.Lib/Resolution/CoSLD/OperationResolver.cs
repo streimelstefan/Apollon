@@ -1,32 +1,38 @@
-﻿using Apollon.Lib.Atoms;
-using Apollon.Lib.Extensions;
-using Apollon.Lib.Resolution.CoSLD.States;
-using Apollon.Lib.Rules;
-using Apollon.Lib.Rules.Operations;
-using Apollon.Lib.Unification;
-using Apollon.Lib.Unification.Substitutioners;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Apollon.Lib.Resolution.CoSLD
+﻿namespace Apollon.Lib.Resolution.CoSLD
 {
+    using Apollon.Lib.Atoms;
+    using Apollon.Lib.Extensions;
+    using Apollon.Lib.Resolution.CoSLD.States;
+    using Apollon.Lib.Rules.Operations;
+    using Apollon.Lib.Unification;
+    using Apollon.Lib.Unification.Substitutioners;
+
+    /// <summary>
+    /// The resolver used for various operations.
+    /// </summary>
     public class OperationResolver
     {
-
         private Dictionary<Operator, Func<Operation, ResolutionBaseState, CoResolutionResult>> resolvers;
 
         private IUnifier constructiveUnifier = new ConstructiveUnifier();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OperationResolver"/> class.
+        /// </summary>
         public OperationResolver()
         {
             this.resolvers = new Dictionary<Operator, Func<Operation, ResolutionBaseState, CoResolutionResult>>();
             this.PopulateResolvers();
         }
 
-        public CoResolutionResult ResolveOperation(Operation operation, ResolutionBaseState state) 
+        /// <summary>
+        /// Resolves the given operation.
+        /// </summary>
+        /// <param name="operation">The operation that should be resolved.</param>
+        /// <param name="state">The State that should be used for resolution.</param>
+        /// <returns>The result.</returns>
+        /// <exception cref="NotSupportedException">Is thrown when the operation is naf negated.</exception>
+        public CoResolutionResult ResolveOperation(Operation operation, ResolutionBaseState state)
         {
             if (operation.IsNAF)
             {
@@ -43,7 +49,8 @@ namespace Apollon.Lib.Resolution.CoSLD
                 res.State.LogState();
 
                 return res;
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 state.Logger.Warn($"Encountered error while resolving operation {operation}. Failing resolution. Error: {e.Message}");
                 return new CoResolutionResult(false, state.Substitution, state);
@@ -78,7 +85,6 @@ namespace Apollon.Lib.Resolution.CoSLD
 
             var unificationRes = this.constructiveUnifier.Unify(condition, variable);
 
-
             return new CoResolutionResult(unificationRes.IsSuccess, unificationRes.Value ?? new Substitution(), state);
         }
 
@@ -89,6 +95,7 @@ namespace Apollon.Lib.Resolution.CoSLD
             {
                 throw new InvalidOperationException("operation variable is not variable...");
             }
+
             operation.Variable.Term.ProhibitedValues.AddValue(operation.Condition);
 
             var op = state.Substitution.Apply(operation);
@@ -150,7 +157,6 @@ namespace Apollon.Lib.Resolution.CoSLD
             return this.GeneratingOperationBase(operation, state, (variable, condition) => variable * condition);
         }
 
-
         private CoResolutionResult ResolveDivide(Operation operation, ResolutionBaseState state)
         {
             return this.GeneratingOperationBase(operation, state, (variable, condition) => variable / condition);
@@ -199,10 +205,12 @@ namespace Apollon.Lib.Resolution.CoSLD
                 state.Logger.Silly($"Converted term {param} to literal {newLiteral}.");
                 return newLiteral;
             }
+
             if (param.Literal != null)
             {
                 return param.Literal;
             }
+
             throw new NotImplementedException($"Unahndled case for extraction as literal of {param}");
         }
 
@@ -223,7 +231,8 @@ namespace Apollon.Lib.Resolution.CoSLD
             if (param.Term != null)
             {
                 return param.Term;
-            } 
+            }
+
             if (param.Literal != null)
             {
                 if (param.Literal.Atom.ParamList.Length > 0 || param.Literal.IsNAF || param.Literal.IsNegative)

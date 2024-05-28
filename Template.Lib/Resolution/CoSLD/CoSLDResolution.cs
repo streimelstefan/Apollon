@@ -1,28 +1,23 @@
-﻿using Apollon.Lib.Atoms;
-using Apollon.Lib.Graph;
-using Apollon.Lib.Linker;
-using Apollon.Lib.Logging;
-using Apollon.Lib.Resolution.CallStackAndCHS;
-using Apollon.Lib.Resolution.Checkers;
-using Apollon.Lib.Resolution.Checkers.CallStack;
-using Apollon.Lib.Resolution.Checkers.CHSCheckers;
-using Apollon.Lib.Resolution.CoSLD.States;
-using Apollon.Lib.Rules;
-using Apollon.Lib.Rules.Operations;
-using Apollon.Lib.Unification;
-using Apollon.Lib.Unification.Substitutioners;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Resources;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Apollon.Lib.Resolution.CoSLD
+﻿namespace Apollon.Lib.Resolution.CoSLD
 {
+    using System.Data;
+    using Apollon.Lib.Atoms;
+    using Apollon.Lib.Graph;
+    using Apollon.Lib.Linker;
+    using Apollon.Lib.Logging;
+    using Apollon.Lib.Resolution.CallStackAndCHS;
+    using Apollon.Lib.Resolution.Checkers;
+    using Apollon.Lib.Resolution.Checkers.CallStack;
+    using Apollon.Lib.Resolution.Checkers.CHSCheckers;
+    using Apollon.Lib.Resolution.CoSLD.States;
+    using Apollon.Lib.Rules;
+    using Apollon.Lib.Rules.Operations;
+    using Apollon.Lib.Unification;
+    using Apollon.Lib.Unification.Substitutioners;
+
+    /// <summary>
+    /// This class is responsible for the CoSLD resolution.
+    /// </summary>
     public class CoSLDResolution : IResolution
     {
         private IUnifier unifier = new ConstructiveUnifier();
@@ -44,17 +39,25 @@ namespace Apollon.Lib.Resolution.CoSLD
 
         private SubstitutionGroups substitutionGroups = new SubstitutionGroups();
 
+        /// <summary>
+        /// Executes the resolution.
+        /// </summary>
+        /// <param name="statements">An array of statements that should be resolved.</param>
+        /// <param name="goals">An array of all goals.</param>
+        /// <param name="logger">The logger used for logging.</param>
+        /// <returns>The resolved goals piece by piece.</returns>
         public IEnumerable<ResolutionResult> Resolute(Statement[] statements, BodyPart[] goals, ILogger logger)
         {
             // Initialize the call stack and CHS (coinductive hypothesis set)
             this.allStatements = statements.Where(s => s.Head != null).ToArray();
             var callStack = new Stack<Literal>();
+
             // -1 because the resolve all goals will increase it at the start resulting in 0.
             logger.RecursionDepth = -1;
-            variableIndex = 1;
+            this.variableIndex = 1;
 
             // Start the resolution process
-            var results = ResolveAllGoals(new ResolutionRecursionState(goals, allStatements, callStack, new CHS(), new Substitution(), logger));
+            var results = this.ResolveAllGoals(new ResolutionRecursionState(goals, this.allStatements, callStack, new CHS(), new Substitution(), logger));
 
             foreach (var res in results)
             {
@@ -69,6 +72,11 @@ namespace Apollon.Lib.Resolution.CoSLD
             }
         }
 
+        /// <summary>
+        /// Executes the resolution.
+        /// </summary>
+        /// <param name="state">The state that should be used for the Resolution.</param>
+        /// <returns>The resolved goals piece by piece.</returns>
         public IEnumerable<CoResolutionResult> ResolveAllGoals(ResolutionRecursionState state)
         {
             // if there are no goals it means we were called by an atom and we can succeed
@@ -77,10 +85,11 @@ namespace Apollon.Lib.Resolution.CoSLD
                 yield return new CoResolutionResult(true, new Substitution(), state);
                 yield break;
             }
+
             state.Logger.RecursionDepth++;
             state.LogState();
 
-            var results = ResolveAllGoalsPart((ResolutionRecursionState)state.Clone());
+            var results = this.ResolveAllGoalsPart((ResolutionRecursionState)state.Clone());
 
             foreach (var res in results)
             {
@@ -88,6 +97,32 @@ namespace Apollon.Lib.Resolution.CoSLD
             }
         }
 
+        /// <summary>
+        /// Checks the CHS and CallStack for the current goal.
+        /// </summary>
+        /// <param name="state">The state that should be checked.</param>
+        /// <returns>The Result of the Check.</returns>
+        public CheckerResult CheckCHSAndCallStack(ResolutionLiteralState state)
+        {
+            var chsCheck = this.chsChecker.CheckCHSFor(state.CurrentGoal, state.Chs);
+            state.Logger.Trace($"CHS marked goal {state.CurrentGoal} as {chsCheck} using {state.Chs}");
+
+            if (chsCheck != CheckerResult.Continue)
+            {
+                return chsCheck;
+            }
+
+            var callStackCheck = this.callStackChecker.CheckCallStackFor(state.CurrentGoal, state.CallStack);
+
+            state.Logger.Trace($"CallStack marked goal {state.CurrentGoal} as {callStackCheck} using ({string.Join(", ", state.CallStack)})");
+            return callStackCheck;
+        }
+
+        /// <summary>
+        /// Resolves all goals part by part.
+        /// </summary>
+        /// <param name="state">The state that should be used for the Resolution.</param>
+        /// <returns>The resolved goals piece by piece.</returns>
         private IEnumerable<CoResolutionResult> ResolveAllGoalsPart(ResolutionRecursionState state)
         {
             var goal = state.Goals.First();
@@ -97,22 +132,22 @@ namespace Apollon.Lib.Resolution.CoSLD
             if (goal.ForAll != null)
             {
                 state.Logger.Info($"Current goal is: {goal} | {state.Substitution}");
-                results = ResolveForAllGoal(ResolutionStepState.CloneConstructor(state, goal, state.Statements));
+                results = this.ResolveForAllGoal(ResolutionStepState.CloneConstructor(state, goal, state.Statements));
             }
             else if (goal.Literal != null)
             {
                 var substituted = state.Substitution.Apply(goal.Literal);
                 state.Logger.Info($"Current goal is: {substituted}");
-                
+
                 var nextState = ResolutionLiteralState.CloneConstructor(state, substituted, state.Statements);
                 nextState.Substitution.Clear();
 
-                results = ResolveLiteralGoal(nextState);
+                results = this.ResolveLiteralGoal(nextState);
             }
             else if (goal.Operation != null)
             {
                 state.Logger.Info($"Current goal is: {goal} | {state.Substitution}");
-                results = ResolveOperation(goal.Operation, (ResolutionBaseState)state.Clone());
+                results = this.ResolveOperation(goal.Operation, (ResolutionBaseState)state.Clone());
             }
 
             foreach (var res in results)
@@ -129,14 +164,13 @@ namespace Apollon.Lib.Resolution.CoSLD
                 stateCopy.Substitution.BackPropagate(res.Substitution);
                 stateCopy.Substitution.Contract();
 
-
                 // if there are other goals that need to be checked.
                 if (nextGoals.Length != 0)
                 {
-                    stateCopy.Logger.Silly($"GoalPart {goal} succeeded. Next gaol parts are [{string.Join(", ", nextGoals.Select(g => g.ToString()))}]");
+                    stateCopy.Logger.Silly($"GoalPart {goal} succeeded. Next goal parts are [{string.Join(", ", nextGoals.Select(g => g.ToString()))}]");
                     stateCopy.LogState();
                     stateCopy.Logger.Silly($"SubTree: {this.substitutionGroups}");
-                    var recurisveResults = ResolveAllGoalsPart(ResolutionRecursionState.CloneConstructor(stateCopy, nextGoals));
+                    var recurisveResults = this.ResolveAllGoalsPart(ResolutionRecursionState.CloneConstructor(stateCopy, nextGoals));
                     foreach (var recRes in recurisveResults)
                     {
                         if (!recRes.Success)
@@ -159,9 +193,15 @@ namespace Apollon.Lib.Resolution.CoSLD
             }
         }
 
+        /// <summary>
+        /// Resolves the forall part of a goal.
+        /// </summary>
+        /// <param name="state">The state that should be used for the Resolve process.</param>
+        /// <returns>An Enumerable of all goals piece by piece.</returns>
         private IEnumerable<CoResolutionResult> ResolveForAllGoal(ResolutionStepState state)
         {
             state.LogState();
+
             // extract variable of each forall part.
 
             // for each part try to solve the goal with the variable
@@ -192,6 +232,12 @@ namespace Apollon.Lib.Resolution.CoSLD
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="goal"></param>
+        /// <returns></returns>
         private IEnumerable<CoResolutionForAllResult> ResolveForAllGoalPart(ResolutionStepState state, BodyPart goal)
         {
             ArgumentNullException.ThrowIfNull(goal.ForAll, nameof(goal.ForAll));
@@ -203,9 +249,7 @@ namespace Apollon.Lib.Resolution.CoSLD
             ResolutionStepState stateCopy = (ResolutionStepState)state.Clone();
             var realGoal = goal.Literal;
 
-            // if child of the forall goal is a literal 
-            // we need to see if the literal resolves. And apply the forall rules accordingly.
-
+            // if child of the forall goal is a literal we need to see if the literal resolves. And apply the forall rules accordingly.
             state.Logger.Silly($"FORALL: Trying to resolve forall variable {variable}");
             IEnumerable<CoResolutionForAllResult> results = new CoResolutionForAllResult[0];
             if (goal.Child == null && goal.Literal != null)
@@ -265,6 +309,13 @@ namespace Apollon.Lib.Resolution.CoSLD
             yield return new CoResolutionForAllResult(false, stateCopy.Substitution, stateCopy, realGoal);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="goal"></param>
+        /// <param name="valuesToTry"></param>
+        /// <returns></returns>
         private IEnumerable<CoResolutionForAllResult> ResolveForAllConstraint(ResolutionStepState state, BodyPart goal, List<AtomParam> valuesToTry)
         {
             ArgumentNullException.ThrowIfNull(goal.ForAll, nameof(goal.ForAll));
@@ -277,7 +328,7 @@ namespace Apollon.Lib.Resolution.CoSLD
             var valueToTry = valuesToTry.First();
             var nextValuesToTry = valuesToTry.Skip(1).ToList();
 
-            // if child of the forall goal is a literal 
+            // if child of the forall goal is a literal
             // we need to see if the literal resolves. And apply the forall rules accordingly.
             var subToTry = new Substitution();
             subToTry.Add(variable, valueToTry);
@@ -352,20 +403,22 @@ namespace Apollon.Lib.Resolution.CoSLD
                 }
             }
 
-            //yield return new CoResolutionForAllResult(true, stateCopy.Substitution, stateCopy, realGoal);
+            // yield return new CoResolutionForAllResult(true, stateCopy.Substitution, stateCopy, realGoal);
         }
 
         // Recursively resolves a goal
         private IEnumerable<CoResolutionResult> ResolveLiteralGoal(ResolutionLiteralState state)
         {
             state.LogState();
-            //var baseSub = PreprocessLiteralGoal(state.CurrentGoal);
-            var checkRes = CheckCHSAndCallStack(state);
+
+            // var baseSub = PreprocessLiteralGoal(state.CurrentGoal);
+            var checkRes = this.CheckCHSAndCallStack(state);
             if (checkRes == CheckerResult.Succeed)
             {
                 yield return new CoResolutionResult(true, new Substitution(), state);
                 yield break;
             }
+
             if (checkRes == CheckerResult.Fail)
             {
                 yield return new CoResolutionResult(false, state.Substitution, state);
@@ -384,6 +437,7 @@ namespace Apollon.Lib.Resolution.CoSLD
                     yield return expandsionRes;
                     yield break;
                 }
+
                 var stateClone = (ResolutionLiteralState)expandsionRes.State.Clone();
                 var subClone = state.Substitution.Clone();
                 subClone.BackPropagate(expandsionRes.Substitution);
@@ -396,7 +450,7 @@ namespace Apollon.Lib.Resolution.CoSLD
         private IEnumerable<CoResolutionResult> ResolveLiteralGoalByExpansion(ResolutionLiteralState state)
         {
             bool hasYielded = false;
-            var variablesInGoal = variableExtractor.ExtractVariablesFrom(state.CurrentGoal).Select(t => t.Value).ToHashSet();
+            var variablesInGoal = this.variableExtractor.ExtractVariablesFrom(state.CurrentGoal).Select(t => t.Value).ToHashSet();
 
             var preselectedStatements = state.Statements
                 .Where(s => this.preSelector.AreEqual(state.CurrentGoal, s.Head))
@@ -433,6 +487,7 @@ namespace Apollon.Lib.Resolution.CoSLD
                 this.substitutionGroups.AddAllOf(unificationRes.Value);
 
                 state.Logger.Info($"Unified goal {state.CurrentGoal} with {statement} resulting in {unificationRes.Value}");
+
                 // we expand the goal with this statment if it succeeds the goal gets added to the chs.
                 var results = this.ResolveAllGoals(
                     ResolutionRecursionState.CloneConstructor(statement.Body, this.allStatements, state.CallStack, state.Chs, unificationRes.Value, state.KeepUnbound, state.Logger));
@@ -470,26 +525,11 @@ namespace Apollon.Lib.Resolution.CoSLD
 
             if (!hasYielded)
             {
-                // no statments where found that succeed for this statment. 
+                // no statments where found that succeed for this statment.
                 state.Logger.Silly($"Literal Goal {state.CurrentGoal} failed.");
                 yield return new CoResolutionResult(false, state.Substitution, state);
             }
         }
-
-        public CheckerResult CheckCHSAndCallStack(ResolutionLiteralState state)
-        {
-            var chsCheck = chsChecker.CheckCHSFor(state.CurrentGoal, state.Chs);
-            state.Logger.Trace($"CHS marked goal {state.CurrentGoal} as {chsCheck} using {state.Chs}");
-
-            if (chsCheck != CheckerResult.Continue) return chsCheck;
-
-            var callStackCheck = callStackChecker.CheckCallStackFor(state.CurrentGoal, state.CallStack);
-
-            state.Logger.Trace($"CallStack marked goal {state.CurrentGoal} as {callStackCheck} using ({string.Join(", ", state.CallStack)})");
-            return callStackCheck;
-        }
-
-
 
         private IEnumerable<CoResolutionResult> ResolveOperation(Operation operation, ResolutionBaseState state)
         {
@@ -517,14 +557,14 @@ namespace Apollon.Lib.Resolution.CoSLD
             {
                 if (param.Term != null && param.Term.IsVariable)
                 {
-                    var newVariableName = $"RV/{variableIndex}";
+                    var newVariableName = $"RV/{this.variableIndex}";
                     sub.Add(param.Term, new AtomParam(new Term(newVariableName)));
                     param.Term.Value = newVariableName;
-                    variableIndex++;
+                    this.variableIndex++;
                 }
                 else if (param.Literal != null)
                 {
-                    PreprocessLiteralGoal(param.Literal, sub);
+                    this.PreprocessLiteralGoal(param.Literal, sub);
                 }
             }
         }
@@ -532,12 +572,19 @@ namespace Apollon.Lib.Resolution.CoSLD
         private Literal GetForAllRule(BodyPart forall)
         {
             if (forall.ForAll == null && (forall.Child == null || forall.Literal == null))
+            {
                 throw new ArgumentException($"Body part needs to be a forall body part. Got ${forall}");
+            }
 
-            if (forall.Child != null) 
-                return GetForAllRule(forall.Child);
+            if (forall.Child != null)
+            {
+                return this.GetForAllRule(forall.Child);
+            }
+
             if (forall.Literal != null)
+            {
                 return forall.Literal;
+            }
 
             throw new InvalidOperationException("Got body part that has neither a child or a literal, weird...");
         }

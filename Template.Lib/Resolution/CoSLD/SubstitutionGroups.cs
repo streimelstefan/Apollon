@@ -1,14 +1,8 @@
-﻿using Apollon.Lib.Atoms;
-using Apollon.Lib.Unification.Substitutioners;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Apollon.Lib.Resolution.CoSLD
+﻿namespace Apollon.Lib.Resolution.CoSLD
 {
+    using Apollon.Lib.Atoms;
+    using Apollon.Lib.Unification.Substitutioners;
+
     /// <summary>
     /// A class that rememebers what variables point to what variables.
     /// </summary>
@@ -68,12 +62,19 @@ namespace Apollon.Lib.Resolution.CoSLD
             var newGroup = new HashSet<string>()
             {
                 from.Value,
-                to.Value
+                to.Value,
             };
 
             this.groups.Add(newGroup);
         }
 
+        /// <summary>
+        /// Returns the substitution group name of the given term.
+        /// </summary>
+        /// <param name="term">The term of which the substitution group name should be gotten.</param>
+        /// <returns>The name of the substitution group name.</returns>
+        /// <exception cref="ArgumentException">Is thrown when the term is no variable.</exception>
+        /// <exception cref="InvalidOperationException">Is thrown when there is no substitution group.</exception>
         public string GetSubstitionGroupNameOf(Term term)
         {
             if (!term.IsVariable)
@@ -94,7 +95,7 @@ namespace Apollon.Lib.Resolution.CoSLD
         }
 
         /// <summary>
-        /// Adds a tree entry to the tree. Where from substitutes to to. 
+        /// Adds a tree entry to the tree. Where from substitutes to to.
         /// </summary>
         /// <param name="from">The <see cref="Term"/> the signals the substitution.</param>
         /// <param name="to">The <see cref="AtomParam"/> that will be substitutted.</param>

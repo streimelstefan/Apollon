@@ -1,15 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Apollon.Lib.Resolution.Checkers
+﻿namespace Apollon.Lib.Resolution.Checkers
 {
+    /// <summary>
+    /// The Result of a Check.
+    /// </summary>
     public enum CheckerResult
     {
+        /// <summary>
+        /// The Check Succeeds.
+        /// </summary>
         Succeed,
+
+        /// <summary>
+        /// The Check Fails.
+        /// </summary>
         Fail,
-        Continue
+
+        /// <summary>
+        /// The Check needs to be continued.
+        /// </summary>
+        Continue,
     }
 }

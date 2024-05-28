@@ -1,20 +1,71 @@
-﻿using Apollon.Lib.Logging;
-using Apollon.Lib.Resolution.CallStackAndCHS;
-using Apollon.Lib.Rules;
-using Apollon.Lib.Unification.Substitutioners;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Apollon.Lib.Resolution.CoSLD.States
+﻿namespace Apollon.Lib.Resolution.CoSLD.States
 {
+    using Apollon.Lib.Logging;
+    using Apollon.Lib.Resolution.CallStackAndCHS;
+    using Apollon.Lib.Rules;
+    using Apollon.Lib.Unification.Substitutioners;
+
+    /// <summary>
+    /// The Resolution Recursion State.
+    /// </summary>
     public class ResolutionRecursionState : ResolutionBaseState
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResolutionRecursionState"/> class.
+        /// </summary>
+        /// <param name="goals">All goals.</param>
+        /// <param name="statements">The statements.</param>
+        /// <param name="callStack">The callstack.</param>
+        /// <param name="chs">The CHS.</param>
+        /// <param name="substitution">The substitution that should be used.</param>
+        /// <param name="logger">The logger.</param>
+        public ResolutionRecursionState(BodyPart[] goals, Statement[] statements, Stack<Literal> callStack, CHS chs, Substitution substitution, ILogger logger)
+            : base(statements, callStack, chs, substitution, logger)
+        {
+            this.Goals = goals;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResolutionRecursionState"/> class.
+        /// </summary>
+        /// <param name="goals">All goals.</param>
+        /// <param name="statements">The statements.</param>
+        /// <param name="callStack">The callstack.</param>
+        /// <param name="chs">The CHS.</param>
+        /// <param name="substitution">The substitution that should be used.</param>
+        /// <param name="keepUnbound">List of Terms that should be kept unbound.</param>
+        /// <param name="logger">The logger.</param>
+        public ResolutionRecursionState(BodyPart[] goals, Statement[] statements, Stack<Literal> callStack, CHS chs, Substitution substitution, List<Term> keepUnbound, ILogger logger)
+            : base(statements, callStack, chs, substitution, keepUnbound, logger)
+        {
+            this.Goals = goals;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResolutionRecursionState"/> class.
+        /// </summary>
+        /// <param name="baseState">The basic States.</param>
+        /// <param name="goals">The goals.</param>
+        public ResolutionRecursionState(ResolutionBaseState baseState, BodyPart[] goals)
+            : this(goals, baseState.Statements, baseState.CallStack, baseState.Chs, baseState.Substitution, baseState.KeepUnbound, baseState.Logger)
+        {
+        }
+
+        /// <summary>
+        /// Gets all current goals.
+        /// </summary>
         public BodyPart[] Goals { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResolutionRecursionState"/> class.
+        /// </summary>
+        /// <param name="goals">All goals.</param>
+        /// <param name="statements">The statements.</param>
+        /// <param name="callStack">The callstack.</param>
+        /// <param name="chs">The CHS.</param>
+        /// <param name="substitution">The substitution that should be used.</param>
+        /// <param name="logger">The logger.</param>
+        /// <returns>A new cloned instance.</returns>
         public static ResolutionRecursionState CloneConstructor(BodyPart[] goals, Statement[] statements, Stack<Literal> callStack, CHS chs, Substitution substitution, ILogger logger)
         {
             var obj = new ResolutionRecursionState(goals, statements, callStack, chs, substitution, logger);
@@ -22,6 +73,17 @@ namespace Apollon.Lib.Resolution.CoSLD.States
             return (ResolutionRecursionState)obj.Clone();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResolutionRecursionState"/> class.
+        /// </summary>
+        /// <param name="goals">All goals.</param>
+        /// <param name="statements">The statements.</param>
+        /// <param name="callStack">The callstack.</param>
+        /// <param name="chs">The CHS.</param>
+        /// <param name="substitution">The substitution that should be used.</param>
+        /// <param name="keepUnbound">List of Terms that should be kept unbound.</param>
+        /// <param name="logger">The logger.</param>
+        /// <returns>A new cloned instance.</returns>
         public static ResolutionRecursionState CloneConstructor(BodyPart[] goals, Statement[] statements, Stack<Literal> callStack, CHS chs, Substitution substitution, List<Term> keepUnbound, ILogger logger)
         {
             var obj = new ResolutionRecursionState(goals, statements, callStack, chs, substitution, keepUnbound, logger);
@@ -29,6 +91,12 @@ namespace Apollon.Lib.Resolution.CoSLD.States
             return (ResolutionRecursionState)obj.Clone();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResolutionRecursionState"/> class.
+        /// </summary>
+        /// <param name="baseState">The basic States that should be used in the clone.</param>
+        /// <param name="goals">The goals that should be used in the clone.</param>
+        /// <returns>A new cloned instance.</returns>
         public static ResolutionRecursionState CloneConstructor(ResolutionBaseState baseState, BodyPart[] goals)
         {
             var obj = new ResolutionRecursionState(baseState, goals);
@@ -36,28 +104,15 @@ namespace Apollon.Lib.Resolution.CoSLD.States
             return (ResolutionRecursionState)obj.Clone();
         }
 
-        public ResolutionRecursionState(BodyPart[] goals, Statement[] statements, Stack<Literal> callStack, CHS chs, Substitution substitution, ILogger logger)
-            : base(statements, callStack, chs, substitution, logger)
-        {
-            Goals = goals;
-        }
-
-        public ResolutionRecursionState(BodyPart[] goals, Statement[] statements, Stack<Literal> callStack, CHS chs, Substitution substitution, List<Term> keepUnbound, ILogger logger)
-            : base(statements, callStack, chs, substitution, keepUnbound, logger)
-        {
-            Goals = goals;
-        }
-
-        public ResolutionRecursionState(ResolutionBaseState baseState, BodyPart[] goals)
-            : this(goals, baseState.Statements, baseState.CallStack, baseState.Chs, baseState.Substitution, baseState.KeepUnbound, baseState.Logger)
-        {
-        }
-
+        /// <summary>
+        /// Clones the current State.
+        /// </summary>
+        /// <returns>A cloned object of the current state.</returns>
         public override object Clone()
         {
             var baseObj = (ResolutionBaseState)base.Clone();
 
-            return new ResolutionRecursionState(baseObj, Goals.Select(g => (BodyPart)g.Clone()).ToArray());
+            return new ResolutionRecursionState(baseObj, this.Goals.Select(g => (BodyPart)g.Clone()).ToArray());
         }
     }
 }
