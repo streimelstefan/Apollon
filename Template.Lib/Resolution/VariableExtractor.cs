@@ -1,46 +1,58 @@
-﻿using Apollon.Lib.Atoms;
-using Apollon.Lib.Rules;
-using Apollon.Lib.Rules.Operations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Apollon.Lib.Resolution
+﻿namespace Apollon.Lib.Resolution
 {
+    using Apollon.Lib.Atoms;
+    using Apollon.Lib.Rules;
+    using Apollon.Lib.Rules.Operations;
+
+    /// <summary>
+    /// Extracts all Variables from a Statement/BodyParts/Literal.
+    /// </summary>
     public class VariableExtractor
     {
-
+        /// <summary>
+        /// Extracts all Variables from a Statement.
+        /// </summary>
+        /// <param name="statement">The statement of which the variables shall be extracted.</param>
+        /// <returns>The extracted variables.</returns>
         public HashSet<Term> ExtractVariablesFrom(Statement statement)
         {
-            var variables = ExtractVariablesFrom(statement.Body);
+            var variables = this.ExtractVariablesFrom(statement.Body);
 
             if (statement.Head != null)
             {
-                ExtractVariablesFrom(statement.Head, variables);
+                this.ExtractVariablesFrom(statement.Head, variables);
             }
 
             return variables;
         }
 
+        /// <summary>
+        /// Extracts all Variables from a BodyPart.
+        /// </summary>
+        /// <param name="bodyPart">The body part of which the variables shall be extracted.</param>
+        /// <returns>The extracted variables.</returns>
         public HashSet<Term> ExtractVariablesFrom(BodyPart[] bodyPart)
         {
             var variables = new HashSet<Term>();
 
-            foreach (var part in bodyPart) 
+            foreach (var part in bodyPart)
             {
-                ExtractVariablesFrom(part, variables);
+                this.ExtractVariablesFrom(part, variables);
             }
 
             return variables;
         }
 
+        /// <summary>
+        /// Extracts all Variables from a Literal.
+        /// </summary>
+        /// <param name="literal">The literal of which the variables shall be extracted.</param>
+        /// <returns>The extracted variables.</returns>
         public HashSet<Term> ExtractVariablesFrom(Literal literal)
         {
             var variables = new HashSet<Term>();
 
-            ExtractVariablesFrom(literal, variables);
+            this.ExtractVariablesFrom(literal, variables);
 
             return variables;
         }
@@ -49,23 +61,24 @@ namespace Apollon.Lib.Resolution
         {
             if (bodyPart.Literal != null)
             {
-                ExtractVariablesFrom(bodyPart.Literal, variables);
-            } else if (bodyPart.Operation != null)
+                this.ExtractVariablesFrom(bodyPart.Literal, variables);
+            }
+            else if (bodyPart.Operation != null)
             {
-                ExtractVariablesFrom(bodyPart.Operation, variables);
+                this.ExtractVariablesFrom(bodyPart.Operation, variables);
             }
         }
 
-        private void ExtractVariablesFrom(Literal literal, HashSet<Term> variables) 
+        private void ExtractVariablesFrom(Literal literal, HashSet<Term> variables)
         {
-            ExtractVariablesFrom(literal.Atom, variables);
+            this.ExtractVariablesFrom(literal.Atom, variables);
         }
 
         private void ExtractVariablesFrom(Atom atom, HashSet<Term> variables)
         {
-            foreach(var param in atom.ParamList)
+            foreach (var param in atom.ParamList)
             {
-                ExtractVariablesFrom(param, variables);
+                this.ExtractVariablesFrom(param, variables);
             }
         }
 
@@ -73,8 +86,9 @@ namespace Apollon.Lib.Resolution
         {
             if (param.Literal != null)
             {
-                ExtractVariablesFrom(param.Literal, variables);
-            } else if (param.Term != null)
+                this.ExtractVariablesFrom(param.Literal, variables);
+            }
+            else if (param.Term != null)
             {
                 if (param.Term.IsVariable)
                 {
@@ -83,7 +97,7 @@ namespace Apollon.Lib.Resolution
             }
         }
 
-        private void ExtractVariablesFrom(Operation operation, HashSet<Term> variables) 
+        private void ExtractVariablesFrom(Operation operation, HashSet<Term> variables)
         {
             if (operation.OutputtingVariable != null)
             {
@@ -95,8 +109,7 @@ namespace Apollon.Lib.Resolution
                 variables.Add(operation.Variable.Term);
             }
 
-            ExtractVariablesFrom(operation.Condition, variables);
+            this.ExtractVariablesFrom(operation.Condition, variables);
         }
-
     }
 }

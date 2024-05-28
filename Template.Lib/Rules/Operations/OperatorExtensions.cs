@@ -1,13 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Apollon.Lib.Rules.Operations
+﻿namespace Apollon.Lib.Rules.Operations
 {
+    /// <summary>
+    /// A class of extension methods for the Operator enum.
+    /// </summary>
     public static class OperatorExtensions
     {
+        /// <summary>
+        /// Converts an Operator to a friendly string.
+        /// </summary>
+        /// <param name="operator">The operator that should be converted.</param>
+        /// <returns>The commonly used string representation of that string.</returns>
+        /// <exception cref="InvalidOperationException">In case of an unhandled case.</exception>
         public static string ToFriendlyString(this Operator @operator)
         {
             switch (@operator)
@@ -36,6 +39,5 @@ namespace Apollon.Lib.Rules.Operations
                     throw new InvalidOperationException("Unhandled case.");
             }
         }
-
     }
 }
