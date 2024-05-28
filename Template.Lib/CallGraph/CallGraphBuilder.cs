@@ -9,29 +9,19 @@ namespace Apollon.Lib.Graph;
 public class CallGraphBuilder
 {
     /// <summary>
-    /// The CallGraph that is being built.
+    /// Gets or sets the CallGraph that is being built.
     /// </summary>
     private CallGraph CallGraph { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CallGraphBuilder"/> class.
     /// </summary>
+    /// <param name="equalizer">The equalizer to use to build the callgraph.</param>
     public CallGraphBuilder(IEqualizer<Literal> equalizer)
     {
         CallGraph = new CallGraph(equalizer);
     }
 
-    /*
-     * Der Call Graph ist ein gewichteter gerichteter Graph. Wobei jeder Knoten des Graphen ein positives Literal eines Programms ist. x
-
-        Die Kanten gehen von Regelkopf literal aus uns zeigen auf die Literale, die benötigt werden um diese Regel überprüfen. x
-
-        Kanten haben entweder eine Gewichtung von 1 oder 0. 1 Für Literale, die mit not negiert werden. 0 für normale positive Literale.  x
-
-        Kanten merken sich auch, von welcher Regel sie erstellt worden sind. Dazu sollte am besten eine UUID an alle Regeln vergeben werden. x 
-
-        Ein positives Literal sind alle Literale, die kein not vor sich stehen haben. Also auch Literale, die mit - beginnen.   x
-     */
     /// <summary>
     /// Builds and returns the CallGraph from the given Program.
     /// </summary>

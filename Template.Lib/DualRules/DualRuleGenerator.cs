@@ -66,8 +66,8 @@ namespace Apollon.Lib.DualRules
         /// not a(X, Y) :- not q(Y).
         /// not a(X, Y) :- q(Y), not s(X, Y, b).
         /// </example>
-        /// <param name="statements"></param>
-        /// <returns></returns>
+        /// <param name="statements">The statements for which dual rules should be created for.</param>
+        /// <returns>The dual rule that have been created.</returns>
         public DualRule[] GenerateDualRules(Statement[] statements)
         {
             // group statements based on their heads and the param count in their heads
@@ -243,6 +243,13 @@ namespace Apollon.Lib.DualRules
             return rules;
         }
 
+        /// <summary>
+        /// Builds the body of an forall dual rule.
+        /// </summary>
+        /// <param name="currentHead">The head of the dual rule.</param>
+        /// <param name="linkingVariabels">The variables still to build foralls for.</param>
+        /// <param name="currentIndex">The current index of the linking variables. Should always be zero when first executing the function.</param>
+        /// <returns>The body of the forall dual rule.</returns>
         public BodyPart BuildForAllBody(Literal currentHead, List<Term> linkingVariabels, int currentIndex = 0)
         {
             // if we are at the last index 
@@ -255,6 +262,14 @@ namespace Apollon.Lib.DualRules
             }
         }
 
+        /// <summary>
+        /// Moves the atoms from the head to the body of the statement.
+        /// </summary>
+        /// <param name="statement">The statment for which to move the variables to the body.</param>
+        /// <param name="linkingVariables">ALl the variables that need to be added to the head.</param>
+        /// <returns>The statement where the atoms where added from the head to the body.</returns>
+        /// <exception cref="ArgumentNullException">Is thrown if the head is null.</exception>
+        /// <exception cref="InvalidOperationException">Is thrown if param in the head is neither a literal nor an term.</exception>
         public Statement MoveAtomsFromHeadToBody(Statement statement, IEnumerable<Term> linkingVariables)
         {
             if (statement.Head == null) throw new ArgumentNullException(nameof(statement), "Head of statement is not allowed to be null.");
@@ -296,6 +311,10 @@ namespace Apollon.Lib.DualRules
             return new Statement(new Literal(new Atom(statement.Head.Atom.Name, head.ToArray()), statement.Head.IsNAF, statement.Head.IsNegative), body.ToArray());
         }
 
+        /// <summary>
+        /// Switches the NAF negation of a body part.
+        /// </summary>
+        /// <param name="bodyPart">The body part to switch the NAF for.</param>
         public void SwitchNegation(BodyPart bodyPart)
         {
             // Maybe make this function into a whole class.
@@ -332,43 +351,6 @@ namespace Apollon.Lib.DualRules
             }
 
             return except;
-
-            //var head = statement.Head;
-            //if (head == null)
-            //{
-            //    throw new ArgumentNullException(nameof(head), "Head of statement is not allowed to be null.");
-            //}
-            //
-            //var headVariables = head.Atom.ParamList.Where(p => p.Term != null && p.Term.IsVariable).Select(p => p.Term?.Value).ToList();
-            //var bodyVariables = new Dictionary<string, int>();
-            //foreach (var bodyPart in statement.Body)
-            //{
-            //    var literal = bodyPart.Literal;
-            //    if (literal == null)
-            //    {
-            //        continue;
-            //    }
-            //
-            //    foreach (var param in literal.Atom.ParamList)
-            //    {
-            //        var term = param.Term;
-            //        if (term == null)
-            //        {
-            //            continue;
-            //        }
-            //
-            //        if (!term.IsVariable || headVariables.Contains(term.Value))
-            //        {
-            //            continue;
-            //        }
-            //
-            //        var currentCount = bodyVariables.GetValueOrDefault(term.Value, 0);
-            //        currentCount++;
-            //        bodyVariables[term.Value] = currentCount;
-            //    }
-            //}
-            //
-            //return bodyVariables.Keys.Select(k => new Term(k)).ToList();
         }
     }
 }

@@ -8,8 +8,17 @@ using System.Threading.Tasks;
 
 namespace Apollon.Lib.OLON
 {
+    /// <summary>
+    /// Detects all the olon loops in a given <see cref="CallGraph"/>.
+    /// </summary>
     public class OlonDetector
     {
+        /// <summary>
+        /// Detects all the olon loops in a given <see cref="CallGraph"/>.
+        /// </summary>
+        /// <param name="callGraph">The callgraph to detect olons in.</param>
+        /// <returns>All the nodes that belong to an OLON.</returns>
+        /// <exception cref="ArgumentException">is thrown if the callgraph is null.</exception>
         public static OlonSet DetectOlonIn(CallGraph callGraph)
         {
             if (callGraph.Root == null) throw new ArgumentException($"{nameof(callGraph)} is not allowed to be empty!");

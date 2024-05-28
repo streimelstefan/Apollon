@@ -12,11 +12,19 @@ using System.Threading.Tasks;
 
 namespace Apollon.Lib.Docu
 {
+    /// <summary>
+    /// Generates documentation for a given program.
+    /// </summary>
     public class DocumentationGenerator : IDocumentationGenerator
     {
         public IEqualizer<Literal> _equalizer = new LiteralParamCountEqualizer();
         public IUnifier _unifier = new Unifier();
 
+        /// <summary>
+        /// Generates the documentation for a given program.
+        /// </summary>
+        /// <param name="program">The program for which the dokumentation should be build.</param>
+        /// <returns>The string representing the documentation of the program.</returns>
         public string GenerateDokumentationFor(Program program)
         {
             var statements = program.Statements.Where(s => s.Head != null);

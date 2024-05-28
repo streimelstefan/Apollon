@@ -7,9 +7,17 @@ using System.Threading.Tasks;
 
 namespace Apollon.Lib.Docu
 {
+    /// <summary>
+    /// Extension methods for the <see cref="Operator"/> enum.
+    /// </summary>
     public static class OperatorDocuExtensions
     {
-
+        /// <summary>
+        /// Returns the documentation string for the given operator.
+        /// </summary>
+        /// <param name="operator">The operator to get the string for.</param>
+        /// <returns>The string representation of the oprator.</returns>
+        /// <exception cref="InvalidOperationException">If there is an unhandled case.</exception>
         public static string ToDocumentationString(this Operator @operator)
         {
             switch (@operator)

@@ -6,15 +6,40 @@ using System.Threading.Tasks;
 
 namespace Apollon.Lib.Atoms
 {
+    /// <summary>
+    /// A parameter of an atom. It can be either a literal or a term.
+    /// </summary>
     public class AtomParam : IEquatable<AtomParam>, ICloneable
     {
+        /// <summary>
+        /// Gets the literal representation of the parameter.
+        /// Is only set if the parameter is a literal.
+        /// </summary>
         public Literal? Literal { get; private set; }
+
+        /// <summary>
+        /// Gets the term representation of the parameter.
+        /// Is only set if the parameter is a term.
+        /// </summary>
         public Term? Term { get; set; }
 
+        /// <summary>
+        /// Gets whether the parameter is a literal.
+        /// </summary>
         public bool IsLiteral { get {  return Literal != null; } }
 
+        /// <summary>
+        /// Gets whether the parameter is a term.
+        /// </summary>
         public bool IsTerm { get { return Term != null; } }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AtomParam"/> class.
+        /// Only literal or term are allowed to be set. At least one mus be set.
+        /// </summary>
+        /// <param name="literal">The literal that represents the parameter.</param>
+        /// <param name="term">The term that represents the parameter.</param>
+        /// <exception cref="ArgumentException">Is thrown if literal and term are set or when both are not set.</exception>
         public AtomParam(Literal? literal, Term? term) 
         { 
             if (literal == null && term == null)
@@ -35,6 +60,11 @@ namespace Apollon.Lib.Atoms
             Term = term;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AtomParam"/> class.
+        /// </summary>
+        /// <param name="literal">The literal that represents the parameter.</param>
+        /// <exception cref="ArgumentException">Is thrown if the literal is naf.</exception>
         public AtomParam(Literal literal)
         {
             if (literal != null && literal.IsNAF)
@@ -45,11 +75,20 @@ namespace Apollon.Lib.Atoms
             Literal = literal;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AtomParam"/> class.
+        /// </summary>
+        /// <param name="term">The term representing the parameter.</param>
         public AtomParam(Term term)
         {
             Term = term;
         }
 
+        /// <summary>
+        /// Returns whether the current instance is equal to the other parameter.
+        /// </summary>
+        /// <param name="other">The other parameter to compare with.</param>
+        /// <returns>Whether the current isntance is equal to the other parameter.</returns>
         public bool Equals(AtomParam? other)
         {
             if (other  == null) return false;
@@ -72,6 +111,10 @@ namespace Apollon.Lib.Atoms
             return false;
         }
 
+        /// <summary>
+        /// Returns the string representation of the parameter.
+        /// </summary>
+        /// <returns>The string representation of the parameter.</returns>
         public override string ToString()
         {
             if (Literal != null)
@@ -85,6 +128,11 @@ namespace Apollon.Lib.Atoms
             return string.Empty;
         }
 
+        /// <summary>
+        /// Retunrs a clone of the current instance.
+        /// </summary>
+        /// <returns>The cloned instance.</returns>
+        /// <exception cref="Exception">Is thrown if the parameter is neither a term nor a literal.</exception>
         public object Clone()
         {
             if (Literal != null)
@@ -99,6 +147,9 @@ namespace Apollon.Lib.Atoms
             throw new Exception("Unable to clone param that is neither an atom nor an term.");
         }
 
+        /// <summary>
+        /// Converts the parameter to a term if possible.
+        /// </summary>
         public void ConvertToTermIfPossible()
         {
             if (this.Literal == null || this.Literal.Atom.ParamList.Count() != 0 || this.Literal.IsNAF || this.Literal.IsNegative)

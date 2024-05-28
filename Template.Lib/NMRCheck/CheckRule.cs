@@ -10,6 +10,14 @@ namespace Apollon.Lib.NMRCheck;
 
 public class CheckRule : Statement
 {
+    /// <summary>
+    /// A NMR Check rule.
+    /// </summary>
+    /// <param name="head">The head of the rule</param>
+    /// <param name="body">The body of the rule</param>
+    /// <exception cref="ArgumentNullException">Is thrown if the head of the rule is null.</exception>
+    /// <exception cref="ArgumentException">Is thrown if the head of the rule is not NAF.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Is thrown if the body contains no elements.</exception>
     public CheckRule(Literal head, params BodyPart[] body) : base(head, body)
     {
         if (Head == null) throw new ArgumentNullException(nameof(head));
