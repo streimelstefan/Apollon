@@ -1,25 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Apollon.Lib.Graph;
-using Apollon.Lib.OLON;
-
-namespace Apollon.Lib.Rules
+﻿namespace Apollon.Lib.Rules
 {
+    using Apollon.Lib.Graph;
+    using Apollon.Lib.OLON;
+
+    /// <summary>
+    /// Sets the metadata on rules.
+    /// </summary>
     public class RuleMetadataSetter
     {
+        private readonly CallGraph callGraph;
+        private readonly OlonSet olons;
 
-        private readonly CallGraph _callGraph;
-        private readonly OlonSet _olons;
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RuleMetadataSetter"/> class.
+        /// </summary>
+        /// <param name="callGraph">The callgraph used to set metadata from.</param>
+        /// <param name="olons">The already detected OLON cycles.</param>
         public RuleMetadataSetter(CallGraph callGraph, OlonSet olons)
         {
-            _callGraph = callGraph;
-            _olons = olons;
+            this.callGraph = callGraph;
+            this.olons = olons;
         }
 
+        /// <summary>
+        /// Sets the metadata on the given statements.
+        /// </summary>
+        /// <param name="statements">The statements the metadata should be set on.</param>
+        /// <returns>A List of all Statements with metadata.</returns>
         public PreprocessedStatement[] SetMetadataOn(Statement[] statements)
         {
             // this piece of code is highly inefficient...
@@ -28,27 +35,32 @@ namespace Apollon.Lib.Rules
 
             for (int i = 0; i < statements.Length; i++)
             {
-                var isOrdinary = IsOrdinaryRule(statements[i]);
-                var isOlon = IsOlonRule(statements[i]);
+                var isOrdinary = this.IsOrdinaryRule(statements[i]);
+                var isOlon = this.IsOlonRule(statements[i]);
                 preProcessedRules[i] = new PreprocessedStatement(statements[i], isOlon, isOrdinary);
             }
 
             return preProcessedRules;
         }
 
+        /// <summary>
+        /// Determines whether the given statement is an ordinary rule.
+        /// </summary>
+        /// <param name="statement">The statement that should be checked for an ordinary rule.</param>
+        /// <returns>A value determining whether the rule is an ordinary rule or not.</returns>
         public bool IsOrdinaryRule(Statement statement)
         {
-            foreach (var node in _callGraph.GetNodesOfStatement(statement))
+            foreach (var node in this.callGraph.GetNodesOfStatement(statement))
             {
                 // the node has other nodes that follow the path of the rule. Only nodes that represent the end of a path
                 // are elegable to detect an ordinary rule.
                 // if node is source node
-                if (_callGraph.GetEdgesOfNode(node).Where(edge => edge.CreatorRule == statement).Any())
+                if (this.callGraph.GetEdgesOfNode(node).Where(edge => edge.CreatorRule == statement).Any())
                 {
                     continue;
                 }
 
-                if (!_olons.Nodes.Contains(node))
+                if (!this.olons.Nodes.Contains(node))
                 {
                     return true;
                 }
@@ -57,6 +69,11 @@ namespace Apollon.Lib.Rules
             return false;
         }
 
+        /// <summary>
+        /// Determines whether the given statement is an OLON rule.
+        /// </summary>
+        /// <param name="statement">The statement that should be checked for an ordinary rule.</param>
+        /// <returns>A value determining whether the rule is an OLON rule or not.</returns>
         public bool IsOlonRule(Statement statement)
         {
             if (statement.Head == null)
@@ -64,9 +81,9 @@ namespace Apollon.Lib.Rules
                 return true;
             }
 
-            foreach (var node in _callGraph.GetNodesOfStatement(statement))
+            foreach (var node in this.callGraph.GetNodesOfStatement(statement))
             {
-                if (_olons.Nodes.Contains(node))
+                if (this.olons.Nodes.Contains(node))
                 {
                     return true;
                 }
@@ -74,6 +91,5 @@ namespace Apollon.Lib.Rules
 
             return false;
         }
-
     }
 }

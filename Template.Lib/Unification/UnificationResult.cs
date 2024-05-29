@@ -1,23 +1,37 @@
-﻿using Apollon.Lib.Unification.Substitutioners;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Apollon.Lib.Unification
+﻿namespace Apollon.Lib.Unification
 {
+    using Apollon.Lib.Unification.Substitutioners;
+
+    /// <summary>
+    /// The Result of a Unification process.
+    /// </summary>
     public class UnificationResult : Maybe<Substitution, string>
     {
-        public UnificationResult(Substitution value) : base(value)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UnificationResult"/> class.
+        /// </summary>
+        /// <param name="value">The Substitution that is used.</param>
+        public UnificationResult(Substitution value)
+            : base(value)
         {
         }
 
-        public UnificationResult(string error) : base(error)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UnificationResult"/> class.
+        /// </summary>
+        /// <param name="error">A string representing the error message.</param>
+        public UnificationResult(string error)
+            : base(error)
         {
         }
 
-        public UnificationResult(Substitution? value, string? error) : base(value, error)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UnificationResult"/> class.
+        /// </summary>
+        /// <param name="value">The Substitution that is used.</param>
+        /// <param name="error">A string representing the error message.</param>
+        public UnificationResult(Substitution? value, string? error)
+            : base(value, error)
         {
         }
     }

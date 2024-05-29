@@ -1,18 +1,23 @@
-﻿using Apollon.Lib.Atoms;
-using Apollon.Lib.Rules;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace Apollon.Lib.Unification.DisagreementFinders
 {
+    using Apollon.Lib.Atoms;
+    using Apollon.Lib.Rules;
+
+    /// <summary>
+    /// The DisagreementFinder is used to find disagreements between two Statements.
+    /// </summary>
     public class DisagreementFinder : IDisagreementFinder
     {
+        /// <summary>
+        /// Finds the disagreement between two Statements.
+        /// </summary>
+        /// <param name="s1">First Statement.</param>
+        /// <param name="s2">Second Statement.</param>
+        /// <returns>Returns a Result of the Disagreement.</returns>
         public DisagreementResult FindDisagreement(Statement s1, Statement s2)
         {
-            var headRes = FindDisagreement(s1.Head, s2.Head);
+            var headRes = this.FindDisagreement(s1.Head, s2.Head);
 
             if (headRes.IsError)
             {
@@ -30,9 +35,10 @@ namespace Apollon.Lib.Unification.DisagreementFinders
             {
                 return new DisagreementResult($"Non fixable disagreement. Body Length. {s1} != {s2}");
             }
+
             for (int i = 0; i < s1.Body.Length; i++)
             {
-                var res = FindDisagreement(s1.Body[i], s2.Body[i]);
+                var res = this.FindDisagreement(s1.Body[i], s2.Body[i]);
 
                 if (res.IsError)
                 {
@@ -68,7 +74,7 @@ namespace Apollon.Lib.Unification.DisagreementFinders
                 return new DisagreementResult($"Non fixable disagreement. Negative. {lit1} != {lit2}");
             }
 
-            return FindDisagreement(lit1.Atom, lit2.Atom);
+            return this.FindDisagreement(lit1.Atom, lit2.Atom);
         }
 
         private DisagreementResult FindDisagreement(Atom atom1, Atom atom2)
@@ -85,7 +91,7 @@ namespace Apollon.Lib.Unification.DisagreementFinders
 
             for (var i = 0; i < atom1.ParamList.Length; i++)
             {
-                var res = FindDisagreement(atom1.ParamList[i], atom2.ParamList[i]);
+                var res = this.FindDisagreement(atom1.ParamList[i], atom2.ParamList[i]);
 
                 if (res.Value != null && !res.Value.IsEmpty) // a disagreement was found.
                 {
@@ -108,7 +114,7 @@ namespace Apollon.Lib.Unification.DisagreementFinders
                 return new DisagreementResult(new Disagreement());
             }
 
-            if (param1.Term != null && param1.Term.IsVariable || param2.Term != null && param2.Term.IsVariable)
+            if ((param1.Term != null && param1.Term.IsVariable) || (param2.Term != null && param2.Term.IsVariable))
             {
                 return new DisagreementResult(new Disagreement(param1, param2));
             }
@@ -124,7 +130,7 @@ namespace Apollon.Lib.Unification.DisagreementFinders
 
             if (param1.Literal != null && param2.Literal != null)
             {
-                return FindDisagreement(param1.Literal, param2.Literal);
+                return this.FindDisagreement(param1.Literal, param2.Literal);
             }
 
             if (param1.Term != null && param2.Term != null)
@@ -154,7 +160,7 @@ namespace Apollon.Lib.Unification.DisagreementFinders
 
             if (part1.Literal != null && part2.Literal != null)
             {
-                return FindDisagreement(part1.Literal, part2.Literal);
+                return this.FindDisagreement(part1.Literal, part2.Literal);
             }
 
             throw new InvalidOperationException("TODO: Implement Forall and Operations");

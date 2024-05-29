@@ -1,18 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Apollon.Lib.Rules
+﻿namespace Apollon.Lib.Rules
 {
+    /// <summary>
+    /// A Constraint is a Statement without a Head.
+    /// </summary>
     public class Constraint : Statement
     {
-        public Constraint(params Literal[] body) : base(null, body.Select(literal => new BodyPart(literal, null)).ToArray())
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Constraint"/> class.
+        /// </summary>
+        /// <param name="body">The body of the constraint.</param>
+        public Constraint(params Literal[] body)
+            : base(null, body.Select(literal => new BodyPart(literal, null)).ToArray())
         {
         }
 
-        public Constraint(params BodyPart[] body) 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Constraint"/> class.
+        /// </summary>
+        /// <param name="body">The body of the constraint.</param>
+        public Constraint(params BodyPart[] body)
             : base(null, body)
         {
         }
