@@ -1,13 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Apollon.Lib
+﻿namespace Apollon.Lib
 {
-    internal class StringComparer : IComparer<string>
+    /// <summary>
+    /// A comparer that compares strings numerically if possible.
+    /// </summary>
+    public class StringComparer : IComparer<string>
     {
+        /// <summary>
+        /// Compares two strings numerically if possible, otherwise falls back to normal string comparison.
+        /// </summary>
+        /// <param name="x">String one that could be a number.</param>
+        /// <param name="y">String two that could be a number.</param>
+        /// <returns>A subtracted number if both strings were a number, otherwise a value representing the lexical relationship between two strings.</returns>
         public int Compare(string x, string y)
         {
             // Check if both strings are numeric
