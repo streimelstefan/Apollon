@@ -2,9 +2,7 @@
 using Apollon.Lib.Atoms;
 
 /// <summary>
-/// Jede Variable wird mit einer PVL (prohibited value list) verbunden. Solange diese Liste leer ist ist die Variable unbound. Sobald sich Werte in dieser Liste befinden ist diese Variable negatively constrained.
-/// Eine PVL darf keine Variablen enthalten die selber negatively constrained sind(Also eine selber eine PVL mit Werten haben.
-/// Die PVL wie ihr Name vermuten lässt ist eine Liste an Werten die diese Variable nicht annehmen darf.
+/// The PVL contains values that a <see cref="Term"/> is not allowed to be bound to.
 /// </summary>
 public class PVL : IEquatable<PVL>, ICloneable
 {

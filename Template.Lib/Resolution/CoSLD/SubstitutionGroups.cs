@@ -4,7 +4,7 @@
     using Apollon.Lib.Unification.Substitutioners;
 
     /// <summary>
-    /// A class that rememebers what variables point to what variables.
+    /// A class that remembers what variables should be equal to each other.
     /// </summary>
     public class SubstitutionGroups : ICloneable
     {

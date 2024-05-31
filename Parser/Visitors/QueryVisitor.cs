@@ -7,10 +7,18 @@ using System.Threading.Tasks;
 
 namespace AppollonParser.Visitors
 {
+    /// <summary>
+    /// A visitor that generates <see cref="BodyPart[]"/>s.
+    /// </summary>
     public class QueryVisitor : apollonBaseVisitor<BodyPart[]>
     {
         private readonly BodyPartVisitor _bodyPartVisitor = new BodyPartVisitor();
 
+        /// <summary>
+        /// Generates a new Query array.
+        /// </summary>
+        /// <param name="context">The context of a query.</param>
+        /// <returns>The new query array.</returns>
         public override BodyPart[] VisitQuery(apollonParser.QueryContext context)
         {
             var boydParts = context.body_part();

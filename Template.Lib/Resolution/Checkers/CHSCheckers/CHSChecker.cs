@@ -7,7 +7,7 @@
     using Apollon.Lib.Unification;
 
     /// <summary>
-    /// The CHS Checker checks the CHS for loops.
+    /// Checks the CHS for conditions that allow to Co SLD resolution to succeed or fail early.
     /// </summary>
     public class CHSChecker : ICoinductiveCHSChecker
     {

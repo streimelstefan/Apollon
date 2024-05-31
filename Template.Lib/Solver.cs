@@ -13,7 +13,7 @@
     using Apollon.Lib.Unification;
 
     /// <summary>
-    /// This class is the high level function in order to solve a asp program.
+    /// This class is the high level function in order to solve an asp program.
     /// </summary>
     public class Solver
     {

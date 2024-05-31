@@ -10,11 +10,19 @@ using System.Threading.Tasks;
 
 namespace AppollonParser.Visitors
 {
+    /// <summary>
+    /// A visitor that generates <see cref="Literal"/>s.
+    /// </summary>
     public class FactVisitor : apollonBaseVisitor<Literal>
     {
 
-        public static readonly LiteralVisitor _literalVisitor = new LiteralVisitor();
+        private static readonly LiteralVisitor _literalVisitor = new LiteralVisitor();
 
+        /// <summary>
+        /// Generates a new <see cref="Literal/>.
+        /// </summary>
+        /// <param name="context">The literal context.</param>
+        /// <returns>The new literal.</returns>
         public override Literal VisitFact(apollonParser.FactContext context)
         {
             var literal = _literalVisitor.VisitLiteral(context.literal());

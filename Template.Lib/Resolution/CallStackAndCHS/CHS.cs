@@ -6,10 +6,7 @@ using Apollon.Lib.Unification;
 using static System.Net.Mime.MediaTypeNames;
 
 /// <summary>
-/// CHS steht für conductive hypothesis set.
-/// Es speichert verschiedene Literale, die während des Lösungsverfahrens als wahr angesehen werden.
-/// Als Set hat es die Eigenschaft, dass alle Literale, die eingegeben werden, einzigartig sind.Das bedeutet, dass nur neue Literale in das Set hinzugefügt werden.Es gibt somit keine doppelten Literale im Set.Der check ob zwei Literale gleich sind muss Mithilfe von Unification gemacht werden.
-/// Anders zu Standard Sets muss bei der CHS die Reihenfolge von Literale geregelt sein. In dieser Hinsicht verhält sich der CHS wie ein Stack.
+/// The CHS is part of the Co SLD Resolution algorithm. It contains all the literals that can be assumed true at a specific time.
 /// </summary>
 public class CHS : ICloneable
 {

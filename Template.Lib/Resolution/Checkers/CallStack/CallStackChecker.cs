@@ -4,7 +4,8 @@
     using Apollon.Lib.Unification;
 
     /// <summary>
-    /// The CallStackChecker checks the CallStack for loops.
+    /// The CallStackChecker checks the CallStack for loops that allows the Co SLD Resolution to either
+    /// fail or suceed early.
     /// </summary>
     public class CallStackChecker : ICallStackChecker
     {

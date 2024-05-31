@@ -9,11 +9,19 @@ using System.Threading.Tasks;
 
 namespace AppollonParser.Visitors
 {
+    /// <summary>
+    /// A visitor that creates a new <see cref="BodyPart"/>.
+    /// </summary>
     public class BodyPartVisitor : apollonBaseVisitor<BodyPart>
     {
         private readonly NafLiteralVisitor _nafLiteralVisitor = new NafLiteralVisitor();
         private static readonly OperationVisitor _operationVisitor = new OperationVisitor();
 
+        /// <summary>
+        /// Generates a new <see cref="BodyPart"/>.
+        /// </summary>
+        /// <param name="context">The context of the new body part.</param>
+        /// <returns>The new body part.</returns>
         public override BodyPart VisitBody_part(apollonParser.Body_partContext context)
         {
             Operation? operation = null;

@@ -6,7 +6,8 @@ namespace Apollon.Lib.Resolution.CallStackAndCHS
     using Apollon.Lib.Unification.Substitutioners;
 
     /// <summary>
-    /// This class represents the CallStack of the Resolution algorithm.
+    /// This class represents the CallStack of the Resolution algorithm. It saves all the literals that have been investigated until
+    /// the currently investigated one.
     /// </summary>
     public class CallStack
     {

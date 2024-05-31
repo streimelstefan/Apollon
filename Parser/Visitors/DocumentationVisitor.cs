@@ -10,9 +10,18 @@ using System.Threading.Tasks;
 
 namespace AppollonParser.Visitors
 {
+    /// <summary>
+    /// A visitor that generates <see cref="Documentation"/>s.
+    /// </summary>
     public class DocumentationVisitor : apollonBaseVisitor<IDocumentation>
     {
 
+        /// <summary>
+        /// Generates a new <see cref="IDocumentation"/>.
+        /// </summary>
+        /// <param name="context">The context of the documentation.</param>
+        /// <returns>The new documentation.</returns>
+        /// <exception cref="ParseException">Is thrown if a documentation part conatins a variable that is not used in a literal.</exception>
         public override IDocumentation VisitDocu(apollonParser.DocuContext context)
         {
             var literalHead = context.docu_head().CLASICAL_TERM().GetText();

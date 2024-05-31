@@ -12,14 +12,27 @@ using Apollon.Lib.Rules;
 
 namespace AppollonParser
 {
+    /// <summary>
+    /// The high level class that handles all the logic of parsing an apollo program.
+    /// </summary>
     public class ApollonParser
     {
-
+        /// <summary>
+        /// Parses a program from a normal string.
+        /// </summary>
+        /// <param name="programString">The string to parse.</param>
+        /// <returns>The parsed program.</returns>
         public Program ParseFromString(string programString)
         {
             return this.ParseFromStream(CharStreams.fromString(programString));
         }
 
+        /// <summary>
+        /// Parses a program from a file. The string given needs to point to a valid file.
+        /// </summary>
+        /// <param name="filePath">The path to the file.</param>
+        /// <returns>The parsed program.</returns>
+        /// <exception cref="ArgumentException">Is thrown if the filepath is not valid.</exception>
         public Program ParseFromFile(string filePath)
         {
             string fullPath; 
@@ -46,6 +59,11 @@ namespace AppollonParser
             return tree.Accept(new ProgramVisitor());
         }
 
+        /// <summary>
+        /// Parses a query from a string.
+        /// </summary>
+        /// <param name="query">The query string.</param>
+        /// <returns>The parsed query.</returns>
         public BodyPart[] ParseQueryFromString(string query)
         {
             return ParseQueryFromStream(CharStreams.fromString(query));

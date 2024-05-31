@@ -11,11 +11,19 @@ using Antlr4.Runtime.Misc;
 
 namespace AppollonParser.Visitors
 {
+    /// <summary>
+    /// A visitor that generates <see cref="Operation"/>s.
+    /// </summary>
     public class OperationVisitor : apollonBaseVisitor<Operation>
     {
         private static readonly AtomParamVisitor _atomParamVisitor = new AtomParamVisitor();
         private static readonly AtomVisitor _atomVisitor = new AtomVisitor();
 
+        /// <summary>
+        /// Generates a new <see cref="Operation"/> in the inline format.
+        /// </summary>
+        /// <param name="context">The inline operation context.</param>
+        /// <returns>The new operation.</returns>
         public override Operation VisitInline_operation(apollonParser.Inline_operationContext context)
         {
             var variable = new Term(context.VARIABLE_TERM().GetText());
@@ -26,6 +34,11 @@ namespace AppollonParser.Visitors
             return new Operation(new AtomParam(variable), @operator, condition);
         }
 
+        /// <summary>
+        /// Generates a new <see cref="Operation"/> in the generating format.
+        /// </summary>
+        /// <param name="context">The generating operation context.</param>
+        /// <returns>The new operation.</returns>
         public override Operation VisitGenerating_operation([NotNull] apollonParser.Generating_operationContext context)
         {
             var outputtingVariable = new Term(context.VARIABLE_TERM().GetText());
@@ -36,7 +49,7 @@ namespace AppollonParser.Visitors
             return new Operation(outputtingVariable, new AtomParam(variable), @operator, operant);
         }
 
-        public Operator ParseGeneratingOperator(apollonParser.Generating_operatorsContext context)
+        private Operator ParseGeneratingOperator(apollonParser.Generating_operatorsContext context)
         {
             if (context.PLUS() != null)
             {
@@ -58,7 +71,7 @@ namespace AppollonParser.Visitors
             throw new ParseException($"Unahndled operator {context.GetText()}");
         }
 
-        public Operator ParseInlineOperator(apollonParser.Inline_operatorsContext context)
+        private Operator ParseInlineOperator(apollonParser.Inline_operatorsContext context)
         {
             if (context.EQUALS() != null)
             {

@@ -10,6 +10,9 @@ using Apollon.Lib.Docu;
 
 namespace AppollonParser.Visitors
 {
+    /// <summary>
+    /// A vistor that generates <see cref="Program"/>s.
+    /// </summary>
     internal class ProgramVisitor : apollonBaseVisitor<Program>
     {
         private readonly RuleVisitor _ruleVisitor = new RuleVisitor();
@@ -17,6 +20,11 @@ namespace AppollonParser.Visitors
         private readonly ConstraintVisitor _constraintVisitor = new ConstraintVisitor();
         private readonly DocumentationVisitor _documentationVisitor = new DocumentationVisitor();
 
+        /// <summary>
+        /// Generates a new <see cref="Program"/>.
+        /// </summary>
+        /// <param name="context">The context of a program.</param>
+        /// <returns>The new program.</returns>
         public override Program VisitProgram(apollonParser.ProgramContext context)
         {
             var facts = new List<Literal>();
