@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib
+﻿//-----------------------------------------------------------------------
+// <copyright file="Maybe.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib
 {
     /// <summary>
     /// Represents a maybe type that can either contain a value or an error. Similar to the Maybe type in Haskell.
@@ -60,23 +67,11 @@
         /// <summary>
         /// Gets a value indicating whether or not the maybe is an error.
         /// </summary>
-        public bool IsError
-        {
-            get
-            {
-                return this.Error != null;
-            }
-        }
+        public bool IsError => this.Error != null;
 
         /// <summary>
         /// Gets a value indicating whether or not the maybe is a success.
         /// </summary>
-        public bool IsSuccess
-        {
-            get
-            {
-                return this.Value != null;
-            }
-        }
+        public bool IsSuccess => this.Value != null;
     }
 }

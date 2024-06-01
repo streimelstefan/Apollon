@@ -1,4 +1,12 @@
-﻿namespace Apollon.Lib;
+﻿//-----------------------------------------------------------------------
+// <copyright file="PVL.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib;
+
 using Apollon.Lib.Atoms;
 
 /// <summary>
@@ -33,7 +41,7 @@ public class PVL : IEquatable<PVL>, ICloneable
     /// <param name="second">The second PVL.</param>
     public static void Union(PVL first, PVL second)
     {
-        foreach (var param in first.Values)
+        foreach (AtomParam param in first.Values)
         {
             if (second.Values.Where(p => p.Equals(param)).Any())
             {
@@ -43,7 +51,7 @@ public class PVL : IEquatable<PVL>, ICloneable
             second.Values.Add(param);
         }
 
-        foreach (var param in second.Values)
+        foreach (AtomParam param in second.Values)
         {
             if (first.Values.Where(p => p.Equals(param)).Any())
             {
@@ -70,7 +78,7 @@ public class PVL : IEquatable<PVL>, ICloneable
     /// <exception cref="ArgumentException">Is Thrown if Value is already in PVL or is negatively constrained.</exception>
     public void AddValue(AtomParam value)
     {
-        var valueToUse = (AtomParam)value.Clone();
+        AtomParam valueToUse = (AtomParam)value.Clone();
         valueToUse.ConvertToTermIfPossible();
         if (this.Values.Contains(valueToUse))
         {

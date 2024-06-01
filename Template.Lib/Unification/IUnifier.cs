@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Unification
+﻿//-----------------------------------------------------------------------
+// <copyright file="IUnifier.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Unification
 {
     using Apollon.Lib.Rules;
     using Apollon.Lib.Unification.Substitutioners;
@@ -41,6 +48,5 @@
         /// <param name="against">The BodyPart that should be unified against.</param>
         /// <returns>The UnificationResult.</returns>
         UnificationResult Unify(BodyPart unifier, BodyPart against);
-
     }
 }

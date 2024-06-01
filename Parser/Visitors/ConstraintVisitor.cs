@@ -1,19 +1,20 @@
-﻿using Apollon.Lib.Rules;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Apollon.Lib;
+﻿//-----------------------------------------------------------------------
+// <copyright file="ConstraintVisitor.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace AppollonParser.Visitors
 {
+    using Apollon.Lib.Rules;
+
     /// <summary>
     /// A visitor that creates <see cref="Constraint"/>s.
     /// </summary>
     public class ConstraintVisitor : apollonBaseVisitor<Constraint>
     {
-        private readonly BodyPartVisitor bodyPartVisitor = new BodyPartVisitor();
+        private readonly BodyPartVisitor bodyPartVisitor = new();
 
         /// <summary>
         /// Generates a new <see cref="Constraint"/>.
@@ -22,15 +23,14 @@ namespace AppollonParser.Visitors
         /// <returns>The new constraint.</returns>
         public override Constraint VisitConstraint(apollonParser.ConstraintContext context)
         {
-            var bodyParts = new List<BodyPart>();
+            List<BodyPart> bodyParts = new();
 
-            foreach (var bodyPart in context.body_part())
+            foreach (apollonParser.Body_partContext? bodyPart in context.body_part())
             {
-                bodyParts.Add(bodyPartVisitor.VisitBody_part(bodyPart));
+                bodyParts.Add(this.bodyPartVisitor.VisitBody_part(bodyPart));
             }
 
             return new Constraint(bodyParts.ToArray());
         }
-
     }
 }

@@ -1,9 +1,17 @@
-﻿namespace Apollon.Lib.Unification
+﻿//-----------------------------------------------------------------------
+// <copyright file="Mapping.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Unification
 {
     using Apollon.Lib.Atoms;
+    using Apollon.Lib.Unification.Substitutioners;
 
     /// <summary>
-    /// 
+    /// A mapping is a class that shows what term results in what value within a <see cref="Substitution"/>.
     /// </summary>
     public class Mapping
     {

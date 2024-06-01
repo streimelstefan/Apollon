@@ -1,63 +1,58 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Template.Test;
 using Apollon.Lib;
 using Apollon.Lib.Atoms;
 using Apollon.Lib.Resolution.CallStackAndCHS;
 using Apollon.Lib.Resolution.CoSLD;
-
-namespace Template.Test;
+using NUnit.Framework;
+using System;
+using System.Linq;
 
 [TestFixture]
 public class CHSTests
 {
-    private CHS? _chs;
+    private CHS? chs;
 
     [SetUp]
     public void Setup()
     {
-        _chs = new CHS();
+        this.chs = new CHS();
     }
 
     [Test]
     public void ShouldThrowWhenAddingMultiple()
     {
-        var literal = new Literal(new Atom("human", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
-        var literal2 = new Literal(new Atom("human", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
+        Literal literal = new(new Atom("human", new AtomParam[] { new(null, new Term("V")) }), false, false);
+        Literal literal2 = new(new Atom("human", new AtomParam[] { new(null, new Term("V")) }), false, false);
 
-        _chs?.Add(literal, new SubstitutionGroups());
-        Assert.Throws<ArgumentException>(() => _chs?.Add(literal2, new SubstitutionGroups()));
+        this.chs?.Add(literal, new SubstitutionGroups());
+        _ = Assert.Throws<ArgumentException>(() => this.chs?.Add(literal2, new SubstitutionGroups()));
     }
 
     [Test]
     public void ShouldBuild()
     {
-        var literal = new Literal(new Atom("human", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
-        var literal2 = new Literal(new Atom("informatiker", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
+        Literal literal = new(new Atom("human", new AtomParam[] { new(null, new Term("V")) }), false, false);
+        Literal literal2 = new(new Atom("informatiker", new AtomParam[] { new(null, new Term("V")) }), false, false);
 
-        _chs?.Add(literal, new SubstitutionGroups());
-        _chs?.Add(literal2, new SubstitutionGroups());
+        this.chs?.Add(literal, new SubstitutionGroups());
+        this.chs?.Add(literal2, new SubstitutionGroups());
     }
 
     [Test]
     public void ShouldContainInRightOrder()
     {
-        var names = new string[] { "human", "informatiker", "kuh", "esel", "elephant"};
+        string[] names = new string[] { "human", "informatiker", "kuh", "esel", "elephant" };
 
-
-        foreach (var name in names)
+        foreach (string name in names)
         {
-            _chs?.Add(new Literal(new Atom(name, new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false), new SubstitutionGroups());
+            this.chs?.Add(new Literal(new Atom(name, new AtomParam[] { new(null, new Term("V")) }), false, false), new SubstitutionGroups());
         }
 
-        foreach(var name in names.Reverse()) // Reverse since CHS behaves like LIFO
+        foreach (string? name in names.Reverse()) // Reverse since CHS behaves like LIFO
         {
-            Assert.AreEqual(name, _chs?.Pop().Atom.Name);
+            Assert.AreEqual(name, this.chs?.Pop().Atom.Name);
         }
 
-        Assert.IsTrue(_chs?.Empty());
+        Assert.IsTrue(this.chs?.Empty());
     }
 }

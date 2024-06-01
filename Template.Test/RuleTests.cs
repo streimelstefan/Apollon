@@ -1,28 +1,23 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Apollon.Lib;
-using Apollon.Lib.Rules;
-using Apollon.Lib.Atoms;
-
-
-namespace Template.Test
+﻿namespace Template.Test
 {
+    using Apollon.Lib;
+    using Apollon.Lib.Atoms;
+    using Apollon.Lib.Rules;
+    using NUnit.Framework;
+    using System;
+
     [TestFixture]
     public class RuleTests
     {
         [Test]
         public void ShouldCorrectlyConvertToString()
         {
-            var atom = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
-            var head = new Literal(atom, false, false);
-            var body1 = new BodyPart(new Literal(atom, false, true), null);
-            var body2 = new BodyPart(new Literal(atom, true, true), null);
+            Atom atom = new("reached", new AtomParam[] { new(null, new Term("V")) });
+            Literal head = new(atom, false, false);
+            BodyPart body1 = new(new Literal(atom, false, true), null);
+            BodyPart body2 = new(new Literal(atom, true, true), null);
 
-            var rule = new Rule(head, body1, body2 );
+            Rule rule = new(head, body1, body2);
 
             Assert.AreEqual("reached(V) :- -reached(V), not -reached(V).", rule.ToString());
         }
@@ -30,28 +25,27 @@ namespace Template.Test
         [Test]
         public void ShouldThrowIfTheHeadIsNAFNegated()
         {
-            var atom = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
-            var head = new Literal(atom, true, false);
-            var body1 = new BodyPart(new Literal(atom, false, true), null);
-            var body2 = new BodyPart(new Literal(atom, true, true), null);
+            Atom atom = new("reached", new AtomParam[] { new(null, new Term("V")) });
+            Literal head = new(atom, true, false);
+            BodyPart body1 = new(new Literal(atom, false, true), null);
+            BodyPart body2 = new(new Literal(atom, true, true), null);
 
-            Assert.Throws<ArgumentException>(() => new Rule(head, body1, body2));
+            _ = Assert.Throws<ArgumentException>(() => new Rule(head, body1, body2));
         }
 
         [Test]
         public void ShouldBeEqual()
         {
-            var atom1 = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
-            var head1 = new Literal(atom1, false, false);
-            var body1 = new BodyPart(new Literal(atom1, false, true), null);
+            Atom atom1 = new("reached", new AtomParam[] { new(null, new Term("V")) });
+            Literal head1 = new(atom1, false, false);
+            BodyPart body1 = new(new Literal(atom1, false, true), null);
 
-            var rule1 = new Rule(head1, body1);
+            Rule rule1 = new(head1, body1);
 
-
-            var atom2 = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
-            var head2 = new Literal(atom2, false, false);
-            var body2 = new BodyPart(new Literal(atom2, false, true), null);
-            var rule2 = new Rule(head2, body2);
+            Atom atom2 = new("reached", new AtomParam[] { new(null, new Term("V")) });
+            Literal head2 = new(atom2, false, false);
+            BodyPart body2 = new(new Literal(atom2, false, true), null);
+            Rule rule2 = new(head2, body2);
 
             Assert.IsTrue(rule1.Equals(rule2));
         }
@@ -59,20 +53,18 @@ namespace Template.Test
         [Test]
         public void ShouldNotBeEqual()
         {
-            var atom1 = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
-            var head1 = new Literal(atom1, false, false);
-            var body1 = new BodyPart(new Literal(atom1, false, true), null);
+            Atom atom1 = new("reached", new AtomParam[] { new(null, new Term("V")) });
+            Literal head1 = new(atom1, false, false);
+            BodyPart body1 = new(new Literal(atom1, false, true), null);
 
-            var rule1 = new Rule(head1, body1);
+            Rule rule1 = new(head1, body1);
 
-
-            var atom2 = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
-            var head2 = new Literal(atom2, false, false);
-            var body2 = new BodyPart(new Literal(atom2, true, true), null);
-            var rule2 = new Rule(head2, body2);
+            Atom atom2 = new("reached", new AtomParam[] { new(null, new Term("V")) });
+            Literal head2 = new(atom2, false, false);
+            BodyPart body2 = new(new Literal(atom2, true, true), null);
+            Rule rule2 = new(head2, body2);
 
             Assert.IsFalse(rule1.Equals(rule2));
         }
-
     }
 }

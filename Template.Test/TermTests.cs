@@ -1,21 +1,15 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Apollon.Lib;
-
-namespace Template.Test
+﻿namespace Template.Test
 {
+    using Apollon.Lib;
+    using NUnit.Framework;
+
     [TestFixture]
     public class TermTests
     {
-
         [Test]
         public void ShouldDetectThatItIsAVariable()
         {
-            var term = new Term("A");
+            Term term = new("A");
 
             Assert.IsTrue(term.IsVariable);
         }
@@ -23,7 +17,7 @@ namespace Template.Test
         [Test]
         public void ShouldDetectThatItIsNotAVariable()
         {
-            var term = new Term("aBN");
+            Term term = new("aBN");
 
             Assert.IsFalse(term.IsVariable);
         }
@@ -31,8 +25,8 @@ namespace Template.Test
         [Test]
         public void ShouldBeEqual()
         {
-            var term1 = new Term("aBN");
-            var term2 = new Term("aBN");
+            Term term1 = new("aBN");
+            Term term2 = new("aBN");
 
             Assert.IsTrue(term1.Equals(term2));
         }
@@ -40,11 +34,10 @@ namespace Template.Test
         [Test]
         public void ShouldNotBeEqual()
         {
-            var term1 = new Term("aBN");
-            var term2 = new Term("aBn");
+            Term term1 = new("aBN");
+            Term term2 = new("aBn");
 
             Assert.IsFalse(term1.Equals(term2));
         }
-
     }
 }

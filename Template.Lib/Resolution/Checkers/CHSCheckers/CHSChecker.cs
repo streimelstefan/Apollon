@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
+﻿//-----------------------------------------------------------------------
+// <copyright file="CHSChecker.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
 {
     using Apollon.Lib.Atoms;
     using Apollon.Lib.Linker;
@@ -11,10 +18,10 @@
     /// </summary>
     public class CHSChecker : ICoinductiveCHSChecker
     {
-        private IUnifier unifer = new ExactUnifier();
-        private IUnifier constructiveUnifier = new ConstructiveUnifier();
-        private VariableExtractor extractor = new VariableExtractor();
-        private VariableLinker linker = new VariableLinker();
+        private readonly IUnifier unifer = new ExactUnifier();
+        private readonly IUnifier constructiveUnifier = new ConstructiveUnifier();
+        private readonly VariableExtractor extractor = new();
+        private readonly VariableLinker linker = new();
 
         /// <summary>
         /// Checks the CHS for loops.
@@ -47,30 +54,30 @@
         /// <param name="goal"></param>
         private void ConstraintAgainstCHS(CHS chs, Literal goal)
         {
-            var goalCopy = (Literal)goal.Clone();
+            Literal goalCopy = (Literal)goal.Clone();
             goalCopy.IsNAF = !goalCopy.IsNAF;
 
-            this.linker.LinkVariables(new Statement(goal));
-            var goalVariables = this.extractor.ExtractVariablesFrom(goal);
+            _ = this.linker.LinkVariables(new Statement(goal));
+            HashSet<Term> goalVariables = this.extractor.ExtractVariablesFrom(goal);
 
             if (goalVariables.Count() == 0)
             {
                 return;
             }
 
-            foreach (var literal in chs.Literals)
+            foreach (Literal literal in chs.Literals)
             {
-                var res = this.constructiveUnifier.Unify(goalCopy, literal);
+                UnificationResult res = this.constructiveUnifier.Unify(goalCopy, literal);
 
                 if (res.Value != null)
                 {
-                    foreach (var goalVariable in goalVariables)
+                    foreach (Term goalVariable in goalVariables)
                     {
-                        foreach (var mapping in res.Value.Mappings)
+                        foreach (Mapping mapping in res.Value.Mappings)
                         {
                             if (mapping.Variable.Value == goalVariable.Value)
                             {
-                                var mappedVariableCopy = (AtomParam)mapping.MapsTo.Clone();
+                                AtomParam mappedVariableCopy = (AtomParam)mapping.MapsTo.Clone();
                                 if (mappedVariableCopy.Term != null && mappedVariableCopy.Term.IsNegativelyConstrained())
                                 {
                                     mappedVariableCopy.Term.ProhibitedValues.Clear();
@@ -103,7 +110,7 @@
         /// <returns></returns>
         private bool IsPresentWithNAFSwitch(Literal literal, CHS chs)
         {
-            var copy = (Literal)literal.Clone();
+            Literal copy = (Literal)literal.Clone();
             copy.IsNAF = !copy.IsNAF;
 
             return chs.Literals.Where(l => this.unifer.Unify(l, copy).IsSuccess).Any();

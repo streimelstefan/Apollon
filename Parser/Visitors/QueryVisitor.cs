@@ -1,18 +1,20 @@
-﻿using Apollon.Lib.Rules;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="QueryVisitor.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace AppollonParser.Visitors
 {
+    using Apollon.Lib.Rules;
+
     /// <summary>
     /// A visitor that generates <see cref="BodyPart[]"/>s.
     /// </summary>
     public class QueryVisitor : apollonBaseVisitor<BodyPart[]>
     {
-        private readonly BodyPartVisitor _bodyPartVisitor = new BodyPartVisitor();
+        private readonly BodyPartVisitor bodyPartVisitor = new();
 
         /// <summary>
         /// Generates a new Query array.
@@ -21,12 +23,12 @@ namespace AppollonParser.Visitors
         /// <returns>The new query array.</returns>
         public override BodyPart[] VisitQuery(apollonParser.QueryContext context)
         {
-            var boydParts = context.body_part();
-            var query = new List<BodyPart>();
+            apollonParser.Body_partContext[] boydParts = context.body_part();
+            List<BodyPart> query = new();
 
-            foreach (var part in boydParts)
+            foreach (apollonParser.Body_partContext? part in boydParts)
             {
-                query.Add(_bodyPartVisitor.VisitBody_part(part));
+                query.Add(this.bodyPartVisitor.VisitBody_part(part));
             }
 
             return query.ToArray();

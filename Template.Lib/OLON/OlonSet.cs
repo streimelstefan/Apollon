@@ -1,12 +1,14 @@
-﻿using Apollon.Lib.Graph;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="OlonSet.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace Apollon.Lib.OLON
 {
+    using Apollon.Lib.Graph;
+
     /// <summary>
     /// Represents a set of nodes that are part of an OLON.
     /// </summary>
@@ -21,11 +23,10 @@ namespace Apollon.Lib.OLON
         /// Checks if a given node is part of the OLON.
         /// </summary>
         /// <param name="node">The node to check.</param>
-        /// <returns>Whether or not the node is part of an olon</returns>
+        /// <returns>Whether or not the node is part of an olon.</returns>
         public bool IsPartOfOlon(CallGraphNode node)
         {
-            return Nodes.Contains(node);
+            return this.Nodes.Contains(node);
         }
-
     }
 }

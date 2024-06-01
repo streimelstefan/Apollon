@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="AtomParam.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace Apollon.Lib.Atoms
 {
@@ -12,40 +13,19 @@ namespace Apollon.Lib.Atoms
     public class AtomParam : IEquatable<AtomParam>, ICloneable
     {
         /// <summary>
-        /// Gets the literal representation of the parameter.
-        /// Is only set if the parameter is a literal.
-        /// </summary>
-        public Literal? Literal { get; private set; }
-
-        /// <summary>
-        /// Gets the term representation of the parameter.
-        /// Is only set if the parameter is a term.
-        /// </summary>
-        public Term? Term { get; set; }
-
-        /// <summary>
-        /// Gets whether the parameter is a literal.
-        /// </summary>
-        public bool IsLiteral { get {  return Literal != null; } }
-
-        /// <summary>
-        /// Gets whether the parameter is a term.
-        /// </summary>
-        public bool IsTerm { get { return Term != null; } }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="AtomParam"/> class.
         /// Only literal or term are allowed to be set. At least one mus be set.
         /// </summary>
         /// <param name="literal">The literal that represents the parameter.</param>
         /// <param name="term">The term that represents the parameter.</param>
         /// <exception cref="ArgumentException">Is thrown if literal and term are set or when both are not set.</exception>
-        public AtomParam(Literal? literal, Term? term) 
-        { 
+        public AtomParam(Literal? literal, Term? term)
+        {
             if (literal == null && term == null)
             {
                 throw new ArgumentException("Literal and Term are not allowed to be null at the same time.");
             }
+
             if (literal != null && term != null)
             {
                 throw new ArgumentException("Literal and Term are not allowed to be set at the same time.");
@@ -56,8 +36,8 @@ namespace Apollon.Lib.Atoms
                 throw new ArgumentException("Literal is not allowed to be NAF.");
             }
 
-            Literal = literal;
-            Term = term;
+            this.Literal = literal;
+            this.Term = term;
         }
 
         /// <summary>
@@ -72,7 +52,7 @@ namespace Apollon.Lib.Atoms
                 throw new ArgumentException("Literal is not allowed to be NAF.");
             }
 
-            Literal = literal;
+            this.Literal = literal;
         }
 
         /// <summary>
@@ -81,8 +61,30 @@ namespace Apollon.Lib.Atoms
         /// <param name="term">The term representing the parameter.</param>
         public AtomParam(Term term)
         {
-            Term = term;
+            this.Term = term;
         }
+
+        /// <summary>
+        /// Gets the literal representation of the parameter.
+        /// Is only set if the parameter is a literal.
+        /// </summary>
+        public Literal? Literal { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the term representation of the parameter.
+        /// Is only set if the parameter is a term.
+        /// </summary>
+        public Term? Term { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether gets whether the parameter is a literal.
+        /// </summary>
+        public bool IsLiteral => this.Literal != null;
+
+        /// <summary>
+        /// Gets a value indicating whether gets whether the parameter is a term.
+        /// </summary>
+        public bool IsTerm => this.Term != null;
 
         /// <summary>
         /// Returns whether the current instance is equal to the other parameter.
@@ -91,24 +93,11 @@ namespace Apollon.Lib.Atoms
         /// <returns>Whether the current isntance is equal to the other parameter.</returns>
         public bool Equals(AtomParam? other)
         {
-            if (other  == null) return false;
-
-            if (this == other) return true;
-
-            if (other.IsTerm && !IsTerm) return false;
-            if (other.IsLiteral && !IsLiteral) return false;
-        
-            if (Literal != null)
-            {
-                return Literal.Equals(other.Literal);
-            }
-
-            if (Term != null)
-            {
-                return Term.Equals(other.Term);
-            }
-
-            return false;
+            return other != null
+&& (this == other
+|| ((!other.IsTerm || this.IsTerm)
+&& (!other.IsLiteral || this.IsLiteral)
+&& (this.Literal != null ? this.Literal.Equals(other.Literal) : this.Term != null && this.Term.Equals(other.Term))));
         }
 
         /// <summary>
@@ -117,12 +106,13 @@ namespace Apollon.Lib.Atoms
         /// <returns>The string representation of the parameter.</returns>
         public override string ToString()
         {
-            if (Literal != null)
+            if (this.Literal != null)
             {
-                return Literal.ToString();
-            } else if (Term != null)
+                return this.Literal.ToString();
+            }
+            else if (this.Term != null)
             {
-                return Term.ToString();
+                return this.Term.ToString();
             }
 
             return string.Empty;
@@ -135,16 +125,11 @@ namespace Apollon.Lib.Atoms
         /// <exception cref="Exception">Is thrown if the parameter is neither a term nor a literal.</exception>
         public object Clone()
         {
-            if (Literal != null)
-            {
-                return new AtomParam((Literal)Literal.Clone(), null);
-            }
-            if (Term != null)
-            {
-                return new AtomParam(null, (Term)Term.Clone());
-            }
-
-            throw new Exception("Unable to clone param that is neither an atom nor an term.");
+            return this.Literal != null
+                ? new AtomParam((Literal)this.Literal.Clone(), null)
+                : this.Term != null
+                ? (object)new AtomParam(null, (Term)this.Term.Clone())
+                : throw new Exception("Unable to clone param that is neither an atom nor an term.");
         }
 
         /// <summary>

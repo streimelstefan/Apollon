@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib
+﻿//-----------------------------------------------------------------------
+// <copyright file="Literal.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib
 {
     using Apollon.Lib.Atoms;
 
@@ -41,8 +48,8 @@
         /// <returns>A string consisting of the Literal.</returns>
         public override string ToString()
         {
-            var nafPrefix = this.IsNAF ? "not " : string.Empty;
-            var negativePrefix = this.IsNegative ? "-" : string.Empty;
+            string nafPrefix = this.IsNAF ? "not " : string.Empty;
+            string negativePrefix = this.IsNegative ? "-" : string.Empty;
             return $"{nafPrefix}{negativePrefix}{this.Atom}";
         }
 
@@ -53,12 +60,7 @@
         /// <returns>A value indicating whether or not the given Literal is equal to the current Literal.</returns>
         public bool Equals(Literal? other)
         {
-            if (other == null)
-            {
-                return false;
-            }
-
-            return this.IsNAF == other.IsNAF && this.IsNegative == other.IsNegative && this.Atom.Equals(other.Atom);
+            return other != null && this.IsNAF == other.IsNAF && this.IsNegative == other.IsNegative && this.Atom.Equals(other.Atom);
         }
 
         /// <summary>

@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="VoidLogger.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace Apollon.Lib.Logging
 {
@@ -15,12 +15,9 @@ namespace Apollon.Lib.Logging
         /// <summary>
         /// Gets or sets the recursion depth of the logger.
         /// </summary>
-        public int RecursionDepth 
-        { 
-            get
-            {
-                return 0;
-            }
+        public int RecursionDepth
+        {
+            get => 0;
 
             set
             {
@@ -30,17 +27,14 @@ namespace Apollon.Lib.Logging
         /// <summary>
         /// Gets or sets the loglevel of the logger.
         /// </summary>
-        public LogLevel Level { 
-            get 
+        public LogLevel Level
+        {
+            get => LogLevel.Trace;
+
+            set
             {
-                return LogLevel.Trace;
-            } 
-
-            set 
-            { 
-            } 
+            }
         }
-
 
         /// <summary>
         /// Creates a child of the current logger.
@@ -66,7 +60,6 @@ namespace Apollon.Lib.Logging
         public void Error(string message)
         {
         }
-
 
         /// <summary>
         /// Does nothing.

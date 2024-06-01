@@ -1,15 +1,23 @@
-﻿namespace Apollon.Lib.Unification.Substitutioners
+﻿//-----------------------------------------------------------------------
+// <copyright file="Substitution.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Unification.Substitutioners
 {
     using Apollon.Lib.Atoms;
     using Apollon.Lib.Rules;
     using Apollon.Lib.Rules.Operations;
 
     /// <summary>
-    /// 
+    /// The substitution class contains all the variable mapping. It remembers what variable should be replaced with what values.
+    /// And provides methods to apply these substitutions to parts of a apollon program.
     /// </summary>
     public class Substitution
     {
-        private Dictionary<string, AtomParam> mappings = new Dictionary<string, AtomParam>();
+        private Dictionary<string, AtomParam> mappings = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Substitution"/> class.
@@ -21,7 +29,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="Substitution"/> class.
         /// </summary>
-        /// <param name="mappings"></param>
+        /// <param name="mappings">The mappings with wich this substitution should be initialized.</param>
         public Substitution(IEnumerable<Mapping> mappings)
         {
             this.mappings = new Dictionary<string, AtomParam>(mappings.Select(m => new KeyValuePair<string, AtomParam>(m.Variable.Value, m.MapsTo)));
@@ -30,51 +38,34 @@
         /// <summary>
         /// Gets the mappings.
         /// </summary>
-        public IEnumerable<Mapping> Mappings
-        {
-            get
-            {
-                return this.mappings.Select(m =>
-                {
-                    if (m.Value.Term != null && m.Value.Term.IsVariable)
-                    {
-                        return new Mapping(new Term(m.Key, (PVL)m.Value.Term.ProhibitedValues.Clone()), m.Value);
-                    }
-                    else
-                    {
-                        return new Mapping(new Term(m.Key), m.Value);
-                    }
-                });
-            }
-        }
+        public IEnumerable<Mapping> Mappings => this.mappings.Select(m =>
+                                                             {
+                                                                 return m.Value.Term != null && m.Value.Term.IsVariable
+                                                                     ? new Mapping(new Term(m.Key, (PVL)m.Value.Term.ProhibitedValues.Clone()), m.Value)
+                                                                     : new Mapping(new Term(m.Key), m.Value);
+                                                             });
 
         /// <summary>
         /// Gets the bound mappings.
         /// </summary>
-        public IEnumerable<Mapping> BoundMappings
-        {
-            get
-            {
-                return this.Mappings.Where(m => m.MapsTo.IsLiteral || (m.MapsTo.Term != null && !m.MapsTo.Term.IsVariable));
-            }
-        }
+        public IEnumerable<Mapping> BoundMappings => this.Mappings.Where(m => m.MapsTo.IsLiteral || (m.MapsTo.Term != null && !m.MapsTo.Term.IsVariable));
 
         /// <summary>
-        /// 
+        /// Adds a new substitution to the stubstitutions.
         /// </summary>
-        /// <param name="variable"></param>
-        /// <param name="term"></param>
+        /// <param name="variable">The variable that should be substituted.</param>
+        /// <param name="term">The value the variable should be substituted with.</param>
         /// <exception cref="InvalidOperationException">Is thrown when the substitution can not be added under the existing name.</exception>
         public void Add(Term variable, AtomParam term)
         {
             if (this.mappings.ContainsKey(variable.Value))
             {
-                if (this.mappings[variable.Value].Term != null && this.mappings[variable.Value].Term.IsVariable &&
+                if (this.mappings[variable.Value].Term != null && this.mappings[variable.Value].Term!.IsVariable &&
                     term.Term != null && term.Term.IsVariable)
                 {
                     // if the value to add and the mapsTo of the mapping here are both variables Unionize their PVLs.
                     // and abort.
-                    PVL.Union(this.mappings[variable.Value].Term.ProhibitedValues, term.Term.ProhibitedValues);
+                    PVL.Union(this.mappings[variable.Value].Term!.ProhibitedValues, term.Term.ProhibitedValues);
                     return;
                 }
 
@@ -92,25 +83,30 @@
         }
 
         /// <summary>
-        /// 
+        /// Adds a new substitution.
         /// </summary>
-        /// <param name="variable"></param>
-        /// <param name="term"></param>
+        /// <param name="variable">The variable to substitute.</param>
+        /// <param name="term">The value to substitute the variable with.</param>
         public void Add(Term variable, Term term)
         {
             this.Add(variable, new AtomParam(term));
         }
 
         /// <summary>
-        /// 
+        /// Focefully adds a subtitution.
         /// </summary>
-        /// <param name="variable"></param>
-        /// <param name="term"></param>
+        /// <param name="variable">The vairable to substitute.</param>
+        /// <param name="term">The value to substitute the variable with.</param>
         public void ForceAdd(Term variable, AtomParam term)
         {
             this.mappings[variable.Value] = term;
         }
 
+        /// <summary>
+        /// Focefully adds a subtitution.
+        /// </summary>
+        /// <param name="variable">The vairable to substitute.</param>
+        /// <param name="term">The value to substitute the variable with.</param>
         public void ForceAdd(Term variable, Term term)
         {
             this.ForceAdd(variable, new AtomParam(term));
@@ -136,20 +132,20 @@
         }
 
         /// <summary>
-        /// 
+        /// Applies all saved substitutions to the given statement.
         /// </summary>
-        /// <param name="statement"></param>
-        /// <returns></returns>
+        /// <param name="statement">The statement to apply the substitution on.</param>
+        /// <returns>A clone substitution of the statement.</returns>
         public Statement Apply(Statement statement)
         {
-            var copy = (Statement)statement.Clone();
+            Statement copy = (Statement)statement.Clone();
 
             if (copy.Head != null)
             {
                 this.Apply(copy.Head.Atom);
             }
 
-            foreach (var part in copy.Body)
+            foreach (BodyPart part in copy.Body)
             {
                 this.Apply(part);
             }
@@ -157,14 +153,12 @@
             return copy;
         }
 
-
-
         /// <summary>
         /// Removes all prohibited values from the variables.
         /// </summary>
         public void RemovePVls()
         {
-            foreach (var mapping in this.mappings)
+            foreach (KeyValuePair<string, AtomParam> mapping in this.mappings)
             {
                 if (mapping.Value.Term != null && mapping.Value.Term.IsVariable)
                 {
@@ -183,22 +177,22 @@
         }
 
         /// <summary>
-        /// 
+        /// Applies all saved substitutions on the given literal.
         /// </summary>
-        /// <param name="literal"></param>
-        /// <returns></returns>
+        /// <param name="literal">The literal to apply the stubstitutions on.</param>
+        /// <returns>The clone literal that was substituted.</returns>
         public Literal Apply(Literal literal)
         {
-            var copy = (Literal)literal.Clone();
+            Literal copy = (Literal)literal.Clone();
             this.Apply(copy.Atom);
 
             return copy;
         }
 
         /// <summary>
-        /// 
+        /// Applies all the given substitutions on the given object. The object will be altered!.
         /// </summary>
-        /// <param name="literal"></param>
+        /// <param name="literal">The literal to apply the sutbstitutions to.</param>
         public void ApplyInline(Literal literal)
         {
             this.Apply(literal.Atom);
@@ -211,7 +205,7 @@
         /// <returns>The Operation.</returns>
         public Operation Apply(Operation operation)
         {
-            var copy = (Operation)operation.Clone();
+            Operation copy = (Operation)operation.Clone();
 
             this.ApplyOperation(copy);
 
@@ -219,39 +213,48 @@
         }
 
         /// <summary>
-        /// 
+        /// Performce a backwards propagation using the given substitution. It contects a variable subtstute of this substitutions
+        /// with a substitution variable key of the other one.
+        ///
+        /// sub1: X -> Y
+        /// sub2: Y -> b
+        ///
+        /// sub1.BackPropagate(sub2).
+        /// sub1: X -> b.
         /// </summary>
-        /// <param name="inductor"></param>
+        /// <param name="inductor">The other substitution to use for the back propagation.</param>
         public void BackPropagate(Substitution inductor)
         {
-            var inductorCopy = inductor.Clone();
+            Substitution inductorCopy = inductor.Clone();
 
-            var candidates = this.mappings
+            IEnumerable<(KeyValuePair<string, AtomParam> Im, Mapping)> candidates = this.mappings
                 .Where(im => im.Value.IsTerm) // we only care about the term values since they can be variables
-                .Where(im => im.Value.Term.IsVariable) // only the values that are variables
-                .Where(im => inductor.Mappings.Where(m => m.Variable.Value == im.Value.Term.Value).Any()) // only those that look like this ... -> Y | Y -> ...
-                .Select(im => (im, inductor.Mappings.Where(m => m.Variable.Value == im.Value.Term.Value).First()));
+                .Where(im => im.Value.Term!.IsVariable) // only the values that are variables
+                .Where(im => inductor.Mappings.Where(m => m.Variable.Value == im.Value.Term!.Value).Any()) // only those that look like this ... -> Y | Y -> ...
+                .Select(im => (im, inductor.Mappings.Where(m => m.Variable.Value == im.Value.Term!.Value).First()));
 
-            foreach (var candiate in candidates)
+            foreach ((KeyValuePair<string, AtomParam> Im, Mapping) candiate in candidates)
             {
                 if (candiate.Item2.MapsTo.Term != null && candiate.Item2.MapsTo.Term.IsVariable)
                 {
                     // union our PVL with the others.
                     // warning here can be ignores since only variable values are allowed to be in the candidate.
-                    PVL.Union(candiate.im.Value.Term.ProhibitedValues, (PVL)candiate.Item2.Variable.ProhibitedValues.Clone());
-                } else
+                    PVL.Union(candiate.Im.Value.Term!.ProhibitedValues, (PVL)candiate.Item2.Variable.ProhibitedValues.Clone());
+                }
+                else
                 {
                     // set mappsTo of the other to mappsTo of ours
-                    this.mappings[candiate.im.Key] = (AtomParam)candiate.Item2.MapsTo.Clone();
+                    this.mappings[candiate.Im.Key] = (AtomParam)candiate.Item2.MapsTo.Clone();
                 }
 
                 inductorCopy.Remove(candiate.Item2.Variable);
             }
 
             // add all other mappings that do not need to be induced.
-            foreach (var missingMapping in inductorCopy.Mappings)
+            foreach (Mapping missingMapping in inductorCopy.Mappings)
             {
-                this.TryAdd(missingMapping.Variable, missingMapping.MapsTo);
+                _ = this.TryAdd(missingMapping.Variable, missingMapping.MapsTo);
+
                 // mappings[missingMapping.Variable.Value] = missingMapping.MapsTo;
             }
         }
@@ -272,10 +275,10 @@
         {
             while (true)
             {
-                var inductions = this.mappings
+                IEnumerable<KeyValuePair<string, AtomParam>> inductions = this.mappings
                     .Where(im => im.Value.IsTerm) // we only care about the term values since they can be variables
-                    .Where(im => im.Value.Term.IsVariable) // only the values that are variables
-                    .Where(im => this.mappings.ContainsKey(im.Value.Term.Value))
+                    .Where(im => im.Value.Term!.IsVariable) // only the values that are variables
+                    .Where(im => this.mappings.ContainsKey(im.Value.Term!.Value))
                     .Where(im => !(im.Value.Term != null && im.Value.Term.Value == im.Key)); // only the ones where the key is not the same as the value
 
                 if (!inductions.Any()) // no more changes need to be made
@@ -283,10 +286,10 @@
                     return;
                 }
 
-                var induction = inductions.First();
+                KeyValuePair<string, AtomParam> induction = inductions.First();
 
-                this.mappings[induction.Key] = this.mappings[induction.Value.Term.Value];
-                this.mappings.Remove(induction.Value.Term.Value);
+                this.mappings[induction.Key] = this.mappings[induction.Value.Term!.Value];
+                _ = this.mappings.Remove(induction.Value.Term.Value);
             }
         }
 
@@ -296,7 +299,7 @@
         /// <param name="variable">The variable that will be removed.</param>
         public void Remove(Term variable)
         {
-            this.mappings.Remove(variable.Value);
+            _ = this.mappings.Remove(variable.Value);
         }
 
         /// <summary>
@@ -333,9 +336,9 @@
         /// <param name="variables">The variables that should be intersected with.</param>
         public void Intersect(HashSet<string> variables)
         {
-            var newMappings = new Dictionary<string, AtomParam>();
+            Dictionary<string, AtomParam> newMappings = new();
 
-            foreach (var mapping in this.mappings)
+            foreach (KeyValuePair<string, AtomParam> mapping in this.mappings)
             {
                 if (variables.Contains(mapping.Key))
                 {
@@ -362,7 +365,7 @@
                     return param;
                 }
 
-                var setting = this.mappings[param.Term.Value];
+                AtomParam setting = this.mappings[param.Term.Value];
 
                 if (setting.Term != null && setting.Term.IsVariable)
                 {
@@ -386,7 +389,7 @@
         {
             for (int i = 0; i < atom.ParamList.Count(); i++)
             {
-                var param = atom.ParamList[i];
+                AtomParam param = atom.ParamList[i];
                 atom.ParamList[i] = this.Apply(param);
             }
         }
@@ -415,7 +418,7 @@
             {
                 if (this.mappings.ContainsKey(copy.OutputtingVariable.Value))
                 {
-                    var mapped = this.mappings[copy.OutputtingVariable.Value];
+                    AtomParam mapped = this.mappings[copy.OutputtingVariable.Value];
 
                     if (mapped.Term == null || !mapped.Term.IsVariable)
                     {
@@ -430,7 +433,7 @@
             {
                 if (this.mappings.ContainsKey(copy.Variable.Term.Value))
                 {
-                    var mapped = this.mappings[copy.Variable.Term.Value];
+                    AtomParam mapped = this.mappings[copy.Variable.Term.Value];
 
                     if (mapped.Term != null && mapped.Term.IsVariable)
                     {

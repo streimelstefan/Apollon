@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Resolution.CoSLD
+﻿//-----------------------------------------------------------------------
+// <copyright file="CoResolutionResult.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Resolution.CoSLD
 {
     using Apollon.Lib.Logging;
     using Apollon.Lib.Resolution.CallStackAndCHS;
@@ -21,6 +28,8 @@
         public CoResolutionResult(bool success, Substitution substitution, ResolutionBaseState state)
             : base(success, state.Chs, substitution)
         {
+            // the warning in this constructor is just false. Idk where it gets that form...
+            // State gets set and checked for null...
             this.State = state;
         }
 
@@ -30,6 +39,8 @@
         public CoResolutionResult()
             : base(false, new CHS(), new Substitution())
         {
+            // the warning in this constructor is just false. Idk where it gets that form...
+            // State gets set and checked for null...
             this.State = new ResolutionBaseState(new Rules.Statement[0], new Stack<Literal>(), new CHS(), new Substitution(), new VoidLogger());
         }
 
@@ -38,10 +49,7 @@
         /// </summary>
         public ResolutionBaseState State
         {
-            get
-            {
-                return this.state;
-            }
+            get => this.state;
 
             private set
             {

@@ -1,18 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Apollon.Lib;
+﻿//-----------------------------------------------------------------------
+// <copyright file="NafLiteralVisitor.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace AppollonParser.Visitors
 {
+    using Apollon.Lib;
+
     /// <summary>
     /// A visitor that generates <see cref="Literal"/>s. Should be used for NAF literals.
     /// </summary>
     public class NafLiteralVisitor : apollonBaseVisitor<Literal>
     {
-        private readonly LiteralVisitor _literalVisitor = new LiteralVisitor();
+        private readonly LiteralVisitor literalVisitor = new();
 
         /// <summary>
         /// Generates a new <see cref="Literal"/>.
@@ -21,7 +23,7 @@ namespace AppollonParser.Visitors
         /// <returns>The new literal.</returns>
         public override Literal VisitNaf_literal(apollonParser.Naf_literalContext context)
         {
-            var literal = _literalVisitor.VisitLiteral(context.literal());
+            Literal literal = this.literalVisitor.VisitLiteral(context.literal());
 
             literal.IsNAF = context.NAF() != null;
 

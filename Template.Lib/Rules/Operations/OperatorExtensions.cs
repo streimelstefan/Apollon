@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Rules.Operations
+﻿//-----------------------------------------------------------------------
+// <copyright file="OperatorExtensions.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Rules.Operations
 {
     /// <summary>
     /// A class of extension methods for the Operator enum.
@@ -13,31 +20,20 @@
         /// <exception cref="InvalidOperationException">In case of an unhandled case.</exception>
         public static string ToFriendlyString(this Operator @operator)
         {
-            switch (@operator)
+            return @operator switch
             {
-                case Operator.Equals:
-                    return "=";
-                case Operator.NotEquals:
-                    return "!=";
-                case Operator.GreaterThan:
-                    return ">";
-                case Operator.LessThan:
-                    return "<";
-                case Operator.Plus:
-                    return "+";
-                case Operator.Minus:
-                    return "-";
-                case Operator.Times:
-                    return "*";
-                case Operator.Divide:
-                    return "/";
-                case Operator.LessThanOrEqual:
-                    return "<=";
-                case Operator.GreaterThanOrEqual:
-                    return ">=";
-                default:
-                    throw new InvalidOperationException("Unhandled case.");
-            }
+                Operator.Equals => "=",
+                Operator.NotEquals => "!=",
+                Operator.GreaterThan => ">",
+                Operator.LessThan => "<",
+                Operator.Plus => "+",
+                Operator.Minus => "-",
+                Operator.Times => "*",
+                Operator.Divide => "/",
+                Operator.LessThanOrEqual => "<=",
+                Operator.GreaterThanOrEqual => ">=",
+                _ => throw new InvalidOperationException("Unhandled case."),
+            };
         }
     }
 }

@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Resolution.CoSLD
+﻿//-----------------------------------------------------------------------
+// <copyright file="CoSLDResolution.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Resolution.CoSLD
 {
     using System.Data;
     using Apollon.Lib.Atoms;
@@ -20,24 +27,24 @@
     /// </summary>
     public class CoSLDResolution : IResolution
     {
-        private IUnifier unifier = new ConstructiveUnifier();
+        private readonly IUnifier unifier = new ConstructiveUnifier();
 
-        private ICoinductiveCHSChecker chsChecker = new CHSChecker();
-        private ICallStackChecker callStackChecker = new CallStackChecker();
+        private readonly ICoinductiveCHSChecker chsChecker = new CHSChecker();
+        private readonly ICallStackChecker callStackChecker = new CallStackChecker();
+
+        private readonly VariableExtractor variableExtractor = new();
+
+        private readonly OperationResolver operationResolver = new();
+
+        private readonly VariableLinker linker = new();
+
+        private readonly IEqualizer<Literal> preSelector = new LiteralParamCountEqualizer();
+
+        private readonly SubstitutionGroups substitutionGroups = new();
 
         private Statement[] allStatements = new Statement[0];
 
         private int variableIndex = 1;
-
-        private VariableExtractor variableExtractor = new VariableExtractor();
-
-        private OperationResolver operationResolver = new OperationResolver();
-
-        private VariableLinker linker = new VariableLinker();
-
-        private IEqualizer<Literal> preSelector = new LiteralParamCountEqualizer();
-
-        private SubstitutionGroups substitutionGroups = new SubstitutionGroups();
 
         /// <summary>
         /// Executes the resolution.
@@ -50,21 +57,22 @@
         {
             // Initialize the call stack and CHS (coinductive hypothesis set)
             this.allStatements = statements.Where(s => s.Head != null).ToArray();
-            var callStack = new Stack<Literal>();
+            Stack<Literal> callStack = new();
 
             // -1 because the resolve all goals will increase it at the start resulting in 0.
             logger.RecursionDepth = -1;
             this.variableIndex = 1;
 
             // Start the resolution process
-            var results = this.ResolveAllGoals(new ResolutionRecursionState(goals, this.allStatements, callStack, new CHS(), new Substitution(), logger));
+            IEnumerable<CoResolutionResult> results = this.ResolveAllGoals(new ResolutionRecursionState(goals, this.allStatements, callStack, new CHS(), new Substitution(), logger));
 
-            foreach (var res in results)
+            foreach (CoResolutionResult res in results)
             {
                 if (res.Success)
                 {
                     yield return new ResolutionResult(res.CHS, res.Substitution);
-                } else
+                }
+                else
                 {
                     yield return new ResolutionResult();
                     yield break;
@@ -89,9 +97,9 @@
             state.Logger.RecursionDepth++;
             state.LogState();
 
-            var results = this.ResolveAllGoalsPart((ResolutionRecursionState)state.Clone());
+            IEnumerable<CoResolutionResult> results = this.ResolveAllGoalsPart((ResolutionRecursionState)state.Clone());
 
-            foreach (var res in results)
+            foreach (CoResolutionResult res in results)
             {
                 yield return res;
             }
@@ -104,7 +112,7 @@
         /// <returns>The Result of the Check.</returns>
         public CheckerResult CheckCHSAndCallStack(ResolutionLiteralState state)
         {
-            var chsCheck = this.chsChecker.CheckCHSFor(state.CurrentGoal, state.Chs);
+            CheckerResult chsCheck = this.chsChecker.CheckCHSFor(state.CurrentGoal, state.Chs);
             state.Logger.Trace($"CHS marked goal {state.CurrentGoal} as {chsCheck} using {state.Chs}");
 
             if (chsCheck != CheckerResult.Continue)
@@ -112,7 +120,7 @@
                 return chsCheck;
             }
 
-            var callStackCheck = this.callStackChecker.CheckCallStackFor(state.CurrentGoal, state.CallStack);
+            CheckerResult callStackCheck = this.callStackChecker.CheckCallStackFor(state.CurrentGoal, state.CallStack);
 
             state.Logger.Trace($"CallStack marked goal {state.CurrentGoal} as {callStackCheck} using ({string.Join(", ", state.CallStack)})");
             return callStackCheck;
@@ -125,8 +133,8 @@
         /// <returns>The resolved goals piece by piece.</returns>
         private IEnumerable<CoResolutionResult> ResolveAllGoalsPart(ResolutionRecursionState state)
         {
-            var goal = state.Goals.First();
-            var nextGoals = state.Goals.Skip(1).ToArray();
+            BodyPart goal = state.Goals.First();
+            BodyPart[] nextGoals = state.Goals.Skip(1).ToArray();
             IEnumerable<CoResolutionResult> results = new CoResolutionResult[0];
 
             if (goal.ForAll != null)
@@ -136,10 +144,10 @@
             }
             else if (goal.Literal != null)
             {
-                var substituted = state.Substitution.Apply(goal.Literal);
+                Literal substituted = state.Substitution.Apply(goal.Literal);
                 state.Logger.Info($"Current goal is: {substituted}");
 
-                var nextState = ResolutionLiteralState.CloneConstructor(state, substituted, state.Statements);
+                ResolutionLiteralState nextState = ResolutionLiteralState.CloneConstructor(state, substituted, state.Statements);
                 nextState.Substitution.Clear();
 
                 results = this.ResolveLiteralGoal(nextState);
@@ -150,7 +158,7 @@
                 results = this.ResolveOperation(goal.Operation, (ResolutionBaseState)state.Clone());
             }
 
-            foreach (var res in results)
+            foreach (CoResolutionResult res in results)
             {
                 if (!res.Success)
                 {
@@ -159,7 +167,7 @@
                     continue;
                 }
 
-                var stateCopy = (ResolutionRecursionState)state.Clone();
+                ResolutionRecursionState stateCopy = (ResolutionRecursionState)state.Clone();
                 stateCopy.Chs = res.State.Chs;
                 stateCopy.Substitution.BackPropagate(res.Substitution);
                 stateCopy.Substitution.Contract();
@@ -170,17 +178,10 @@
                     stateCopy.Logger.Silly($"GoalPart {goal} succeeded. Next goal parts are [{string.Join(", ", nextGoals.Select(g => g.ToString()))}]");
                     stateCopy.LogState();
                     stateCopy.Logger.Silly($"SubTree: {this.substitutionGroups}");
-                    var recurisveResults = this.ResolveAllGoalsPart(ResolutionRecursionState.CloneConstructor(stateCopy, nextGoals));
-                    foreach (var recRes in recurisveResults)
+                    IEnumerable<CoResolutionResult> recurisveResults = this.ResolveAllGoalsPart(ResolutionRecursionState.CloneConstructor(stateCopy, nextGoals));
+                    foreach (CoResolutionResult recRes in recurisveResults)
                     {
-                        if (!recRes.Success)
-                        {
-                            yield return new CoResolutionResult(false, state.Substitution, state);
-                        }
-                        else
-                        {
-                            yield return recRes;
-                        }
+                        yield return !recRes.Success ? new CoResolutionResult(false, state.Substitution, state) : recRes;
                     }
                 }
                 else
@@ -205,19 +206,19 @@
             // extract variable of each forall part.
 
             // for each part try to solve the goal with the variable
-            // if the variable is bound (Has substitution with a non variable assigned) ignore result. And 
+            // if the variable is bound (Has substitution with a non variable assigned) ignore result. And
             // take the next if there is one. If there is none fail.
             // if the variable is negativly constraint (has values in the pvl). Go trough each value of the pvl
             // and try it with a substitution of that. If that succeed add the goal with the substition without the pvl.
             // if the variable is unbound add the goal to the chs.
-            var subbedGoal = state.Substitution.Apply(new Statement(null, state.CurrentGoal)).Body[0];
-            var results = this.ResolveForAllGoalPart(state, subbedGoal);
+            BodyPart subbedGoal = state.Substitution.Apply(new Statement(null, state.CurrentGoal)).Body[0];
+            IEnumerable<CoResolutionForAllResult> results = this.ResolveForAllGoalPart(state, subbedGoal);
 
-            foreach (var res in results)
+            foreach (CoResolutionForAllResult res in results)
             {
                 if (res.Success && res.RealGoal != null)
                 {
-                    var stateCopy = (ResolutionStepState)state.Clone();
+                    ResolutionStepState stateCopy = (ResolutionStepState)state.Clone();
                     stateCopy.Chs = res.CHS;
                     res.Substitution.RemovePVls();
                     stateCopy.Substitution.BackPropagate(res.Substitution);
@@ -232,22 +233,16 @@
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="state"></param>
-        /// <param name="goal"></param>
-        /// <returns></returns>
         private IEnumerable<CoResolutionForAllResult> ResolveForAllGoalPart(ResolutionStepState state, BodyPart goal)
         {
             ArgumentNullException.ThrowIfNull(goal.ForAll, nameof(goal.ForAll));
 
-            var variable = (Term)goal.ForAll.Clone();
+            Term variable = (Term)goal.ForAll.Clone();
             variable.ProhibitedValues.Clear();
             state.KeepUnbound.Add(variable);
 
             ResolutionStepState stateCopy = (ResolutionStepState)state.Clone();
-            var realGoal = goal.Literal;
+            Literal? realGoal = goal.Literal;
 
             // if child of the forall goal is a literal we need to see if the literal resolves. And apply the forall rules accordingly.
             state.Logger.Silly($"FORALL: Trying to resolve forall variable {variable}");
@@ -255,7 +250,7 @@
             if (goal.Child == null && goal.Literal != null)
             {
                 state.Logger.Info($"Current Goal is {goal.Literal}");
-                var intimResults = this.ResolveLiteralGoal(ResolutionLiteralState.CloneConstructor(state, goal.Literal));
+                IEnumerable<CoResolutionResult> intimResults = this.ResolveLiteralGoal(ResolutionLiteralState.CloneConstructor(state, goal.Literal));
                 results = intimResults.Select(r => new CoResolutionForAllResult(r.Success, r.Substitution, r.State, realGoal));
             }
             else if (goal.Child != null && goal.Child.ForAll != null)
@@ -264,7 +259,7 @@
                 results = this.ResolveForAllGoalPart(stateCopy, goal.Child);
             }
 
-            foreach (var res in results)
+            foreach (CoResolutionForAllResult res in results)
             {
                 // if the resolution was not successful we can abort.
                 if (!res.Success)
@@ -276,15 +271,15 @@
                 }
 
                 state.Chs = res.CHS;
-                var variableMapping = res.Substitution.Mappings.Where(m => m.Variable.Value == variable.Value).First();
+                Mapping variableMapping = res.Substitution.Mappings.Where(m => m.Variable.Value == variable.Value).First();
 
                 stateCopy = (ResolutionStepState)state.Clone();
                 stateCopy.Substitution.BackPropagate(res.Substitution);
                 stateCopy.Chs = res.CHS;
-                stateCopy.KeepUnbound.Remove(variable);
+                _ = stateCopy.KeepUnbound.Remove(variable);
 
                 // if variable is unbound return success and is not negativly constraint.
-                if (!variableMapping.MapsTo.Term.IsNegativelyConstrained())
+                if (!variableMapping.MapsTo.Term!.IsNegativelyConstrained())
                 {
                     stateCopy.Logger.Trace($"Forall Variable Part {variable} of {state.CurrentGoal} succeeded because variable is not bound or negativly constraint.");
                     stateCopy.LogState();
@@ -297,10 +292,10 @@
                 state.Logger.Trace($"Forall Variable Part {variable} of {state.CurrentGoal} failed because variable is negativly constraint.");
                 state.LogState();
                 state.Logger.Silly($"SubTree: {this.substitutionGroups}");
-                var valuesToTry = variableMapping.Variable.ProhibitedValues.GetValues().ToList();
+                List<AtomParam> valuesToTry = variableMapping.Variable.ProhibitedValues.GetValues().ToList();
                 valuesToTry.Sort((x, y) => x.ToString().CompareTo(y.ToString()));
-                var constRes = this.ResolveForAllConstraint(stateCopy, goal, valuesToTry);
-                foreach (var constraintResult in constRes)
+                IEnumerable<CoResolutionForAllResult> constRes = this.ResolveForAllConstraint(stateCopy, goal, valuesToTry);
+                foreach (CoResolutionForAllResult constraintResult in constRes)
                 {
                     yield return constraintResult;
                 }
@@ -309,28 +304,21 @@
             yield return new CoResolutionForAllResult(false, stateCopy.Substitution, stateCopy, realGoal);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="state"></param>
-        /// <param name="goal"></param>
-        /// <param name="valuesToTry"></param>
-        /// <returns></returns>
         private IEnumerable<CoResolutionForAllResult> ResolveForAllConstraint(ResolutionStepState state, BodyPart goal, List<AtomParam> valuesToTry)
         {
             ArgumentNullException.ThrowIfNull(goal.ForAll, nameof(goal.ForAll));
 
-            var variable = (Term)goal.ForAll.Clone();
+            Term variable = (Term)goal.ForAll.Clone();
             variable.ProhibitedValues.Clear();
 
             ResolutionStepState stateCopy = (ResolutionStepState)state.Clone();
-            var realGoal = goal.Literal;
-            var valueToTry = valuesToTry.First();
-            var nextValuesToTry = valuesToTry.Skip(1).ToList();
+            Literal? realGoal = goal.Literal;
+            AtomParam valueToTry = valuesToTry.First();
+            List<AtomParam> nextValuesToTry = valuesToTry.Skip(1).ToList();
 
             // if child of the forall goal is a literal
             // we need to see if the literal resolves. And apply the forall rules accordingly.
-            var subToTry = new Substitution();
+            Substitution subToTry = new();
             subToTry.Add(variable, valueToTry);
 
             state.Logger.Info(
@@ -338,9 +326,9 @@
             IEnumerable<CoResolutionForAllResult> results = new CoResolutionForAllResult[0];
             if (goal.Child == null && goal.Literal != null)
             {
-                var subbedRealGoal = subToTry.Apply(goal.Literal);
+                Literal subbedRealGoal = subToTry.Apply(goal.Literal);
                 state.Logger.Info($"Current Goal is {subbedRealGoal}");
-                var intimResults = this.ResolveLiteralGoal(ResolutionLiteralState.CloneConstructor(state, subbedRealGoal));
+                IEnumerable<CoResolutionResult> intimResults = this.ResolveLiteralGoal(ResolutionLiteralState.CloneConstructor(state, subbedRealGoal));
                 results = intimResults.Select(r => new CoResolutionForAllResult(r.Success, r.Substitution, r.State, realGoal));
             }
             else if (goal.Child != null && goal.Child.ForAll != null)
@@ -350,7 +338,7 @@
                 results = this.ResolveForAllGoalPart(stateCopy, goal.Child);
             }
 
-            foreach (var res in results)
+            foreach (CoResolutionForAllResult res in results)
             {
                 // if the resolution was not successful we can abort.
                 if (!res.Success)
@@ -364,16 +352,16 @@
                 state.Chs = res.CHS;
                 subToTry.BackPropagate(res.Substitution);
                 subToTry.Contract();
-                var variableMapping = subToTry.Mappings.Where(m => m.Variable.Value == variable.Value).First();
+                Mapping variableMapping = subToTry.Mappings.Where(m => m.Variable.Value == variable.Value).First();
 
                 stateCopy = (ResolutionStepState)state.Clone();
                 stateCopy.Substitution.BackPropagate(subToTry);
                 stateCopy.Substitution.BackPropagate(res.Substitution);
                 stateCopy.Chs = res.CHS;
-                stateCopy.KeepUnbound.Remove(variable);
+                _ = stateCopy.KeepUnbound.Remove(variable);
 
                 // if variable is unbound return success and is not negativly constraint.
-                if (variableMapping.MapsTo.Term.IsNegativelyConstrained())
+                if (variableMapping.MapsTo.Term!.IsNegativelyConstrained())
                 {
                     stateCopy.Logger.Error("Uncertain how to handle case where constrainted varaible returns constraint again. Failing for now.");
                     stateCopy.LogState();
@@ -384,20 +372,14 @@
 
                 if (nextValuesToTry.Count > 0)
                 {
-                    var recResults = this.ResolveForAllConstraint(stateCopy, goal, nextValuesToTry);
+                    IEnumerable<CoResolutionForAllResult> recResults = this.ResolveForAllConstraint(stateCopy, goal, nextValuesToTry);
 
-                    foreach (var recRes in recResults)
+                    foreach (CoResolutionForAllResult recRes in recResults)
                     {
-                        if (!recRes.Success)
-                        {
-                            yield return new CoResolutionForAllResult(false, stateCopy.Substitution, stateCopy, realGoal);
-                        }
-                        else
-                        {
-                            yield return recRes;
-                        }
+                        yield return !recRes.Success ? new CoResolutionForAllResult(false, stateCopy.Substitution, stateCopy, realGoal) : recRes;
                     }
-                } else
+                }
+                else
                 {
                     yield return new CoResolutionForAllResult(true, stateCopy.Substitution, stateCopy, realGoal);
                 }
@@ -412,7 +394,7 @@
             state.LogState();
 
             // var baseSub = PreprocessLiteralGoal(state.CurrentGoal);
-            var checkRes = this.CheckCHSAndCallStack(state);
+            CheckerResult checkRes = this.CheckCHSAndCallStack(state);
             if (checkRes == CheckerResult.Succeed)
             {
                 yield return new CoResolutionResult(true, new Substitution(), state);
@@ -427,9 +409,9 @@
 
             state.Logger.Debug($"CallStack adding goal {state.CurrentGoal}");
             state.CallStack.Push(state.CurrentGoal);
-            var expansionResults = this.ResolveLiteralGoalByExpansion(state);
+            IEnumerable<CoResolutionResult> expansionResults = this.ResolveLiteralGoalByExpansion(state);
 
-            foreach (var expandsionRes in expansionResults)
+            foreach (CoResolutionResult expandsionRes in expansionResults)
             {
                 state.Logger.Debug($"CallStack removing goal {state.CurrentGoal}");
                 if (!expandsionRes.Success)
@@ -438,8 +420,8 @@
                     yield break;
                 }
 
-                var stateClone = (ResolutionLiteralState)expandsionRes.State.Clone();
-                var subClone = state.Substitution.Clone();
+                ResolutionLiteralState stateClone = (ResolutionLiteralState)expandsionRes.State.Clone();
+                Substitution subClone = state.Substitution.Clone();
                 subClone.BackPropagate(expandsionRes.Substitution);
                 subClone.Contract();
 
@@ -450,31 +432,31 @@
         private IEnumerable<CoResolutionResult> ResolveLiteralGoalByExpansion(ResolutionLiteralState state)
         {
             bool hasYielded = false;
-            var variablesInGoal = this.variableExtractor.ExtractVariablesFrom(state.CurrentGoal).Select(t => t.Value).ToHashSet();
+            HashSet<string> variablesInGoal = this.variableExtractor.ExtractVariablesFrom(state.CurrentGoal).Select(t => t.Value).ToHashSet();
 
-            var preselectedStatements = state.Statements
-                .Where(s => this.preSelector.AreEqual(state.CurrentGoal, s.Head))
+            Statement[] preselectedStatements = state.Statements
+                .Where(s => this.preSelector.AreEqual(state.CurrentGoal, s.Head!))
                 .Select(s => this.LinkAndRenameVariablesIn(s))
                 .ToArray();
 
             state.Logger
                 .Silly($"Preselected {preselectedStatements.Length} rules: [{string.Join(" | ", preselectedStatements.Select(s => s.ToString()))}]");
 
-            foreach (var statement in preselectedStatements)
+            foreach (Statement? statement in preselectedStatements)
             {
                 if (statement.Head == null)
                 {
                     continue;
                 }
 
-                var unificationRes = this.unifier.Unify(statement.Head, state.CurrentGoal);
+                UnificationResult unificationRes = this.unifier.Unify(statement.Head, state.CurrentGoal);
                 if (unificationRes.Value == null)
                 {
                     continue;
                 }
 
                 // if a variable that should be kept unbound gets bound asume a unifictaion fail.
-                foreach (var bound in unificationRes.Value.BoundMappings)
+                foreach (Mapping bound in unificationRes.Value.BoundMappings)
                 {
                     if (state.KeepUnbound.Where(v => v.Equals(bound.Variable)).Any())
                     {
@@ -489,10 +471,10 @@
                 state.Logger.Info($"Unified goal {state.CurrentGoal} with {statement} resulting in {unificationRes.Value}");
 
                 // we expand the goal with this statment if it succeeds the goal gets added to the chs.
-                var results = this.ResolveAllGoals(
+                IEnumerable<CoResolutionResult> results = this.ResolveAllGoals(
                     ResolutionRecursionState.CloneConstructor(statement.Body, this.allStatements, state.CallStack, state.Chs, unificationRes.Value, state.KeepUnbound, state.Logger));
 
-                foreach (var result in results)
+                foreach (CoResolutionResult result in results)
                 {
                     // this rule did not succeed try to find another one.
                     if (!result.Success)
@@ -501,14 +483,14 @@
                         continue;
                     }
 
-                    var stateClone = (ResolutionLiteralState)state.Clone();
-                    var reverseUnification = this.unifier.Unify(stateClone.CurrentGoal, statement.Head);
+                    ResolutionLiteralState stateClone = (ResolutionLiteralState)state.Clone();
+                    UnificationResult reverseUnification = this.unifier.Unify(stateClone.CurrentGoal, statement.Head);
 
-                    reverseUnification.Value.BackPropagate(result.Substitution);
+                    reverseUnification.Value!.BackPropagate(result.Substitution);
                     reverseUnification.Value.Contract();
                     reverseUnification.Value.Intersect(variablesInGoal);
 
-                    var goalToAdd = reverseUnification.Value.Apply(stateClone.CurrentGoal);
+                    Literal goalToAdd = reverseUnification.Value.Apply(stateClone.CurrentGoal);
                     stateClone.Chs = result.CHS;
                     stateClone.Chs.Add(goalToAdd, this.substitutionGroups);
                     stateClone.Substitution = reverseUnification.Value;
@@ -533,10 +515,10 @@
 
         private IEnumerable<CoResolutionResult> ResolveOperation(Operation operation, ResolutionBaseState state)
         {
-            var res = this.operationResolver.ResolveOperation(operation, state);
+            CoResolutionResult res = this.operationResolver.ResolveOperation(operation, state);
 
             // this.substitutionTree.AddAllOf(res.Substitution);
-            foreach (var bound in res.Substitution.BoundMappings)
+            foreach (Mapping bound in res.Substitution.BoundMappings)
             {
                 if (state.KeepUnbound.Where(v => v.Equals(bound.Variable)).Any())
                 {
@@ -553,11 +535,11 @@
 
         private void PreprocessLiteralGoal(Literal goal, Substitution sub)
         {
-            foreach (var param in goal.Atom.ParamList)
+            foreach (AtomParam param in goal.Atom.ParamList)
             {
                 if (param.Term != null && param.Term.IsVariable)
                 {
-                    var newVariableName = $"RV/{this.variableIndex}";
+                    string newVariableName = $"RV/{this.variableIndex}";
                     sub.Add(param.Term, new AtomParam(new Term(newVariableName)));
                     param.Term.Value = newVariableName;
                     this.variableIndex++;
@@ -571,31 +553,20 @@
 
         private Literal GetForAllRule(BodyPart forall)
         {
-            if (forall.ForAll == null && (forall.Child == null || forall.Literal == null))
-            {
-                throw new ArgumentException($"Body part needs to be a forall body part. Got ${forall}");
-            }
-
-            if (forall.Child != null)
-            {
-                return this.GetForAllRule(forall.Child);
-            }
-
-            if (forall.Literal != null)
-            {
-                return forall.Literal;
-            }
-
-            throw new InvalidOperationException("Got body part that has neither a child or a literal, weird...");
+            return forall.ForAll == null && (forall.Child == null || forall.Literal == null)
+                ? throw new ArgumentException($"Body part needs to be a forall body part. Got ${forall}")
+                : forall.Child != null
+                ? this.GetForAllRule(forall.Child)
+                : forall.Literal ?? throw new InvalidOperationException("Got body part that has neither a child or a literal, weird...");
         }
 
         private Statement LinkAndRenameVariablesIn(Statement statement)
         {
-            var linkedStatement = this.linker.LinkVariables(statement);
-            var variables = this.variableExtractor.ExtractVariablesFrom(linkedStatement);
-            foreach (var variable in variables)
+            Statement linkedStatement = this.linker.LinkVariables(statement);
+            HashSet<Term> variables = this.variableExtractor.ExtractVariablesFrom(linkedStatement);
+            foreach (Term variable in variables)
             {
-                var newName = $"RV/{this.variableIndex}";
+                string newName = $"RV/{this.variableIndex}";
 
                 variable.Value = newName;
                 this.variableIndex++;

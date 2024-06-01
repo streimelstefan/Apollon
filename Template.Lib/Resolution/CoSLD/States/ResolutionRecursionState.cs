@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Resolution.CoSLD.States
+﻿//-----------------------------------------------------------------------
+// <copyright file="ResolutionRecursionState.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Resolution.CoSLD.States
 {
     using Apollon.Lib.Logging;
     using Apollon.Lib.Resolution.CallStackAndCHS;
@@ -68,7 +75,7 @@
         /// <returns>A new cloned instance.</returns>
         public static ResolutionRecursionState CloneConstructor(BodyPart[] goals, Statement[] statements, Stack<Literal> callStack, CHS chs, Substitution substitution, ILogger logger)
         {
-            var obj = new ResolutionRecursionState(goals, statements, callStack, chs, substitution, logger);
+            ResolutionRecursionState obj = new(goals, statements, callStack, chs, substitution, logger);
 
             return (ResolutionRecursionState)obj.Clone();
         }
@@ -86,7 +93,7 @@
         /// <returns>A new cloned instance.</returns>
         public static ResolutionRecursionState CloneConstructor(BodyPart[] goals, Statement[] statements, Stack<Literal> callStack, CHS chs, Substitution substitution, List<Term> keepUnbound, ILogger logger)
         {
-            var obj = new ResolutionRecursionState(goals, statements, callStack, chs, substitution, keepUnbound, logger);
+            ResolutionRecursionState obj = new(goals, statements, callStack, chs, substitution, keepUnbound, logger);
 
             return (ResolutionRecursionState)obj.Clone();
         }
@@ -99,7 +106,7 @@
         /// <returns>A new cloned instance.</returns>
         public static ResolutionRecursionState CloneConstructor(ResolutionBaseState baseState, BodyPart[] goals)
         {
-            var obj = new ResolutionRecursionState(baseState, goals);
+            ResolutionRecursionState obj = new(baseState, goals);
 
             return (ResolutionRecursionState)obj.Clone();
         }
@@ -110,7 +117,7 @@
         /// <returns>A cloned object of the current state.</returns>
         public override object Clone()
         {
-            var baseObj = (ResolutionBaseState)base.Clone();
+            ResolutionBaseState baseObj = (ResolutionBaseState)base.Clone();
 
             return new ResolutionRecursionState(baseObj, this.Goals.Select(g => (BodyPart)g.Clone()).ToArray());
         }

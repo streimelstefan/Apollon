@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib
+﻿//-----------------------------------------------------------------------
+// <copyright file="ResultStringBuilder.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib
 {
     using System.Text;
     using Apollon.Lib.Atoms;
@@ -17,32 +24,32 @@
         /// <returns>A string representing the Result.</returns>
         public string CreateResultString(ResolutionResult res)
         {
-            StringBuilder result = new StringBuilder();
+            StringBuilder result = new();
 
             if (!res.Success)
             {
-                result.AppendLine("No solution found.");
+                _ = result.AppendLine("No solution found.");
                 return result.ToString();
             }
 
-            result.AppendLine("Solution found:\n");
-            result.AppendLine("{");
+            _ = result.AppendLine("Solution found:\n");
+            _ = result.AppendLine("{");
 
-            foreach (var literal in res.CHS.Literals)
+            foreach (Literal literal in res.CHS.Literals)
             {
-                result.Append("  ");
-                result.Append(this.BuildLiteralString(literal));
-                result.AppendLine();
+                _ = result.Append("  ");
+                _ = result.Append(this.BuildLiteralString(literal));
+                _ = result.AppendLine();
             }
 
-            result.AppendLine("}");
+            _ = result.AppendLine("}");
 
-            var subRes = this.BuildSubstitutionString(res.Substitution);
+            StringBuilder subRes = this.BuildSubstitutionString(res.Substitution);
 
             if (subRes.Length > 0)
             {
-                result.AppendLine();
-                result.Append(subRes);
+                _ = result.AppendLine();
+                _ = result.Append(subRes);
             }
 
             return result.ToString();
@@ -50,13 +57,13 @@
 
         private StringBuilder BuildSubstitutionString(Substitution sub)
         {
-            var res = new StringBuilder();
+            StringBuilder res = new();
 
-            foreach (var mapping in sub.Mappings)
+            foreach (Unification.Mapping mapping in sub.Mappings)
             {
                 if (mapping.MapsTo.Term != null && mapping.MapsTo.Term.IsVariable)
                 {
-                    var variable = mapping.MapsTo.Term;
+                    Term variable = mapping.MapsTo.Term;
 
                     if (variable.ProhibitedValues.GetValues().Count() == 0)
                     {
@@ -64,20 +71,20 @@
                         continue;
                     }
 
-                    foreach (var pvl in variable.ProhibitedValues.GetValues())
+                    foreach (AtomParam pvl in variable.ProhibitedValues.GetValues())
                     {
-                        res.Append(mapping.Variable.Value);
-                        res.Append(" != ");
-                        res.Append(this.BuildAtomParamString(pvl, new StringBuilder()));
-                        res.AppendLine();
+                        _ = res.Append(mapping.Variable.Value);
+                        _ = res.Append(" != ");
+                        _ = res.Append(this.BuildAtomParamString(pvl, new StringBuilder()));
+                        _ = res.AppendLine();
                     }
                 }
                 else
                 {
-                    res.Append(mapping.Variable.Value);
-                    res.Append(" = ");
-                    res.Append(this.BuildAtomParamString(mapping.MapsTo, new StringBuilder()));
-                    res.AppendLine();
+                    _ = res.Append(mapping.Variable.Value);
+                    _ = res.Append(" = ");
+                    _ = res.Append(this.BuildAtomParamString(mapping.MapsTo, new StringBuilder()));
+                    _ = res.AppendLine();
                 }
             }
 
@@ -86,26 +93,26 @@
 
         private StringBuilder BuildLiteralString(Literal literal)
         {
-            StringBuilder result = new StringBuilder();
-            StringBuilder pvl = new StringBuilder();
+            StringBuilder result = new();
+            StringBuilder pvl = new();
 
             if (literal.IsNAF)
             {
-                result.Append("not ");
+                _ = result.Append("not ");
             }
 
             if (literal.IsNegative)
             {
-                result.Append("-");
+                _ = result.Append("-");
             }
 
-            result.Append(this.BuildAtomString(literal.Atom, pvl));
+            _ = result.Append(this.BuildAtomString(literal.Atom, pvl));
 
             if (pvl.Length > 0)
             {
-                result.Append(" (");
-                result.Append(pvl);
-                result.Append(")");
+                _ = result.Append(" (");
+                _ = result.Append(pvl);
+                _ = result.Append(")");
             }
 
             return result;
@@ -113,52 +120,52 @@
 
         private StringBuilder BuildAtomString(Atom atom, StringBuilder pvlStringBuilder)
         {
-            StringBuilder res = new StringBuilder();
+            StringBuilder res = new();
 
-            res.Append(atom.Name);
+            _ = res.Append(atom.Name);
 
             if (atom.ParamList.Count() == 0)
             {
                 return res;
             }
 
-            res.Append('(');
+            _ = res.Append('(');
             for (int i = 0; i < atom.ParamList.Count() - 1; i++)
             {
-                var param = atom.ParamList[i];
-                res.Append(this.BuildAtomParamString(param, pvlStringBuilder));
-                res.Append(", ");
+                AtomParam param = atom.ParamList[i];
+                _ = res.Append(this.BuildAtomParamString(param, pvlStringBuilder));
+                _ = res.Append(", ");
             }
 
-            res.Append(this.BuildAtomParamString(atom.ParamList.Last(), pvlStringBuilder));
+            _ = res.Append(this.BuildAtomParamString(atom.ParamList.Last(), pvlStringBuilder));
 
-            res.Append(")");
+            _ = res.Append(")");
             return res;
         }
 
         private StringBuilder BuildAtomParamString(AtomParam atomParam, StringBuilder pvlStringBuilder)
         {
-            var res = new StringBuilder();
+            StringBuilder res = new();
             if (atomParam.Term != null)
             {
-                res.Append(atomParam.Term.Value);
+                _ = res.Append(atomParam.Term.Value);
 
-                foreach (var pvl in atomParam.Term.ProhibitedValues.GetValues())
+                foreach (AtomParam pvl in atomParam.Term.ProhibitedValues.GetValues())
                 {
                     if (pvlStringBuilder.Length > 0)
                     {
-                        pvlStringBuilder.Append(", ");
+                        _ = pvlStringBuilder.Append(", ");
                     }
 
-                    pvlStringBuilder.Append(atomParam.Term.Value);
-                    pvlStringBuilder.Append(" != ");
-                    pvlStringBuilder.Append(this.BuildAtomParamString(pvl, pvlStringBuilder));
+                    _ = pvlStringBuilder.Append(atomParam.Term.Value);
+                    _ = pvlStringBuilder.Append(" != ");
+                    _ = pvlStringBuilder.Append(this.BuildAtomParamString(pvl, pvlStringBuilder));
                 }
             }
 
             if (atomParam.Literal != null)
             {
-                res.Append(this.BuildLiteralString(atomParam.Literal));
+                _ = res.Append(this.BuildLiteralString(atomParam.Literal));
             }
 
             return res;

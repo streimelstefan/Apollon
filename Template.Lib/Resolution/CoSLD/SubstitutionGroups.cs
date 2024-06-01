@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Resolution.CoSLD
+﻿//-----------------------------------------------------------------------
+// <copyright file="SubstitutionGroups.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Resolution.CoSLD
 {
     using Apollon.Lib.Atoms;
     using Apollon.Lib.Unification.Substitutioners;
@@ -11,7 +18,7 @@
         /// <summary>
         /// The substition tree.
         /// </summary>
-        private List<HashSet<string>> groups;
+        private readonly List<HashSet<string>> groups;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SubstitutionGroups"/> class.
@@ -27,7 +34,7 @@
         /// <param name="sub">The <see cref="Substitution"/> to add the elements from.</param>
         public void AddAllOf(Substitution sub)
         {
-            foreach (var mapping in sub.Mappings)
+            foreach (Unification.Mapping mapping in sub.Mappings)
             {
                 this.AddEntry(mapping.Variable, mapping.MapsTo);
             }
@@ -49,17 +56,17 @@
                 return;
             }
 
-            foreach (var group in this.groups)
+            foreach (HashSet<string> group in this.groups)
             {
                 if (group.Contains(from.Value) || group.Contains(to.Value))
                 {
-                    group.Add(to.Value);
-                    group.Add(from.Value);
+                    _ = group.Add(to.Value);
+                    _ = group.Add(from.Value);
                     return;
                 }
             }
 
-            var newGroup = new HashSet<string>()
+            HashSet<string> newGroup = new()
             {
                 from.Value,
                 to.Value,
@@ -84,7 +91,7 @@
 
             for (int i = 0; i < this.groups.Count(); i++)
             {
-                var group = this.groups[i];
+                HashSet<string> group = this.groups[i];
                 if (group.Contains(term.Value))
                 {
                     return $"GV/{i}";
@@ -120,10 +127,10 @@
             ArgumentNullException.ThrowIfNull(from, nameof(from));
             ArgumentNullException.ThrowIfNull(to, nameof(to));
 
-            var fromValue = from.Value;
-            var toValue = to.Value;
+            string fromValue = from.Value;
+            string toValue = to.Value;
 
-            foreach (var group in this.groups)
+            foreach (HashSet<string> group in this.groups)
             {
                 if (group.Contains(fromValue) && group.Contains(toValue))
                 {
@@ -140,15 +147,15 @@
         /// <returns>A clone of the current object.</returns>
         public object Clone()
         {
-            var newSubTree = new SubstitutionGroups();
+            SubstitutionGroups newSubTree = new();
 
-            foreach (var group in this.groups)
+            foreach (HashSet<string> group in this.groups)
             {
-                var newGroup = new HashSet<string>();
+                HashSet<string> newGroup = new();
 
-                foreach (var item in group)
+                foreach (string item in group)
                 {
-                    newGroup.Add(item);
+                    _ = newGroup.Add(item);
                 }
 
                 newSubTree.groups.Add(newGroup);

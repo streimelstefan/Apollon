@@ -1,18 +1,29 @@
-﻿using Apollon.Lib.Rules;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design.Serialization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="CallGraph.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace Apollon.Lib.Graph
 {
+    using Apollon.Lib.Rules;
+
     /// <summary>
     /// Represents a CallGraph. A CallGraph is a directed graph that represents the calls between Literals.
     /// </summary>
     public class CallGraph
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CallGraph"/> class.
+        /// </summary>
+        /// <param name="equalizer">The <see cref="IEqualizer{T}"/> that should be used to compare the <see cref="Literal"/>s.</param>
+        public CallGraph(IEqualizer<Literal> equalizer)
+        {
+            this.Nodes = new List<CallGraphNode>();
+            this.Edges = new List<CallGraphEdge>();
+            this.Equalizer = equalizer;
+        }
 
         /// <summary>
         /// Gets or sets the root node of the CallGraph.
@@ -35,35 +46,21 @@ namespace Apollon.Lib.Graph
         public IEqualizer<Literal> Equalizer { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CallGraph"/> class.
-        /// </summary>
-        /// <param name="equalizer">The <see cref="IEqualizer{T}"/> that should be used to compare the <see cref="Literal"/>s.</param>
-        public CallGraph(IEqualizer<Literal> equalizer)
-        {
-            Nodes = new List<CallGraphNode>();
-            Edges = new List<CallGraphEdge>();
-            Equalizer = equalizer;
-        }
-
-        /// <summary>
         /// Adds a Node to the CallGraph. If the Root is not set, the Node will be set as the Root.
         /// </summary>
         /// <param name="node">The Node that will be added onto the CallGraph.</param>
         /// <returns>The Node that was added.</returns>
         public CallGraphNode AddNode(CallGraphNode node)
         {
-            if (Nodes.Contains(node))
+            if (this.Nodes.Contains(node))
             {
                 throw new ArgumentException("Node already exists in the Graph!");
             }
 
-            if (Root == null)
-            {
-                Root = node;
-            }
+            this.Root ??= node;
 
             // Add Check if Literal already exists inside Graph?
-            Nodes.Add(node);
+            this.Nodes.Add(node);
             return node;
         }
 
@@ -84,17 +81,17 @@ namespace Apollon.Lib.Graph
         /// <returns>The Edge that was added.</returns>
         public CallGraphEdge AddEdge(CallGraphEdge edge)
         {
-            if (Edges.Contains(edge))
+            if (this.Edges.Contains(edge))
             {
                 throw new ArgumentException("Edge already exists in the Graph!");
             }
 
-            if ((edge.Source != null && !Nodes.Contains(edge.Source)) || !Nodes.Contains(edge.Target))
+            if ((edge.Source != null && !this.Nodes.Contains(edge.Source)) || !this.Nodes.Contains(edge.Target))
             {
                 throw new ArgumentException("Source or Target Node of Edge is not part of the Graph!");
             }
 
-            Edges.Add(edge);
+            this.Edges.Add(edge);
             return edge;
         }
 
@@ -118,7 +115,7 @@ namespace Apollon.Lib.Graph
         /// <returns>All the edges of the given node.</returns>
         public IEnumerable<CallGraphEdge> GetEdgesOfNode(CallGraphNode node)
         {
-            return Edges.Where(edge => edge.Source != null && edge.Source.Equals(node));
+            return this.Edges.Where(edge => edge.Source != null && edge.Source.Equals(node));
         }
 
         /// <summary>
@@ -128,7 +125,7 @@ namespace Apollon.Lib.Graph
         /// <returns>All the edges of the node.</returns>
         public IEnumerable<CallGraphEdge> GetAllEdgesOfNode(CallGraphNode node)
         {
-            return Edges.Where(edge => edge.Source != null && edge.Source.Equals(node) || edge.Target.Equals(node));
+            return this.Edges.Where(edge => (edge.Source != null && edge.Source.Equals(node)) || edge.Target.Equals(node));
         }
 
         /// <summary>
@@ -138,9 +135,8 @@ namespace Apollon.Lib.Graph
         /// <returns>All the nodes that are related to an statement.</returns>
         public IEnumerable<CallGraphNode> GetNodesOfStatement(Statement rule)
         {
-            return Nodes.Where(node => GetAllEdgesOfNode(node).Where(edge => edge.CreatorRule == rule).Any());
+            return this.Nodes.Where(node => this.GetAllEdgesOfNode(node).Where(edge => edge.CreatorRule == rule).Any());
         }
-
 
         /// <summary>
         /// Returns the Node that represents the given Literal. If the Node does not exist, null will be returned.
@@ -149,7 +145,7 @@ namespace Apollon.Lib.Graph
         /// <returns>The Node if given Literal was found; Null if given Literal is not found.</returns>
         public CallGraphNode? GetNode(Literal literal)
         {
-            return Nodes.Find(node => Equalizer.AreEqual(node.Literal, literal));
+            return this.Nodes.Find(node => this.Equalizer.AreEqual(node.Literal, literal));
         }
     }
 }

@@ -1,24 +1,25 @@
-﻿using Apollon.Lib.Rules;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
-using Apollon.Lib;
-using Apollon.Lib.Docu;
+﻿//-----------------------------------------------------------------------
+// <copyright file="ProgramVisitor.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace AppollonParser.Visitors
 {
+    using Apollon.Lib;
+    using Apollon.Lib.Docu;
+    using Apollon.Lib.Rules;
+
     /// <summary>
     /// A vistor that generates <see cref="Program"/>s.
     /// </summary>
     internal class ProgramVisitor : apollonBaseVisitor<Program>
     {
-        private readonly RuleVisitor _ruleVisitor = new RuleVisitor();
-        private readonly FactVisitor _factVisitor = new FactVisitor();
-        private readonly ConstraintVisitor _constraintVisitor = new ConstraintVisitor();
-        private readonly DocumentationVisitor _documentationVisitor = new DocumentationVisitor();
+        private readonly RuleVisitor ruleVisitor = new();
+        private readonly FactVisitor factVisitor = new();
+        private readonly ConstraintVisitor constraintVisitor = new();
+        private readonly DocumentationVisitor documentationVisitor = new();
 
         /// <summary>
         /// Generates a new <see cref="Program"/>.
@@ -27,15 +28,15 @@ namespace AppollonParser.Visitors
         /// <returns>The new program.</returns>
         public override Program VisitProgram(apollonParser.ProgramContext context)
         {
-            var facts = new List<Literal>();
-            var rules = new List<Rule>();
-            var constraints = new List<Constraint>();
-            var statements = context.statement();
-            var documentation = new List<IDocumentation>();
+            List<Literal> facts = new();
+            List<Rule> rules = new();
+            List<Constraint> constraints = new();
+            apollonParser.StatementContext[] statements = context.statement();
+            List<IDocumentation> documentation = new();
 
-            foreach ( var statement in statements )
+            foreach (apollonParser.StatementContext? statement in statements)
             {
-                ProcessStatment(statement, facts, rules, constraints, documentation);
+                this.ProcessStatment(statement, facts, rules, constraints, documentation);
             }
 
             return new Program(facts.ToArray(), rules.ToArray(), constraints.ToArray(), documentation.ToArray());
@@ -45,22 +46,24 @@ namespace AppollonParser.Visitors
         {
             if (context.fact() != null)
             {
-                var literal = _factVisitor.VisitFact(context.fact());
+                Literal literal = this.factVisitor.VisitFact(context.fact());
                 facts.Add(literal);
-            } else if (context.rule() != null)
+            }
+            else if (context.rule() != null)
             {
-                var rule = _ruleVisitor.VisitRule(context.rule());
+                Rule rule = this.ruleVisitor.VisitRule(context.rule());
                 rules.Add(rule);
-            } else if (context.constraint() != null)
+            }
+            else if (context.constraint() != null)
             {
-                var constraint = _constraintVisitor.VisitConstraint(context.constraint());
+                Constraint constraint = this.constraintVisitor.VisitConstraint(context.constraint());
                 constraints.Add(constraint);
-            } else if (context.docu() != null)
+            }
+            else if (context.docu() != null)
             {
-                var docu = _documentationVisitor.VisitDocu(context.docu());
+                IDocumentation docu = this.documentationVisitor.VisitDocu(context.docu());
                 documentation.Add(docu);
             }
         }
-
     }
 }

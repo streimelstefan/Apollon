@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Unification.DisagreementFinders
+﻿//-----------------------------------------------------------------------
+// <copyright file="IDisagreementFinder.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Unification.DisagreementFinders
 {
     using Apollon.Lib.Rules;
 

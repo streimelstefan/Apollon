@@ -1,46 +1,39 @@
-﻿using Apollon.Lib;
-using Apollon.Lib.Atoms;
-using Apollon.Lib.Unification;
-using Apollon.Lib.Unification.DisagreementFinders;
-using Apollon.Lib.Unification.Substitutioners;
-using AppollonParser;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Apollon.Test
+﻿namespace Apollon.Test
 {
+    using Apollon.Lib;
+    using Apollon.Lib.Atoms;
+    using Apollon.Lib.Unification;
+    using Apollon.Lib.Unification.Substitutioners;
+    using AppollonParser;
+    using NUnit.Framework;
+    using System.Linq;
+
     [TestFixture]
     public class UnifierTests
     {
-        private IUnifier _unifier = new Unifier();
-        private ApollonParser _parser = new ApollonParser();
-
+        private IUnifier unifier = new Unifier();
+        private ApollonParser parser = new();
 
         [SetUp]
         public void Setup()
         {
-            _unifier = new Unifier();
-            _parser = new ApollonParser();
+            this.unifier = new Unifier();
+            this.parser = new ApollonParser();
         }
 
         [Test]
         public void ShouldUnifyAtomsAndReturnMappingWhereXIsA()
         {
-            var code = "head(X).\nhead(a).";
-            var program = _parser.ParseFromString(code);
-            var rule1 = program.Statements.First();
-            var rule2 = program.Statements.Last();
+            string code = "head(X).\nhead(a).";
+            Program program = this.parser.ParseFromString(code);
+            Lib.Rules.Statement rule1 = program.Statements.First();
+            Lib.Rules.Statement rule2 = program.Statements.Last();
 
-            var res = _unifier.Unify(rule1.Head, rule2.Head);
+            UnificationResult res = this.unifier.Unify(rule1.Head, rule2.Head);
 
             Assert.IsTrue(res.IsSuccess);
 
-            var mappings = res.Value.Mappings.ToArray();
+            Mapping[] mappings = res.Value.Mappings.ToArray();
 
             Assert.AreEqual(1, mappings.Length);
             Assert.AreEqual("X -> a", mappings[0].ToString());
@@ -49,12 +42,12 @@ namespace Apollon.Test
         [Test]
         public void ShouldNotUnifyAtoms()
         {
-            var code = "head1(X).\nhead(a).";
-            var program = _parser.ParseFromString(code);
-            var rule1 = program.Statements.First();
-            var rule2 = program.Statements.Last();
+            string code = "head1(X).\nhead(a).";
+            Program program = this.parser.ParseFromString(code);
+            Lib.Rules.Statement rule1 = program.Statements.First();
+            Lib.Rules.Statement rule2 = program.Statements.Last();
 
-            var res = _unifier.Unify(rule1.Head, rule2.Head);
+            UnificationResult res = this.unifier.Unify(rule1.Head, rule2.Head);
 
             Assert.IsTrue(res.IsError);
         }
@@ -62,16 +55,16 @@ namespace Apollon.Test
         [Test]
         public void ShouldUnifyComplexAtoms()
         {
-            var code = "f(a, X, g(Y)).\nf(Z, h(Z), g(b)).";
-            var program = _parser.ParseFromString(code);
-            var rule1 = program.Statements.First();
-            var rule2 = program.Statements.Last();
+            string code = "f(a, X, g(Y)).\nf(Z, h(Z), g(b)).";
+            Program program = this.parser.ParseFromString(code);
+            Lib.Rules.Statement rule1 = program.Statements.First();
+            Lib.Rules.Statement rule2 = program.Statements.Last();
 
-            var res = _unifier.Unify(rule1.Head, rule2.Head);
+            UnificationResult res = this.unifier.Unify(rule1.Head, rule2.Head);
 
             Assert.IsTrue(res.IsSuccess);
 
-            var mappings = res.Value.Mappings.ToArray();
+            Mapping[] mappings = res.Value.Mappings.ToArray();
 
             Assert.AreEqual(3, mappings.Length);
             Assert.AreEqual("Z -> a", mappings[0].ToString());
@@ -82,16 +75,16 @@ namespace Apollon.Test
         [Test]
         public void ShouldUnfiComplexAtomsInBody()
         {
-            var code = ":- f(a, X, g(Y)).\n:- f(Z, h(Z), g(b)).";
-            var program = _parser.ParseFromString(code);
-            var rule1 = program.Statements.First();
-            var rule2 = program.Statements.Last();
+            string code = ":- f(a, X, g(Y)).\n:- f(Z, h(Z), g(b)).";
+            Program program = this.parser.ParseFromString(code);
+            Lib.Rules.Statement rule1 = program.Statements.First();
+            Lib.Rules.Statement rule2 = program.Statements.Last();
 
-            var res = _unifier.Unify(rule1.Body.First(), rule2.Body.First());
+            UnificationResult res = this.unifier.Unify(rule1.Body.First(), rule2.Body.First());
 
             Assert.IsTrue(res.IsSuccess);
 
-            var mappings = res.Value.Mappings.ToArray();
+            Mapping[] mappings = res.Value.Mappings.ToArray();
 
             Assert.AreEqual(3, mappings.Length);
             Assert.AreEqual("Z -> a", mappings[0].ToString());
@@ -102,18 +95,18 @@ namespace Apollon.Test
         [Test]
         public void ShouldUnifyUsingExistingSubstitution()
         {
-            var code = ":- f(X).\n:- f(X).";
-            var program = _parser.ParseFromString(code);
-            var rule1 = program.Statements.First();
-            var rule2 = program.Statements.Last();
+            string code = ":- f(X).\n:- f(X).";
+            Program program = this.parser.ParseFromString(code);
+            Lib.Rules.Statement rule1 = program.Statements.First();
+            Lib.Rules.Statement rule2 = program.Statements.Last();
 
-            var sub = new Substitution();
+            Substitution sub = new();
             sub.Add(new Term("X"), new AtomParam(new Term("a")));
-            var res = _unifier.Unify(rule1.Body.First(), rule2.Body.First(), sub);
+            UnificationResult res = this.unifier.Unify(rule1.Body.First(), rule2.Body.First(), sub);
 
             Assert.IsTrue(res.IsSuccess);
 
-            var mappings = res.Value.Mappings.ToArray();
+            Mapping[] mappings = res.Value.Mappings.ToArray();
 
             Assert.AreEqual(1, mappings.Length);
             Assert.AreEqual("X -> a", mappings[0].ToString());

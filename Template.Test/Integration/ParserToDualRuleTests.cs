@@ -1,36 +1,31 @@
-﻿using Apollon.Lib.DualRules;
-using Apollon.Lib.Rules.Operations;
-using AppollonParser;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Apollon.Test.Integration
+﻿namespace Apollon.Test.Integration
 {
+    using System.Linq;
+    using Apollon.Lib.DualRules;
+    using Apollon.Lib.Rules.Operations;
+    using AppollonParser;
+    using NUnit.Framework;
+
     [TestFixture]
     public class ParserToDualRuleTests
     {
-
-        private ApollonParser parser = new ApollonParser();
+        private ApollonParser parser = new();
         private IDualRuleGenerator generator = new DualRuleGenerator();
 
         [SetUp]
         public void Setup()
         {
-            parser = new ApollonParser();
-            generator = new DualRuleGenerator();
+            this.parser = new ApollonParser();
+            this.generator = new DualRuleGenerator();
         }
 
         [Test]
         public void ShouldUnuninifyAtoms()
         {
-            var code = "a(0).";
-            var program = parser.ParseFromString(code);
+            string code = "a(0).";
+            Lib.Program program = this.parser.ParseFromString(code);
 
-            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+            DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
 
             Assert.AreEqual(2, rules.Length);
             Assert.IsTrue(rules[0].Head.IsNAF);
@@ -54,10 +49,10 @@ namespace Apollon.Test.Integration
         [Test]
         public void SchouldCreateTwoDualRulesForThisRule()
         {
-            var code = "p(X, b) :- q(X).";
-            var program = parser.ParseFromString(code);
+            string code = "p(X, b) :- q(X).";
+            Lib.Program program = this.parser.ParseFromString(code);
 
-            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+            DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
 
             Assert.AreEqual(3, rules.Length);
             Assert.AreEqual("not _p0(X, V/0) :- V/0 != b().", rules[0].ToString());
@@ -68,10 +63,10 @@ namespace Apollon.Test.Integration
         [Test]
         public void ShouldIgnoreAtomsInProgramWhenCreatingDualRules()
         {
-            var code = "cat.\r\n-dog.\r\ndog :- not cat.";
-            var program = parser.ParseFromString(code);
+            string code = "cat.\r\n-dog.\r\ndog :- not cat.";
+            Lib.Program program = this.parser.ParseFromString(code);
 
-            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+            DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
 
             Assert.AreEqual(2, rules.Length);
             Assert.AreEqual("not _dog0() :- cat().", rules[0].ToString());
@@ -81,10 +76,10 @@ namespace Apollon.Test.Integration
         [Test]
         public void ShouldIgnoreConstraintStatments()
         {
-            var code = ":- b.";
-            var program = parser.ParseFromString(code);
+            string code = ":- b.";
+            Lib.Program program = this.parser.ParseFromString(code);
 
-            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+            DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
 
             Assert.AreEqual(0, rules.Length);
         }
@@ -92,10 +87,10 @@ namespace Apollon.Test.Integration
         [Test]
         public void ShouldHandleComplexerDualRules()
         {
-            var code = "p :- not s\r\ns :- not r.\r\nr :- not p.\r\nr :- not s.";
-            var program = parser.ParseFromString(code);
+            string code = "p :- not s\r\ns :- not r.\r\nr :- not p.\r\nr :- not s.";
+            Lib.Program program = this.parser.ParseFromString(code);
 
-            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+            DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
 
             Assert.AreEqual(7, rules.Length);
             Assert.AreEqual("not _p0() :- s().", rules[0].ToString());
@@ -110,10 +105,10 @@ namespace Apollon.Test.Integration
         [Test]
         public void ShouldCreateMulipleRulesForStatmentsWithMultipleBodyParts()
         {
-            var code = "happy(X) :- likes(X, prix), not hates(X, stefan).";
-            var program = parser.ParseFromString(code);
+            string code = "happy(X) :- likes(X, prix), not hates(X, stefan).";
+            Lib.Program program = this.parser.ParseFromString(code);
 
-            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+            DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
 
             Assert.AreEqual(3, rules.Length);
             Assert.AreEqual("not _happy0(X) :- not likes(X, prix).", rules[0].ToString());
@@ -124,10 +119,10 @@ namespace Apollon.Test.Integration
         [Test]
         public void ShouldCreateForAllRule()
         {
-            var code = "a(X) :- b(X, Y), c(Y, X).";
-            var program = parser.ParseFromString(code);
+            string code = "a(X) :- b(X, Y), c(Y, X).";
+            Lib.Program program = this.parser.ParseFromString(code);
 
-            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+            DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
 
             Assert.AreEqual(4, rules.Length);
             Assert.AreEqual("not _a0(X, Y) :- not b(X, Y).", rules[0].ToString());
@@ -139,10 +134,10 @@ namespace Apollon.Test.Integration
         [Test]
         public void ShouldCreateForAllForSinglePrivateVariables()
         {
-            var code = "a(X) :- b(X, Y).";
-            var program = parser.ParseFromString(code);
+            string code = "a(X) :- b(X, Y).";
+            Lib.Program program = this.parser.ParseFromString(code);
 
-            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+            DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
 
             Assert.AreEqual(3, rules.Length);
             Assert.AreEqual("not _a0(X, Y) :- not b(X, Y).", rules[0].ToString());
@@ -153,10 +148,10 @@ namespace Apollon.Test.Integration
         [Test]
         public void ShouldParseComplexerProgramWithOnlyAtoms()
         {
-            var code = "bird(tweety).\r\ncat(sylvester).\r\ndog(pluto).\r\nlikes(mary, pizza).\r\nlikes(john, pasta).\r\n";
-            var program = parser.ParseFromString(code);
+            string code = "bird(tweety).\r\ncat(sylvester).\r\ndog(pluto).\r\nlikes(mary, pizza).\r\nlikes(john, pasta).\r\n";
+            Lib.Program program = this.parser.ParseFromString(code);
 
-            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+            DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
 
             Assert.AreEqual(11, rules.Length);
             Assert.AreEqual("not _bird0(V/0) :- V/0 != tweety().", rules[0].ToString());
@@ -175,10 +170,10 @@ namespace Apollon.Test.Integration
         [Test]
         public void ShouldCreateDualRulesComplexerProgramWithRecursion()
         {
-            var code = "parent(alice, bob).\r\nparent(bob, charlie).\r\nancestor(X, Y) :- parent(X, Y).\r\nancestor(X, Y) :- parent(X, Z), ancestor(Z, Y).\r\n";
-            var program = parser.ParseFromString(code);
+            string code = "parent(alice, bob).\r\nparent(bob, charlie).\r\nancestor(X, Y) :- parent(X, Y).\r\nancestor(X, Y) :- parent(X, Z), ancestor(Z, Y).\r\n";
+            Lib.Program program = this.parser.ParseFromString(code);
 
-            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+            DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
 
             Assert.AreEqual(10, rules.Length);
             Assert.AreEqual("not _parent0(V/0, V/1) :- V/0 != alice().", rules[0].ToString());
@@ -196,10 +191,10 @@ namespace Apollon.Test.Integration
         [Test]
         public void ShouldConvertLessThenToGreaterThenOrEquals()
         {
-            var code = "a(X) :- X < 2.";
-            var program = parser.ParseFromString(code);
+            string code = "a(X) :- X < 2.";
+            Lib.Program program = this.parser.ParseFromString(code);
 
-            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+            DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
 
             Assert.AreEqual(2, rules.Length);
             Assert.AreEqual("not _a0(X) :- X >= 2.", rules[0].ToString());
@@ -209,10 +204,10 @@ namespace Apollon.Test.Integration
         [Test]
         public void ShouldConvertGreaterThenToLessThenOrEquals()
         {
-            var code = "a(X) :- X > 2.";
-            var program = parser.ParseFromString(code);
+            string code = "a(X) :- X > 2.";
+            Lib.Program program = this.parser.ParseFromString(code);
 
-            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+            DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
 
             Assert.AreEqual(2, rules.Length);
             Assert.AreEqual("not _a0(X) :- X <= 2.", rules[0].ToString());
@@ -222,10 +217,10 @@ namespace Apollon.Test.Integration
         [Test]
         public void ShouldConvertGreaterThenOrEqualToLessThen()
         {
-            var code = "a(X) :- X >= 2.";
-            var program = parser.ParseFromString(code);
+            string code = "a(X) :- X >= 2.";
+            Lib.Program program = this.parser.ParseFromString(code);
 
-            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+            DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
 
             Assert.AreEqual(2, rules.Length);
             Assert.AreEqual("not _a0(X) :- X < 2.", rules[0].ToString());
@@ -235,10 +230,10 @@ namespace Apollon.Test.Integration
         [Test]
         public void ShouldConvertLessThanOrEqualToLessThen()
         {
-            var code = "a(X) :- X <= 2.";
-            var program = parser.ParseFromString(code);
+            string code = "a(X) :- X <= 2.";
+            Lib.Program program = this.parser.ParseFromString(code);
 
-            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+            DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
 
             Assert.AreEqual(2, rules.Length);
             Assert.AreEqual("not _a0(X) :- X > 2.", rules[0].ToString());
@@ -248,16 +243,15 @@ namespace Apollon.Test.Integration
         [Test]
         public void ShouldNAFSwithIsOperations()
         {
-            var code = "a(X) :- Y is X + 2.";
-            var program = parser.ParseFromString(code);
+            string code = "a(X) :- Y is X + 2.";
+            Lib.Program program = this.parser.ParseFromString(code);
 
-            var rules = generator.GenerateDualRules(program.Statements.ToArray());
+            DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
 
             Assert.AreEqual(3, rules.Length);
             Assert.AreEqual("not _a0(X, Y) :- not Y is X + 2.", rules[0].ToString());
             Assert.AreEqual("not _a0(X) :- forall(Y, not _a0(X, Y)).", rules[1].ToString());
             Assert.AreEqual("not a(V/0) :- not _a0(V/0).", rules[2].ToString());
         }
-
     }
 }

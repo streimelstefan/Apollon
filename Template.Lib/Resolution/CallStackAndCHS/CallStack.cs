@@ -1,4 +1,10 @@
-﻿
+﻿//-----------------------------------------------------------------------
+// <copyright file="CallStack.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
 namespace Apollon.Lib.Resolution.CallStackAndCHS
 {
     using Apollon.Lib.Rules;
@@ -11,7 +17,7 @@ namespace Apollon.Lib.Resolution.CallStackAndCHS
     /// </summary>
     public class CallStack
     {
-        private IUnifier unifier = new Unifier();
+        private readonly IUnifier unifier = new Unifier();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CallStack"/> class.
@@ -29,13 +35,7 @@ namespace Apollon.Lib.Resolution.CallStackAndCHS
         /// <summary>
         /// Gets a value indicating whether the CallStack is empty.
         /// </summary>
-        public bool IsEmpty
-        {
-            get
-            {
-                return this.Items.Count == 0;
-            }
-        }
+        public bool IsEmpty => this.Items.Count == 0;
 
         /// <summary>
         /// Adds a new item to the CallStack.
@@ -46,7 +46,8 @@ namespace Apollon.Lib.Resolution.CallStackAndCHS
         /// <exception cref="ArgumentException">Is thrown when there is another literal in the chs that can be unified.</exception>
         public void Add(BodyPart currentGoal, Queue<Statement> applyingRules, Substitution applyingSubstitution)
         {
-            if (this.Items.Select(i => i.CurrentGoal).Where(l => this.unifier.Unify(l, currentGoal).IsSuccess).Any()) // if there is another literal in the chs that can be unified.
+            // if there is another literal in the chs that can be unified.
+            if (this.Items.Select(i => i.CurrentGoal).Where(l => this.unifier.Unify(l, currentGoal).IsSuccess).Any())
             {
                 throw new ArgumentException("Literal already in CHS."); // Check is proffiecient, as shown in Tests.
             }
@@ -61,7 +62,7 @@ namespace Apollon.Lib.Resolution.CallStackAndCHS
         /// <exception cref="InvalidOperationException">Is thrown if the CallStack is empty.</exception>
         public CallStackItem Peek()
         {
-            return this.Items[this.Items.Count - 1] ?? throw new InvalidOperationException("Cannot Peek as CHS is empty!");
+            return this.Items[^1] ?? throw new InvalidOperationException("Cannot Peek as CHS is empty!");
         }
 
         /// <summary>
@@ -80,7 +81,7 @@ namespace Apollon.Lib.Resolution.CallStackAndCHS
         /// <exception cref="InvalidOperationException">Is thrown if the CallStack is empty.</exception>
         public CallStackItem Pop()
         {
-            var item = this.Items[this.Items.Count - 1] ?? throw new InvalidOperationException("Cannot Pop as CHS is empty!");
+            CallStackItem item = this.Items[^1] ?? throw new InvalidOperationException("Cannot Pop as CHS is empty!");
             this.Items.RemoveAt(this.Items.Count - 1);
             return item;
         }
@@ -129,7 +130,7 @@ namespace Apollon.Lib.Resolution.CallStackAndCHS
         public CHS ConvertToCHSWithoutLast()
         {
             // warning can be ignored literal in the goal needs has to be set.
-            var last = this.Items.Last();
+            CallStackItem last = this.Items.Last();
             return new CHS(this.Items.Where(i => i.CurrentGoal.Literal != null).TakeWhile(i => i != last).Select(i => i.ApplingSubstitution.Apply(i.CurrentGoal.Literal!)));
         }
 

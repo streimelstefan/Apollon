@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Resolution.CoSLD.States
+﻿//-----------------------------------------------------------------------
+// <copyright file="ResolutionBaseState.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Resolution.CoSLD.States
 {
     using Apollon.Lib.Logging;
     using Apollon.Lib.Resolution.CallStackAndCHS;

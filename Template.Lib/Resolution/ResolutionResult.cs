@@ -1,7 +1,13 @@
-﻿namespace Apollon.Lib.Resolution
+﻿//-----------------------------------------------------------------------
+// <copyright file="ResolutionResult.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Resolution
 {
     using Apollon.Lib.Resolution.CallStackAndCHS;
-    using Apollon.Lib.Unification;
     using Apollon.Lib.Unification.Substitutioners;
 
     /// <summary>

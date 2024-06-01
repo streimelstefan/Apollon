@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Rules
+﻿//-----------------------------------------------------------------------
+// <copyright file="RuleMetadataSetter.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Rules
 {
     using Apollon.Lib.Graph;
     using Apollon.Lib.OLON;
@@ -31,12 +38,12 @@
         {
             // this piece of code is highly inefficient...
             // TODO: Make faster without so many interations over the callgraph.
-            var preProcessedRules = new PreprocessedStatement[statements.Length];
+            PreprocessedStatement[] preProcessedRules = new PreprocessedStatement[statements.Length];
 
             for (int i = 0; i < statements.Length; i++)
             {
-                var isOrdinary = this.IsOrdinaryRule(statements[i]);
-                var isOlon = this.IsOlonRule(statements[i]);
+                bool isOrdinary = this.IsOrdinaryRule(statements[i]);
+                bool isOlon = this.IsOlonRule(statements[i]);
                 preProcessedRules[i] = new PreprocessedStatement(statements[i], isOlon, isOrdinary);
             }
 
@@ -50,7 +57,7 @@
         /// <returns>A value determining whether the rule is an ordinary rule or not.</returns>
         public bool IsOrdinaryRule(Statement statement)
         {
-            foreach (var node in this.callGraph.GetNodesOfStatement(statement))
+            foreach (CallGraphNode node in this.callGraph.GetNodesOfStatement(statement))
             {
                 // the node has other nodes that follow the path of the rule. Only nodes that represent the end of a path
                 // are elegable to detect an ordinary rule.
@@ -81,7 +88,7 @@
                 return true;
             }
 
-            foreach (var node in this.callGraph.GetNodesOfStatement(statement))
+            foreach (CallGraphNode node in this.callGraph.GetNodesOfStatement(statement))
             {
                 if (this.olons.Nodes.Contains(node))
                 {

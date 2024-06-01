@@ -1,12 +1,14 @@
-﻿using Apollon.Lib.Rules;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="IVariableLinker.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace Apollon.Lib.Linker
 {
+    using Apollon.Lib.Rules;
+
     /// <summary>
     /// A linker that links all the variables in a statement.
     /// </summary>
@@ -18,6 +20,5 @@ namespace Apollon.Lib.Linker
         /// <param name="statement">The statement to link the variables for.</param>
         /// <returns>The new statment where the variables are linked.</returns>
         Statement LinkVariables(Statement statement);
-
     }
 }

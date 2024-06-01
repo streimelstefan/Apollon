@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib
+﻿//-----------------------------------------------------------------------
+// <copyright file="Term.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib
 {
     /// <summary>
     /// This class represents a Term in a Statement.
@@ -34,13 +41,7 @@
         /// <summary>
         /// Gets a value indicating whether or not the Term is a Variable.
         /// </summary>
-        public bool IsVariable
-        {
-            get
-            {
-                return char.IsUpper(this.Value[0]);
-            }
-        }
+        public bool IsVariable => char.IsUpper(this.Value[0]);
 
         /// <summary>
         /// Gets or sets the Value of the Term.
@@ -53,14 +54,7 @@
         /// <returns>A string representing the Term.</returns>
         public override string ToString()
         {
-            if (this.ProhibitedValues.Empty())
-            {
-                return this.Value;
-            }
-            else
-            {
-                return $"{this.Value} - {{{this.ProhibitedValues}}}";
-            }
+            return this.ProhibitedValues.Empty() ? this.Value : $"{this.Value} - {{{this.ProhibitedValues}}}";
         }
 
         /// <summary>
@@ -70,12 +64,7 @@
         /// <returns>Returns a boolean indicating whether the Term is equal to another Term.</returns>
         public bool Equals(Term? other)
         {
-            if (other == null)
-            {
-                return false;
-            }
-
-            return this.Value == other.Value && this.ProhibitedValues.Equals(other.ProhibitedValues);
+            return other != null && this.Value == other.Value && this.ProhibitedValues.Equals(other.ProhibitedValues);
         }
 
         /// <summary>

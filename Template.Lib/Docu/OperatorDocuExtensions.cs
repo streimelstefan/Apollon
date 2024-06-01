@@ -1,12 +1,14 @@
-﻿using Apollon.Lib.Rules.Operations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="OperatorDocuExtensions.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace Apollon.Lib.Docu
 {
+    using Apollon.Lib.Rules.Operations;
+
     /// <summary>
     /// Extension methods for the <see cref="Operator"/> enum.
     /// </summary>
@@ -20,32 +22,20 @@ namespace Apollon.Lib.Docu
         /// <exception cref="InvalidOperationException">If there is an unhandled case.</exception>
         public static string ToDocumentationString(this Operator @operator)
         {
-            switch (@operator)
+            return @operator switch
             {
-                case Operator.Equals:
-                    return " is ";
-                case Operator.NotEquals:
-                    return " is not ";
-                case Operator.GreaterThan:
-                    return " is greater than ";
-                case Operator.LessThan:
-                    return " is less than ";
-                case Operator.Plus:
-                    return " plus ";
-                case Operator.Minus:
-                    return " minus ";
-                case Operator.Times:
-                    return " times ";
-                case Operator.Divide:
-                    return " divided by ";
-                case Operator.LessThanOrEqual:
-                    return " is less than or equal to ";
-                case Operator.GreaterThanOrEqual:
-                    return " is greater than or equal to ";
-                default:
-                    throw new InvalidOperationException("Unhandled case.");
-            }
+                Operator.Equals => " is ",
+                Operator.NotEquals => " is not ",
+                Operator.GreaterThan => " is greater than ",
+                Operator.LessThan => " is less than ",
+                Operator.Plus => " plus ",
+                Operator.Minus => " minus ",
+                Operator.Times => " times ",
+                Operator.Divide => " divided by ",
+                Operator.LessThanOrEqual => " is less than or equal to ",
+                Operator.GreaterThanOrEqual => " is greater than or equal to ",
+                _ => throw new InvalidOperationException("Unhandled case."),
+            };
         }
-
     }
 }

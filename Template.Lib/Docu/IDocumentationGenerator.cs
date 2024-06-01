@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="IDocumentationGenerator.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace Apollon.Lib.Docu
 {
@@ -17,6 +18,5 @@ namespace Apollon.Lib.Docu
         /// <param name="program">The program the documentation should be generated for.</param>
         /// <returns>The documentation of the program.</returns>
         string GenerateDokumentationFor(Program program);
-
     }
 }

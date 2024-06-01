@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="ConsoleLogger.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace Apollon.Lib.Logging
 {
@@ -27,9 +28,11 @@ namespace Apollon.Lib.Logging
         /// <returns>The child of the current logger.</returns>
         public ILogger CreateChild()
         {
-            var newLogger = new ConsoleLogger();
-            newLogger.Level = Level;
-            newLogger.RecursionDepth = RecursionDepth;
+            ConsoleLogger newLogger = new()
+            {
+                Level = this.Level,
+                RecursionDepth = this.RecursionDepth,
+            };
 
             return newLogger;
         }
@@ -40,11 +43,12 @@ namespace Apollon.Lib.Logging
         /// <param name="message">The message to log.</param>
         public void Debug(string message)
         {
-            if (Level > LogLevel.Debug)
+            if (this.Level > LogLevel.Debug)
             {
                 return;
             }
-            Console.WriteLine($"[DEBUG]:{new string(' ', RecursionDepth * 2)} {message}");
+
+            Console.WriteLine($"[DEBUG]:{new string(' ', this.RecursionDepth * 2)} {message}");
         }
 
         /// <summary>
@@ -53,11 +57,12 @@ namespace Apollon.Lib.Logging
         /// <param name="message">The message to log.</param>
         public void Error(string message)
         {
-            if (Level > LogLevel.Error)
+            if (this.Level > LogLevel.Error)
             {
                 return;
             }
-            Console.WriteLine($"[ERROR]:{new string(' ', RecursionDepth * 2)} {message}");
+
+            Console.WriteLine($"[ERROR]:{new string(' ', this.RecursionDepth * 2)} {message}");
         }
 
         /// <summary>
@@ -66,11 +71,12 @@ namespace Apollon.Lib.Logging
         /// <param name="message">The message to log.</param>
         public void Fatal(string message)
         {
-            if (Level > LogLevel.Fatal)
+            if (this.Level > LogLevel.Fatal)
             {
                 return;
             }
-            Console.WriteLine($"[FATAL]:{new string(' ', RecursionDepth * 2)} {message}");
+
+            Console.WriteLine($"[FATAL]:{new string(' ', this.RecursionDepth * 2)} {message}");
         }
 
         /// <summary>
@@ -79,11 +85,12 @@ namespace Apollon.Lib.Logging
         /// <param name="message">The message to log.</param>
         public void Info(string message)
         {
-            if (Level > LogLevel.Info)
+            if (this.Level > LogLevel.Info)
             {
                 return;
             }
-            Console.WriteLine($"[INFO ]:{new string(' ', RecursionDepth * 2)} {message}");
+
+            Console.WriteLine($"[INFO ]:{new string(' ', this.RecursionDepth * 2)} {message}");
         }
 
         /// <summary>
@@ -92,11 +99,12 @@ namespace Apollon.Lib.Logging
         /// <param name="message">The message to log.</param>
         public void Silly(string message)
         {
-            if (Level > LogLevel.Silly)
+            if (this.Level > LogLevel.Silly)
             {
                 return;
             }
-            Console.WriteLine($"[SILLY]:{new string(' ', RecursionDepth * 2)} |+| {message}");
+
+            Console.WriteLine($"[SILLY]:{new string(' ', this.RecursionDepth * 2)} |+| {message}");
         }
 
         /// <summary>
@@ -105,11 +113,12 @@ namespace Apollon.Lib.Logging
         /// <param name="message">The message to log.</param>
         public void Trace(string message)
         {
-            if (Level > LogLevel.Trace)
+            if (this.Level > LogLevel.Trace)
             {
                 return;
             }
-            Console.WriteLine($"[TRACE]:{new string(' ', RecursionDepth * 2)} {message}");
+
+            Console.WriteLine($"[TRACE]:{new string(' ', this.RecursionDepth * 2)} {message}");
         }
 
         /// <summary>
@@ -118,11 +127,12 @@ namespace Apollon.Lib.Logging
         /// <param name="message">The message to log.</param>
         public void Warn(string message)
         {
-            if (Level > LogLevel.Warn)
+            if (this.Level > LogLevel.Warn)
             {
                 return;
             }
-            Console.WriteLine($"[WARN ]:{new string(' ', RecursionDepth * 2)} {message}");
+
+            Console.WriteLine($"[WARN ]:{new string(' ', this.RecursionDepth * 2)} {message}");
         }
     }
 }

@@ -1,134 +1,128 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Template.Test;
 using Apollon.Lib;
+using Apollon.Lib.Atoms;
 using Apollon.Lib.Graph;
 using Apollon.Lib.Rules;
-using Apollon.Lib.Atoms;
-
-namespace Template.Test;
+using NUnit.Framework;
+using System;
+using System.Linq;
 
 [TestFixture]
 public class CallGraphTests
 {
-    private CallGraph? _graph;
+    private CallGraph? graph;
 
     [SetUp]
     public void Setup()
     {
-        _graph = new CallGraph(new LiteralParamCountEqualizer());
+        this.graph = new CallGraph(new LiteralParamCountEqualizer());
     }
-    
 
     [Test]
     public void ShouldSetHead()
     {
-        var literal = new Literal(new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) }), true, false);
-        var node = new CallGraphNode(literal);
-        _graph?.AddNode(node);
+        Literal literal = new(new Atom("reached", new AtomParam[] { new(null, new Term("V")) }), true, false);
+        CallGraphNode node = new(literal);
+        _ = this.graph?.AddNode(node);
 
-        Assert.AreEqual(literal, _graph?.Root?.Literal);
+        Assert.AreEqual(literal, this.graph?.Root?.Literal);
     }
 
     [Test]
     public void ShouldNotSetHead()
     {
-        var literal = new Literal(new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) }), true, false);
-        var node = new CallGraphNode(literal);
-        _graph?.AddNode(node);
+        Literal literal = new(new Atom("reached", new AtomParam[] { new(null, new Term("V")) }), true, false);
+        CallGraphNode node = new(literal);
+        _ = this.graph?.AddNode(node);
 
-        var literal2 = new Literal(new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) }), true, false);
-        var node2 = new CallGraphNode(literal2);
-        _graph?.AddNode(node2);
+        Literal literal2 = new(new Atom("reached", new AtomParam[] { new(null, new Term("V")) }), true, false);
+        CallGraphNode node2 = new(literal2);
+        _ = this.graph?.AddNode(node2);
 
-        Assert.AreNotEqual(literal2, _graph?.Root);
+        Assert.AreNotEqual(literal2, this.graph?.Root);
     }
 
     [Test]
     public void ShouldAddEdge()
     {
-        var literal = new Literal(new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
-        var node = new CallGraphNode(literal);
-        _graph?.AddNode(node);
+        Literal literal = new(new Atom("reached", new AtomParam[] { new(null, new Term("V")) }), false, false);
+        CallGraphNode node = new(literal);
+        _ = this.graph?.AddNode(node);
 
-        var literal2 = new Literal(new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) }), true, false);
-        var node2 = new CallGraphNode(literal2);
-        _graph?.AddNode(node2);
+        Literal literal2 = new(new Atom("reached", new AtomParam[] { new(null, new Term("V")) }), true, false);
+        CallGraphNode node2 = new(literal2);
+        _ = this.graph?.AddNode(node2);
 
-        _graph?.AddEdge(new CallGraphEdge(node, node2, true, new Rule(literal, new BodyPart(literal2, null))));
+        _ = this.graph?.AddEdge(new CallGraphEdge(node, node2, true, new Rule(literal, new BodyPart(literal2, null))));
 
-        Assert.AreEqual(1, _graph?.Edges.Count);
+        Assert.AreEqual(1, this.graph?.Edges.Count);
     }
-
 
     [Test]
     public void ShouldThrowIfEdgeSourceIsNotInGraph()
     {
-        var literal = new Literal(new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) }), true, false);
-        var node = new CallGraphNode(literal);
+        Literal literal = new(new Atom("reached", new AtomParam[] { new(null, new Term("V")) }), true, false);
+        CallGraphNode node = new(literal);
 
-        var literal2 = new Literal(new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) }), true, false);
-        var node2 = new CallGraphNode(literal2);
-        _graph?.AddNode(node2);
+        Literal literal2 = new(new Atom("reached", new AtomParam[] { new(null, new Term("V")) }), true, false);
+        CallGraphNode node2 = new(literal2);
+        _ = this.graph?.AddNode(node2);
 
-        Assert.Throws<ArgumentException>(() => _graph?.AddEdge(new CallGraphEdge(node, node2, true, new Rule(literal, new BodyPart(literal2, null)))));
+        _ = Assert.Throws<ArgumentException>(() => this.graph?.AddEdge(new CallGraphEdge(node, node2, true, new Rule(literal, new BodyPart(literal2, null)))));
     }
 
     [Test]
     public void ShouldThrowIfEdgeTargetIsNotInGraph()
     {
-        var literal = new Literal(new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) }), true, false);
-        var node = new CallGraphNode(literal);
-        _graph?.AddNode(node);
+        Literal literal = new(new Atom("reached", new AtomParam[] { new(null, new Term("V")) }), true, false);
+        CallGraphNode node = new(literal);
+        _ = this.graph?.AddNode(node);
 
-        var literal2 = new Literal(new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) }), true, false);
-        var node2 = new CallGraphNode(literal2);
+        Literal literal2 = new(new Atom("reached", new AtomParam[] { new(null, new Term("V")) }), true, false);
+        CallGraphNode node2 = new(literal2);
 
-        Assert.Throws<ArgumentException>(() => _graph?.AddEdge(new CallGraphEdge(node, node2, true, new Rule(literal, new BodyPart(literal2, null)))));
+        _ = Assert.Throws<ArgumentException>(() => this.graph?.AddEdge(new CallGraphEdge(node, node2, true, new Rule(literal, new BodyPart(literal2, null)))));
     }
 
     [Test]
     public void ShouldThrowIfNodeAlreadyExists()
     {
-        var literal = new Literal(new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) }), true, false);
-        var node = new CallGraphNode(literal);
-        _graph?.AddNode(node);
+        Literal literal = new(new Atom("reached", new AtomParam[] { new(null, new Term("V")) }), true, false);
+        CallGraphNode node = new(literal);
+        _ = this.graph?.AddNode(node);
 
-        Assert.Throws<ArgumentException>(() => _graph?.AddNode(node));
+        _ = Assert.Throws<ArgumentException>(() => this.graph?.AddNode(node));
     }
 
     [Test]
     public void ShouldThrowIfEdgeAlreadyExists()
     {
-        var literal = new Literal(new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
-        var node = new CallGraphNode(literal);
-        _graph?.AddNode(node);
+        Literal literal = new(new Atom("reached", new AtomParam[] { new(null, new Term("V")) }), false, false);
+        CallGraphNode node = new(literal);
+        _ = this.graph?.AddNode(node);
 
-        var literal2 = new Literal(new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) }), true, false);
-        var node2 = new CallGraphNode(literal2);
-        _graph?.AddNode(node2);
+        Literal literal2 = new(new Atom("reached", new AtomParam[] { new(null, new Term("V")) }), true, false);
+        CallGraphNode node2 = new(literal2);
+        _ = this.graph?.AddNode(node2);
 
-        var edge = new CallGraphEdge(node, node2, true, new Rule(literal, new BodyPart(literal2, null)));
-        _graph?.AddEdge(edge);
+        CallGraphEdge edge = new(node, node2, true, new Rule(literal, new BodyPart(literal2, null)));
+        _ = this.graph?.AddEdge(edge);
 
-        Assert.Throws<ArgumentException>(() => _graph?.AddEdge(edge));
+        _ = Assert.Throws<ArgumentException>(() => this.graph?.AddEdge(edge));
     }
 
     [Test]
     public void ShouldReturnTheRightNodes()
     {
-        var literal = new Literal(new Atom("atom", new AtomParam[] { }), false, false);
-        var literal2 = new Literal(new Atom("atom", new AtomParam[] { new AtomParam(null, new Term("V")) }), false, false);
+        Literal literal = new(new Atom("atom", new AtomParam[] { }), false, false);
+        Literal literal2 = new(new Atom("atom", new AtomParam[] { new(null, new Term("V")) }), false, false);
 
-        var rule = new Rule(literal2, new BodyPart[] { new BodyPart(literal, null) }) ;
-        var node2 = _graph?.AddNode(literal);
-        var node = _graph?.AddNode(literal2);
-        _graph?.AddEdge(new CallGraphEdge(node, node2, false, rule));
+        Rule rule = new(literal2, new BodyPart[] { new(literal, null) });
+        CallGraphNode? node2 = this.graph?.AddNode(literal);
+        CallGraphNode? node = this.graph?.AddNode(literal2);
+        _ = this.graph?.AddEdge(new CallGraphEdge(node, node2, false, rule));
 
-        var givenEdges = _graph.GetEdgesOfNode(node).ToArray();
+        CallGraphEdge[] givenEdges = this.graph.GetEdgesOfNode(node).ToArray();
 
         Assert.AreEqual(1, givenEdges.Length);
         Assert.IsTrue(givenEdges[0].Source.Literal.Equals(literal2));

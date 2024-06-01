@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Unification
+﻿//-----------------------------------------------------------------------
+// <copyright file="Unifier.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Unification
 {
     using Apollon.Lib.Atoms;
     using Apollon.Lib.Rules;
@@ -10,7 +17,7 @@
     /// </summary>
     public class Unifier : IUnifier
     {
-        private IDisagreementFinder disagreementFinder = new DisagreementFinder();
+        private readonly IDisagreementFinder disagreementFinder = new DisagreementFinder();
 
         /// <summary>
         /// Unifies the two given literals.
@@ -69,21 +76,21 @@
         {
             while (true)
             {
-                var tUnifier = sigma.Apply(unifier);
-                var tAgainst = sigma.Apply(against);
+                Statement tUnifier = sigma.Apply(unifier);
+                Statement tAgainst = sigma.Apply(against);
 
                 if (this.IsSingleton(tUnifier, tAgainst)) // are equal
                 {
                     return new UnificationResult(sigma); // All terms are unified under the current substitution
                 }
 
-                var disagreementSet = this.disagreementFinder.FindDisagreement(tUnifier, tAgainst);
+                DisagreementResult disagreementSet = this.disagreementFinder.FindDisagreement(tUnifier, tAgainst);
                 if (disagreementSet.IsError) // a non fixable disagreement has ocured.
                 {
                     return new UnificationResult($"Statments are not unifiable. {disagreementSet.Error}");
                 }
 
-                var (s, t) = this.ChooseTermsToResolve(disagreementSet);
+                (Term s, AtomParam t) = this.ChooseTermsToResolve(disagreementSet);
                 sigma.Add(s, t); // Add this substitution
             }
         }
@@ -93,7 +100,7 @@
             return unifier.Equals(against);
         }
 
-        private (Term, AtomParam) ChooseTermsToResolve(DisagreementResult res)
+        private (Term Variable, AtomParam Value) ChooseTermsToResolve(DisagreementResult res)
         {
             if (res.Value == null)
             {

@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Resolution.CoSLD.States
+﻿//-----------------------------------------------------------------------
+// <copyright file="ResolutionLiteralState.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Resolution.CoSLD.States
 {
     using Apollon.Lib.Logging;
     using Apollon.Lib.Resolution.CallStackAndCHS;
@@ -60,7 +67,7 @@
         /// <returns>The cloned State as a new object.</returns>
         public static ResolutionLiteralState CloneConstructor(ResolutionBaseState baseState, Literal currentGoal)
         {
-            var obj = new ResolutionLiteralState(baseState, currentGoal);
+            ResolutionLiteralState obj = new(baseState, currentGoal);
             return (ResolutionLiteralState)obj.Clone();
         }
 
@@ -73,7 +80,7 @@
         /// <returns>The cloned State as a new object.</returns>
         public static ResolutionLiteralState CloneConstructor(ResolutionBaseState baseState, Literal currentGoal, Statement[] statements)
         {
-            var obj = new ResolutionLiteralState(baseState, currentGoal, statements);
+            ResolutionLiteralState obj = new(baseState, currentGoal, statements);
             return (ResolutionLiteralState)obj.Clone();
         }
 
@@ -83,7 +90,7 @@
         /// <returns>The cloned state.</returns>
         public override object Clone()
         {
-            var baseObj = (ResolutionBaseState)base.Clone();
+            ResolutionBaseState baseObj = (ResolutionBaseState)base.Clone();
 
             return new ResolutionLiteralState(baseObj, (Literal)this.CurrentGoal.Clone());
         }

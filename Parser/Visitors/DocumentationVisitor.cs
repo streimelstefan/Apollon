@@ -1,21 +1,21 @@
-﻿using Antlr4.Runtime.Misc;
-using Apollon.Lib;
-using Apollon.Lib.Atoms;
-using Apollon.Lib.Docu;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="DocumentationVisitor.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace AppollonParser.Visitors
 {
+    using Apollon.Lib;
+    using Apollon.Lib.Atoms;
+    using Apollon.Lib.Docu;
+
     /// <summary>
     /// A visitor that generates <see cref="Documentation"/>s.
     /// </summary>
     public class DocumentationVisitor : apollonBaseVisitor<IDocumentation>
     {
-
         /// <summary>
         /// Generates a new <see cref="IDocumentation"/>.
         /// </summary>
@@ -24,24 +24,26 @@ namespace AppollonParser.Visitors
         /// <exception cref="ParseException">Is thrown if a documentation part conatins a variable that is not used in a literal.</exception>
         public override IDocumentation VisitDocu(apollonParser.DocuContext context)
         {
-            var literalHead = context.docu_head().CLASICAL_TERM().GetText();
-            var variables = context.docu_head().VARIABLE_TERM().Select(v => new Term(v.GetText())).Select(t => new AtomParam(t));
-            var atom = new Atom(literalHead, variables.ToArray());
-            var literal = new Literal(atom, false, context.docu_head().NEGATION() != null);
+            string literalHead = context.docu_head().CLASICAL_TERM().GetText();
+            IEnumerable<AtomParam> variables = context.docu_head().VARIABLE_TERM().Select(v => new Term(v.GetText())).Select(t => new AtomParam(t));
+            Atom atom = new(literalHead, variables.ToArray());
+            Literal literal = new(atom, false, context.docu_head().NEGATION() != null);
 
-            var docuBuilder = new DocumentationBuilder(literal);
-            foreach (var placeholder in context.docu_string().docu_string_part())
+            DocumentationBuilder docuBuilder = new(literal);
+            foreach (apollonParser.Docu_string_partContext? placeholder in context.docu_string().docu_string_part())
             {
                 if (placeholder.variable_placeholder() != null)
                 {
                     try
                     {
                         docuBuilder.AddPlaceholder(placeholder.variable_placeholder().VARIABLE_TERM().GetText());
-                    } catch (InvalidOperationException e)
+                    }
+                    catch (InvalidOperationException e)
                     {
                         throw new ParseException(e.Message);
                     }
-                } else if (placeholder.docu_string_string_part() != null)
+                }
+                else if (placeholder.docu_string_string_part() != null)
                 {
                     docuBuilder.AddDokuPart(placeholder.docu_string_string_part().GetText());
                 }
@@ -50,12 +52,11 @@ namespace AppollonParser.Visitors
             try
             {
                 return docuBuilder.Build();
-            } catch(InvalidDataException e)
+            }
+            catch (InvalidDataException e)
             {
                 throw new ParseException(e.Message);
             }
         }
-
-
     }
 }

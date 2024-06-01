@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="DokuPart.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace Apollon.Lib.Docu
 {
@@ -11,6 +12,23 @@ namespace Apollon.Lib.Docu
     /// </summary>
     public class DokuPart
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DokuPart"/> class. The part is a string.
+        /// </summary>
+        /// <param name="docuPart">The string should be part of a documentation.</param>
+        public DokuPart(string docuPart)
+        {
+            this.DocuPart = docuPart;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DokuPart"/> class. This part is a variable placeholder.
+        /// </summary>
+        /// <param name="variable">The variable that should be replaced with an value when the documentation gets built.</param>
+        public DokuPart(Term variable)
+        {
+            this.VariablePlaceholder = variable;
+        }
 
         /// <summary>
         /// Gets the string representation of the documentation part. Is only set if the part is a string.
@@ -26,24 +44,6 @@ namespace Apollon.Lib.Docu
         public Term? VariablePlaceholder
         {
             get; private set;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DokuPart"/> class. The part is a string.
-        /// </summary>
-        /// <param name="docuPart">The string should be part of a documentation.</param>
-        public DokuPart(string docuPart)
-        {
-            DocuPart = docuPart;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DokuPart"/> class. This part is a variable placeholder.
-        /// </summary>
-        /// <param name="variable">The variable that should be replaced with an value when the documentation gets built.</param>
-        public DokuPart(Term variable)
-        {
-            VariablePlaceholder = variable;
         }
     }
 }

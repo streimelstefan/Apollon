@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Unification.DisagreementFinders
+﻿//-----------------------------------------------------------------------
+// <copyright file="Disagreement.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Unification.DisagreementFinders
 {
     using Apollon.Lib.Atoms;
 
@@ -38,12 +45,6 @@
         /// <summary>
         /// Gets a value indicating whether the Disagreement is empty.
         /// </summary>
-        public bool IsEmpty
-        {
-            get
-            {
-                return this.First == null && this.Second == null;
-            }
-        }
+        public bool IsEmpty => this.First == null && this.Second == null;
     }
 }

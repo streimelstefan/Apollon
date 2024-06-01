@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Resolution
+﻿//-----------------------------------------------------------------------
+// <copyright file="IResolution.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Resolution
 {
     using Apollon.Lib.Logging;
     using Apollon.Lib.Rules;

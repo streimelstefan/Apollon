@@ -1,6 +1,12 @@
-﻿namespace Apollon.Lib.Resolution.Checkers.CallStack
+﻿//-----------------------------------------------------------------------
+// <copyright file="CallStackChecker.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Resolution.Checkers.CallStack
 {
-    using Apollon.Lib.Resolution.CallStackAndCHS;
     using Apollon.Lib.Unification;
 
     /// <summary>
@@ -9,8 +15,8 @@
     /// </summary>
     public class CallStackChecker : ICallStackChecker
     {
-        private IUnifier exactUnifer = new ExactUnifier();
-        private IUnifier constructiveUnifier = new ConstructiveUnifier();
+        private readonly IUnifier exactUnifer = new ExactUnifier();
+        private readonly IUnifier constructiveUnifier = new ConstructiveUnifier();
 
         /// <summary>
         /// Checks the CallStack for loops.
@@ -31,7 +37,7 @@
                 return CheckerResult.Continue;
             }
 
-            var exactCallStack = stack.TakeWhile(l => this.exactUnifer.Unify(l, literal).IsError).ToList();
+            List<Literal> exactCallStack = stack.TakeWhile(l => this.exactUnifer.Unify(l, literal).IsError).ToList();
 
             if (this.IsPositiveLoop(exactCallStack))
             {
@@ -43,18 +49,13 @@
                 return CheckerResult.Succeed;
             }
 
-            var constructiveCallStack = stack.TakeWhile(l => this.constructiveUnifier.Unify(l, literal).IsError).ToList();
-            if (this.IsEvenLoop(constructiveCallStack))
-            {
-                return CheckerResult.Succeed;
-            }
-
-            return CheckerResult.Continue;
+            List<Literal> constructiveCallStack = stack.TakeWhile(l => this.constructiveUnifier.Unify(l, literal).IsError).ToList();
+            return this.IsEvenLoop(constructiveCallStack) ? CheckerResult.Succeed : CheckerResult.Continue;
         }
 
         private bool IsEvenLoop(IEnumerable<Literal> chs)
         {
-            var nafCount = chs.Where(l => l.IsNAF).Count();
+            int nafCount = chs.Where(l => l.IsNAF).Count();
             return nafCount % 2 == 0 && nafCount != 0;
         }
 
@@ -65,7 +66,7 @@
 
         private bool IsPresentWithNAFSwitch(Literal literal, IEnumerable<Literal> chs)
         {
-            var copy = (Literal)literal.Clone();
+            Literal copy = (Literal)literal.Clone();
             copy.IsNAF = !copy.IsNAF;
 
             return chs.Where(l => this.exactUnifer.Unify(l, copy).IsSuccess).Any();

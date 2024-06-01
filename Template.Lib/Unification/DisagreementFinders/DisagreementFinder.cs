@@ -1,4 +1,10 @@
-﻿
+﻿//-----------------------------------------------------------------------
+// <copyright file="DisagreementFinder.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
 namespace Apollon.Lib.Unification.DisagreementFinders
 {
     using Apollon.Lib.Atoms;
@@ -17,7 +23,7 @@ namespace Apollon.Lib.Unification.DisagreementFinders
         /// <returns>Returns a Result of the Disagreement.</returns>
         public DisagreementResult FindDisagreement(Statement s1, Statement s2)
         {
-            var headRes = this.FindDisagreement(s1.Head, s2.Head);
+            DisagreementResult headRes = this.FindDisagreement(s1.Head, s2.Head);
 
             if (headRes.IsError)
             {
@@ -38,7 +44,7 @@ namespace Apollon.Lib.Unification.DisagreementFinders
 
             for (int i = 0; i < s1.Body.Length; i++)
             {
-                var res = this.FindDisagreement(s1.Body[i], s2.Body[i]);
+                DisagreementResult res = this.FindDisagreement(s1.Body[i], s2.Body[i]);
 
                 if (res.IsError)
                 {
@@ -56,25 +62,15 @@ namespace Apollon.Lib.Unification.DisagreementFinders
 
         private DisagreementResult FindDisagreement(Literal? lit1, Literal? lit2)
         {
-            if (lit1 == null && lit2 == null)
-            {
-                return new DisagreementResult(new Disagreement());
-            }
-            if (!(lit1 != null && lit2 != null))
-            {
-                return new DisagreementResult($"Non fixable disagreement. Missing Literal. {lit1} != {lit2}");
-            }
-
-            if (lit1.IsNAF != lit2.IsNAF)
-            {
-                return new DisagreementResult($"Non fixable disagreement. NAF. {lit1} != {lit2}");
-            }
-            if (lit1.IsNegative != lit2.IsNegative)
-            {
-                return new DisagreementResult($"Non fixable disagreement. Negative. {lit1} != {lit2}");
-            }
-
-            return this.FindDisagreement(lit1.Atom, lit2.Atom);
+            return lit1 == null && lit2 == null
+                ? new DisagreementResult(new Disagreement())
+                : !(lit1 != null && lit2 != null)
+                ? new DisagreementResult($"Non fixable disagreement. Missing Literal. {lit1} != {lit2}")
+                : lit1.IsNAF != lit2.IsNAF
+                ? new DisagreementResult($"Non fixable disagreement. NAF. {lit1} != {lit2}")
+                : lit1.IsNegative != lit2.IsNegative
+                ? new DisagreementResult($"Non fixable disagreement. Negative. {lit1} != {lit2}")
+                : this.FindDisagreement(lit1.Atom, lit2.Atom);
         }
 
         private DisagreementResult FindDisagreement(Atom atom1, Atom atom2)
@@ -89,11 +85,12 @@ namespace Apollon.Lib.Unification.DisagreementFinders
                 return new DisagreementResult($"Non fixable disagreement. Param length. {atom1} != {atom2}");
             }
 
-            for (var i = 0; i < atom1.ParamList.Length; i++)
+            for (int i = 0; i < atom1.ParamList.Length; i++)
             {
-                var res = this.FindDisagreement(atom1.ParamList[i], atom2.ParamList[i]);
+                DisagreementResult res = this.FindDisagreement(atom1.ParamList[i], atom2.ParamList[i]);
 
-                if (res.Value != null && !res.Value.IsEmpty) // a disagreement was found.
+                // a disagreement was found.
+                if (res.Value != null && !res.Value.IsEmpty)
                 {
                     return res;
                 }
@@ -109,62 +106,32 @@ namespace Apollon.Lib.Unification.DisagreementFinders
 
         private DisagreementResult FindDisagreement(AtomParam param1, AtomParam param2)
         {
-            if (param1.Equals(param2))
-            {
-                return new DisagreementResult(new Disagreement());
-            }
-
-            if ((param1.Term != null && param1.Term.IsVariable) || (param2.Term != null && param2.Term.IsVariable))
-            {
-                return new DisagreementResult(new Disagreement(param1, param2));
-            }
-
-            if (param1.IsTerm != param2.IsTerm)
-            {
-                return new DisagreementResult($"Non fixable disagreement. Uncompatable type. {param1} != {param2}");
-            }
-            if (param1.IsLiteral != param2.IsLiteral)
-            {
-                return new DisagreementResult($"Non fixable disagreement. Uncompatable type. {param1} != {param2}");
-            }
-
-            if (param1.Literal != null && param2.Literal != null)
-            {
-                return this.FindDisagreement(param1.Literal, param2.Literal);
-            }
-
-            if (param1.Term != null && param2.Term != null)
-            {
-                if (param1.Term.Value != param2.Term.Value)
-                {
-                    return new DisagreementResult($"Non fixable disagreement. Different term. {param1} != {param2}");
-                }
-
-                return new DisagreementResult(new Disagreement());
-            }
-
-            throw new InvalidOperationException("This part should never be reached.");
+            return param1.Equals(param2)
+                ? new DisagreementResult(new Disagreement())
+                : (param1.Term != null && param1.Term.IsVariable) || (param2.Term != null && param2.Term.IsVariable)
+                ? new DisagreementResult(new Disagreement(param1, param2))
+                : param1.IsTerm != param2.IsTerm
+                ? new DisagreementResult($"Non fixable disagreement. Uncompatable type. {param1} != {param2}")
+                : param1.IsLiteral != param2.IsLiteral
+                ? new DisagreementResult($"Non fixable disagreement. Uncompatable type. {param1} != {param2}")
+                : param1.Literal != null && param2.Literal != null
+                ? this.FindDisagreement(param1.Literal, param2.Literal)
+                : param1.Term != null && param2.Term != null
+                ? param1.Term.Value != param2.Term.Value
+                    ? new DisagreementResult($"Non fixable disagreement. Different term. {param1} != {param2}")
+                    : new DisagreementResult(new Disagreement())
+                : throw new InvalidOperationException("This part should never be reached.");
         }
 
         private DisagreementResult FindDisagreement(BodyPart part1, BodyPart part2)
         {
-            if (part1.IsLiteral != part2.IsLiteral)
-            {
-                return new DisagreementResult($"Non fixable disagreement. Uncompatable type. {part1} != {part2}");
-            }
-
-            if (part1.IsOperation != part2.IsOperation)
-            {
-                return new DisagreementResult($"Non fixable disagreement. Uncompatable type. {part1} != {part2}");
-            }
-
-            if (part1.Literal != null && part2.Literal != null)
-            {
-                return this.FindDisagreement(part1.Literal, part2.Literal);
-            }
-
-            throw new InvalidOperationException("TODO: Implement Forall and Operations");
+            return part1.IsLiteral != part2.IsLiteral
+                ? new DisagreementResult($"Non fixable disagreement. Uncompatable type. {part1} != {part2}")
+                : part1.IsOperation != part2.IsOperation
+                ? new DisagreementResult($"Non fixable disagreement. Uncompatable type. {part1} != {part2}")
+                : part1.Literal != null && part2.Literal != null
+                ? this.FindDisagreement(part1.Literal, part2.Literal)
+                : throw new InvalidOperationException("TODO: Implement Forall and Operations");
         }
-
     }
 }

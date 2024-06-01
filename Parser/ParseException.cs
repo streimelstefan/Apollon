@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="ParseException.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace AppollonParser
 {
@@ -11,13 +12,13 @@ namespace AppollonParser
     /// </summary>
     public class ParseException : Exception
     {
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ParseException"/> class.
         /// </summary>
         /// <param name="message">The message to display.</param>
-        public ParseException(string message) : base(message)
-        { }
-
+        public ParseException(string message)
+            : base(message)
+        {
+        }
     }
 }

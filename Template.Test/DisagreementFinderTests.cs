@@ -1,37 +1,32 @@
-﻿using Apollon.Lib.Unification;
-using Apollon.Lib.Unification.DisagreementFinders;
-using AppollonParser;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Apollon.Test
+﻿namespace Apollon.Test
 {
+    using Apollon.Lib.Unification.DisagreementFinders;
+    using AppollonParser;
+    using NUnit.Framework;
+    using System.Linq;
+
     [TestFixture]
     public class DisagreementFinderTests
     {
-        private IDisagreementFinder _finder = new DisagreementFinder();
-        private ApollonParser _parser = new ApollonParser();
+        private IDisagreementFinder finder = new DisagreementFinder();
+        private ApollonParser parser = new();
 
         [SetUp]
         public void Setup()
         {
-            _finder = new DisagreementFinder();
-            _parser = new ApollonParser();
+            this.finder = new DisagreementFinder();
+            this.parser = new ApollonParser();
         }
 
         [Test]
         public void ShouldFindThatRuleNameIsDifferentAndReturnError()
         {
-            var code = "head1(X).\nhead2(X).";
-            var program = _parser.ParseFromString(code);
-            var rule1 = program.Statements.First();
-            var rule2 = program.Statements.Last();
+            string code = "head1(X).\nhead2(X).";
+            Lib.Program program = this.parser.ParseFromString(code);
+            Lib.Rules.Statement rule1 = program.Statements.First();
+            Lib.Rules.Statement rule2 = program.Statements.Last();
 
-            var res = _finder.FindDisagreement(rule1, rule2);
+            DisagreementResult res = this.finder.FindDisagreement(rule1, rule2);
 
             Assert.IsTrue(res.IsError);
         }
@@ -39,12 +34,12 @@ namespace Apollon.Test
         [Test]
         public void ShouldFindDisagreementInHeadParamOneAndReturnTheVariableAndTerm()
         {
-            var code = "head(X).\nhead(test).";
-            var program = _parser.ParseFromString(code);
-            var rule1 = program.Statements.First();
-            var rule2 = program.Statements.Last();
+            string code = "head(X).\nhead(test).";
+            Lib.Program program = this.parser.ParseFromString(code);
+            Lib.Rules.Statement rule1 = program.Statements.First();
+            Lib.Rules.Statement rule2 = program.Statements.Last();
 
-            var res = _finder.FindDisagreement(rule1, rule2);
+            DisagreementResult res = this.finder.FindDisagreement(rule1, rule2);
 
             Assert.IsTrue(res.IsSuccess);
             Assert.IsNotNull(res.Value);
@@ -55,12 +50,12 @@ namespace Apollon.Test
         [Test]
         public void ShouldFindDisagreementInHeadParamOneAndReturnTheVariableAndLiteral()
         {
-            var code = "head(X).\nhead(a(b(X))).";
-            var program = _parser.ParseFromString(code);
-            var rule1 = program.Statements.First();
-            var rule2 = program.Statements.Last();
+            string code = "head(X).\nhead(a(b(X))).";
+            Lib.Program program = this.parser.ParseFromString(code);
+            Lib.Rules.Statement rule1 = program.Statements.First();
+            Lib.Rules.Statement rule2 = program.Statements.Last();
 
-            var res = _finder.FindDisagreement(rule1, rule2);
+            DisagreementResult res = this.finder.FindDisagreement(rule1, rule2);
 
             Assert.IsTrue(res.IsSuccess);
             Assert.IsNotNull(res.Value);
@@ -71,12 +66,12 @@ namespace Apollon.Test
         [Test]
         public void ShouldFindTheNafDifferenceAndThrowAnError()
         {
-            var code = "head(a) :- not b.\nhead(a) :- b.";
-            var program = _parser.ParseFromString(code);
-            var rule1 = program.RuleList.First();
-            var rule2 = program.RuleList.Last();
+            string code = "head(a) :- not b.\nhead(a) :- b.";
+            Lib.Program program = this.parser.ParseFromString(code);
+            Lib.Rules.Rule rule1 = program.RuleList.First();
+            Lib.Rules.Rule rule2 = program.RuleList.Last();
 
-            var res = _finder.FindDisagreement(rule1, rule2);
+            DisagreementResult res = this.finder.FindDisagreement(rule1, rule2);
 
             Assert.IsTrue(res.IsError);
         }
@@ -84,12 +79,12 @@ namespace Apollon.Test
         [Test]
         public void ShouldFindTheNegativeDifferenceAndThrowAnError()
         {
-            var code = "head(a) :- -b.\nhead(a) :- b.";
-            var program = _parser.ParseFromString(code);
-            var rule1 = program.RuleList.First();
-            var rule2 = program.RuleList.Last();
+            string code = "head(a) :- -b.\nhead(a) :- b.";
+            Lib.Program program = this.parser.ParseFromString(code);
+            Lib.Rules.Rule rule1 = program.RuleList.First();
+            Lib.Rules.Rule rule2 = program.RuleList.Last();
 
-            var res = _finder.FindDisagreement(rule1, rule2);
+            DisagreementResult res = this.finder.FindDisagreement(rule1, rule2);
 
             Assert.IsTrue(res.IsError);
         }
@@ -97,12 +92,12 @@ namespace Apollon.Test
         [Test]
         public void ShouldFindNestedVariable()
         {
-            var code = "head(a) :- a(X).\nhead(a) :- a(b(x)).";
-            var program = _parser.ParseFromString(code);
-            var rule1 = program.RuleList.First();
-            var rule2 = program.RuleList.Last();
+            string code = "head(a) :- a(X).\nhead(a) :- a(b(x)).";
+            Lib.Program program = this.parser.ParseFromString(code);
+            Lib.Rules.Rule rule1 = program.RuleList.First();
+            Lib.Rules.Rule rule2 = program.RuleList.Last();
 
-            var res = _finder.FindDisagreement(rule1, rule2);
+            DisagreementResult res = this.finder.FindDisagreement(rule1, rule2);
 
             Assert.IsTrue(res.IsSuccess);
             Assert.IsNotNull(res.Value);

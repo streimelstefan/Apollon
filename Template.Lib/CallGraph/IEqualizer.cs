@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="IEqualizer.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace Apollon.Lib.Graph
 {
@@ -12,7 +13,6 @@ namespace Apollon.Lib.Graph
     /// <typeparam name="T">The type of the objects to compare.</typeparam>
     public interface IEqualizer<T>
     {
-
         /// <summary>
         /// Compares two objects of type T and returns whether they are equal.
         /// </summary>
@@ -20,6 +20,5 @@ namespace Apollon.Lib.Graph
         /// <param name="second">The second object to compare.</param>
         /// <returns>Whether or not the objects are equal.</returns>
         bool AreEqual(T first, T second);
-
     }
 }

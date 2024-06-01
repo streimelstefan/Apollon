@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="CallGraphNode.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace Apollon.Lib.Graph
 {
@@ -11,20 +12,19 @@ namespace Apollon.Lib.Graph
     /// </summary>
     public class CallGraphNode
     {
-
-        /// <summary>
-        /// The <see cref="Literal"/> that represents the Node.
-        /// </summary>
-        public Literal Literal { get; set; }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="CallGraphNode"/> class.
         /// </summary>
         /// <param name="literal">The literal the represents this node.</param>
         public CallGraphNode(Literal literal)
         {
-            Literal = literal;
+            this.Literal = literal;
         }
+
+        /// <summary>
+        /// Gets or sets the <see cref="Literal"/> that represents the Node.
+        /// </summary>
+        public Literal Literal { get; set; }
 
         /// <summary>
         /// Returns the string representation of the Node.
@@ -32,7 +32,7 @@ namespace Apollon.Lib.Graph
         /// <returns>The string representation of the Node.</returns>
         public override string ToString()
         {
-            return Literal.ToString();
+            return this.Literal.ToString();
         }
     }
 }

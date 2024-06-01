@@ -1,30 +1,33 @@
-﻿using Apollon.Lib.Atoms;
-using Apollon.Lib.Graph;
-using Apollon.Lib.Resolution;
-using Apollon.Lib.Rules;
-using Apollon.Lib.Rules.Operations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="DualRuleGenerator.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace Apollon.Lib.DualRules
 {
+    using Apollon.Lib.Atoms;
+    using Apollon.Lib.Graph;
+    using Apollon.Lib.Resolution;
+    using Apollon.Lib.Rules;
+    using Apollon.Lib.Rules.Operations;
+
+    /// <summary>
+    /// Generates dual rules from a given set of statements.
+    /// </summary>
     public class DualRuleGenerator : IDualRuleGenerator
     {
-        private OperationNAFSwitcher operationNAFSwitcher = new OperationNAFSwitcher();
+        private readonly OperationNAFSwitcher operationNAFSwitcher = new();
 
         /// <summary>
         /// Generates dual rules for all the statements that are contained in the statement given.
         /// </summary>
         /// <example>
         /// Generally dual rules are just the same rules with naf negation flipped for each literal once.
-        /// Dual Rules are the only statments that allow NAF in the head literal. 
+        /// Dual Rules are the only statments that allow NAF in the head literal.
         /// If the statement head contains a term (lower case string or number) the term
-        /// gets disunified. 
+        /// gets disunified.
         /// a(0). -> not a(X) :- X != 0.
         /// a(b). -> not a(X) :- X != b.
         ///
@@ -32,7 +35,7 @@ namespace Apollon.Lib.DualRules
         /// body with the same name and parameter count.
         /// p(X) :- q(X), -s(X). ->
         /// not p(X) :- not q(X).
-        /// not p(X) :- q(X). not -s(X). // notice that the first body part persists without the NAF turnaround. And that clasical negation persists as well. 
+        /// not p(X) :- q(X). not -s(X). // notice that the first body part persists without the NAF turnaround. And that clasical negation persists as well.
         ///
         /// if there are multiple statements with the same head structure, their dual rules get created
         /// normally and an overarching rule gets created to combine all of those.
@@ -53,11 +56,11 @@ namespace Apollon.Lib.DualRules
         /// function.
         /// TODO: Add forall support to the satement class
         /// a(X) :- q(Y), s(X, Y). // Here Y is the linking Variable. It is also only in the body so the forall syntax needs to be used.
-        /// -> 
-        /// not a(X) :- forall(Y, a(X, Y)). // forall has been added for the internal variable Y. 
+        /// ->
+        /// not a(X) :- forall(Y, a(X, Y)). // forall has been added for the internal variable Y.
         /// not a(X, Y) :- not q(Y). // notice that the Y variable from the body gets added to the head as well.
         /// not a(X, Y) :- q(Y), not s(X, Y).
-        /// 
+        ///
         /// If there are parts of the rule that are connected by a linking variable but also contain other parameters. The other parameters get treated as always while
         /// the linking variable gets the same forall treatment as seen in the example below:
         /// a(X) :- q(Y), s(X, Y, b). // Here again Y is the linking variable. But now s contains an atom b aswell.
@@ -71,176 +74,15 @@ namespace Apollon.Lib.DualRules
         public DualRule[] GenerateDualRules(Statement[] statements)
         {
             // group statements based on their heads and the param count in their heads
-            var groups = GroupStatmentsBasedOnHeadParamCount(statements);
-            var dualRules = new List<DualRule>();
+            List<StatementGroup> groups = this.GroupStatmentsBasedOnHeadParamCount(statements);
+            List<DualRule> dualRules = new();
 
-            foreach (var group in groups)
+            foreach (StatementGroup group in groups)
             {
-                dualRules.AddRange(GenerateDualRulesForGroup(group));
+                dualRules.AddRange(this.GenerateDualRulesForGroup(group));
             }
 
             return dualRules.ToArray();
-        }
-
-        /// <summary>
-        /// Creates a List of statement groups based on the head literals name and parameter count.
-        /// This could be moved into another class to follow the single responsability princible.
-        /// </summary>
-        /// <param name="statements"></param>
-        /// <returns></returns>
-        private List<StatementGroup> GroupStatmentsBasedOnHeadParamCount(IEnumerable<Statement> statements)
-        {
-            // equilizes literals based on their name and param count
-            var equilizer = new LiteralParamCountEqualizer();
-            var groups = new List<StatementGroup>();
-            
-            foreach (var statement in statements)
-            {
-                // ignore statements without heads (constraints) as they are not taken into consideration 
-                // while generating dual rules.
-                if (statement.Head == null)
-                {
-                    continue;
-                }
-
-                var matchingGroup = groups.Find(g => equilizer.AreEqual(statement.Head, g.ReferenceLiteral));
-
-                // if a matching group was found add statment to group.
-                if (matchingGroup != null)
-                {
-                    matchingGroup.Statements.Add(statement);
-                } else 
-                {
-                    // if no matching group was found create a new one with this statement. 
-                    groups.Add(new StatementGroup(statement));
-                }
-            }
-
-            return groups;
-        }
-
-        private List<DualRule> GenerateDualRulesForGroup(StatementGroup group)
-        {
-            var dualRules = new List<DualRule>();
-            var statementName = group.Statements[0].Head?.Atom.Name;
-
-            var index = 0;
-            foreach (var statement in group.Statements)
-            {
-                // create dual rules for each statment
-                // the names of the rules just get appended by their index.
-                var rulename = $"_{statementName}{index}";
-
-                // check if we need to build a forall clause or not
-                var rules = GenerateDualRulesFor(rulename, statement);
-                dualRules.AddRange(rules);
-
-                index++;
-            }
-
-            // if no dual rules where created return empty array.
-            if (dualRules.Count == 0)
-            {
-                return dualRules;
-            }
-
-            // build overarching rule for all created dual rules.
-            var overarchingRule = GenerateOverarchingRule(group.Statements[0], dualRules);
-            dualRules.Add(overarchingRule);
-
-            return dualRules;
-        }
-
-
-        private DualRule GenerateOverarchingRule(Statement exampleStatement, IEnumerable<DualRule> dualRules)
-        {
-            if (exampleStatement.Head == null)
-            {
-                throw new ArgumentNullException(nameof(exampleStatement), "Head of example is not alled to be null");
-            }
-
-            var paramList = exampleStatement.Head.Atom.ParamList.Select((p, index) => new AtomParam(null, new Term($"V/{index}"))).ToArray();
-
-            
-            var body = new List<BodyPart>();
-            foreach (var rule in dualRules)
-            {
-                if (rule.Head == null)
-                {
-                    throw new NullReferenceException("Head of rule is not allowed to be null");
-                } 
-                if (rule.Head.Atom.ParamList.Length != exampleStatement.Head.Atom.ParamList.Length)
-                {
-                    // this rule is part of an forall rule and has gotten its own overarching rule.
-                    continue;
-                }
-
-                // if this rule head is already in the body skip it.
-                if (body.Where(bp => bp.Literal?.Atom.Name == rule.Head.Atom.Name).Any())
-                {
-                    continue;
-                }
-
-                body.Add(
-                    new BodyPart(
-                        new Literal(
-                            new Atom(
-                                rule.Head.Atom.Name, 
-                                paramList), 
-                            true, 
-                            rule.Head.IsNegative), 
-                        null)
-                    );
-            }
-
-            return new DualRule(
-                new Literal(
-                    new Atom(exampleStatement.Head.Atom.Name, paramList), 
-                    true, 
-                    exampleStatement.Head.IsNegative), 
-                body.ToArray());
-        }
-
-
-        private List<DualRule> GenerateDualRulesFor(string ruleName, Statement statement)
-        {
-            if (statement.Head == null) throw new ArgumentNullException(nameof(statement), "Head of statement is not allowed to be null in Dual Rule generation");
-            var rules = new List<DualRule>();
-            var linkingVariables = GetAllVariablesNotInHead(statement);
-            var processedStatement = MoveAtomsFromHeadToBody(statement, linkingVariables);
-            if (processedStatement.Head == null) throw new ArgumentNullException(nameof(processedStatement), "Head of statement is not allowed to be null in Dual Rule generation");
-            processedStatement.Head.IsNAF = true;
-            processedStatement.Head.Atom.Name = ruleName;
-
-            for (int i = 0; i < processedStatement.Body.Length; i++)
-            {
-                // Generate the body of the rules.
-                var ruleBody = new BodyPart[i + 1];
-                for (int x = 0; x <= i; x++)
-                {
-                    ruleBody[x] = (BodyPart)processedStatement.Body[x].Clone();
-
-                    // if we are in the last body part we need to generate switch the NAF
-                    if (x == i)
-                    {
-                        SwitchNegation(ruleBody[x]);
-                    }
-                }
-
-                rules.Add(new DualRule(processedStatement.Head, ruleBody.ToArray()));
-            }
-
-            if (linkingVariables.Count() > 0)
-            {
-                // generate forall rule
-                var body = BuildForAllBody(processedStatement.Head, linkingVariables);
-                var newHead = (Literal)statement.Head.Clone();
-                newHead.IsNAF = true;
-                newHead.Atom.Name = ruleName;
-                rules.Add(new DualRule(newHead, new BodyPart[] { body } ));
-            }
-
-            return rules;
         }
 
         /// <summary>
@@ -252,14 +94,10 @@ namespace Apollon.Lib.DualRules
         /// <returns>The body of the forall dual rule.</returns>
         public BodyPart BuildForAllBody(Literal currentHead, List<Term> linkingVariabels, int currentIndex = 0)
         {
-            // if we are at the last index 
-            if (currentIndex == linkingVariabels.Count() - 1)
-            {
-                return new BodyPart(linkingVariabels.ElementAt(currentIndex), currentHead);
-            } else
-            {
-                return new BodyPart(linkingVariabels.ElementAt(currentIndex), BuildForAllBody(currentHead, linkingVariabels, ++currentIndex));
-            }
+            // if we are at the last index
+            return currentIndex == linkingVariabels.Count() - 1
+                ? new BodyPart(linkingVariabels.ElementAt(currentIndex), currentHead)
+                : new BodyPart(linkingVariabels.ElementAt(currentIndex), this.BuildForAllBody(currentHead, linkingVariabels, ++currentIndex));
         }
 
         /// <summary>
@@ -272,39 +110,36 @@ namespace Apollon.Lib.DualRules
         /// <exception cref="InvalidOperationException">Is thrown if param in the head is neither a literal nor an term.</exception>
         public Statement MoveAtomsFromHeadToBody(Statement statement, IEnumerable<Term> linkingVariables)
         {
-            if (statement.Head == null) throw new ArgumentNullException(nameof(statement), "Head of statement is not allowed to be null.");
-            var body = new List<BodyPart>();
-            var head = new List<AtomParam>();
+            if (statement.Head == null)
+            {
+                throw new ArgumentNullException(nameof(statement), "Head of statement is not allowed to be null.");
+            }
 
-            var newVariableIndex = 0;
-            foreach (var param in statement.Head.Atom.ParamList)
+            List<BodyPart> body = new();
+            List<AtomParam> head = new();
+
+            int newVariableIndex = 0;
+            foreach (AtomParam param in statement.Head.Atom.ParamList)
             {
                 if (param.Term == null || (param.Term != null && !param.Term.IsVariable))
                 {
                     // move value to body and replace it with a Variable.
-                    var variable = new Term($"V/{newVariableIndex}");
+                    Term variable = new($"V/{newVariableIndex}");
                     newVariableIndex++;
 
-                    Literal condtion;
-                    if (param.Term != null)
-                    {
-                        condtion = new Literal(new Atom(param.Term.Value), false, false);
-                    } else if (param.Literal != null) 
-                    {
-                        condtion = (Literal)param.Literal.Clone();
-                    } else
-                    {
-                        throw new InvalidOperationException();
-                    }
-
-                    var operation = new Operation(new AtomParam(variable), Operator.Equals, new AtomParam(condtion));
+                    Literal condtion = param.Term != null
+                        ? new Literal(new Atom(param.Term.Value), false, false)
+                        : param.Literal != null ? (Literal)param.Literal.Clone() : throw new InvalidOperationException();
+                    Operation operation = new(new AtomParam(variable), Operator.Equals, new AtomParam(condtion));
                     head.Add(new AtomParam(null, variable));
                     body.Add(new BodyPart(null, operation));
-                } else
+                }
+                else
                 {
                     head.Add(param);
                 }
             }
+
             body.AddRange(statement.Body);
             head.AddRange(linkingVariables.Select(t => new AtomParam(t)));
 
@@ -321,7 +156,8 @@ namespace Apollon.Lib.DualRules
             if (bodyPart.Operation != null)
             {
                 this.operationNAFSwitcher.SwitchNaf(bodyPart.Operation);
-            } else if (bodyPart.Literal != null)
+            }
+            else if (bodyPart.Literal != null)
             {
                 bodyPart.Literal.IsNAF = !bodyPart.Literal.IsNAF;
             }
@@ -331,18 +167,18 @@ namespace Apollon.Lib.DualRules
         /// Returns all the variables that are in the body but are not used in the head, in order.
         /// Variables are only returned if they exsist in more then one body part.
         /// </summary>
-        /// <param name="statement"></param>
-        /// <returns></returns>
+        /// <param name="statement">The statement for which the variables that are not in the head should be extracted.</param>
+        /// <returns>All the variables that are not in the head.</returns>
         public List<Term> GetAllVariablesNotInHead(Statement statement)
         {
-            var variableExtractor = new VariableExtractor();
+            VariableExtractor variableExtractor = new();
 
-            var statementVariabels = variableExtractor.ExtractVariablesFrom(statement).Select(t => t.Value).ToHashSet();
-            var headVariables = variableExtractor.ExtractVariablesFrom(statement.Head).Select(t => t.Value).ToHashSet();
+            HashSet<string> statementVariabels = variableExtractor.ExtractVariablesFrom(statement).Select(t => t.Value).ToHashSet();
+            HashSet<string> headVariables = variableExtractor.ExtractVariablesFrom(statement.Head!).Select(t => t.Value).ToHashSet();
 
-            var except = new List<Term>();
+            List<Term> except = new();
 
-            foreach (var term in statementVariabels)
+            foreach (string? term in statementVariabels)
             {
                 if (!headVariables.Contains(term))
                 {
@@ -351,6 +187,167 @@ namespace Apollon.Lib.DualRules
             }
 
             return except;
+        }
+
+        private List<StatementGroup> GroupStatmentsBasedOnHeadParamCount(IEnumerable<Statement> statements)
+        {
+            // equilizes literals based on their name and param count
+            LiteralParamCountEqualizer equilizer = new();
+            List<StatementGroup> groups = new();
+
+            foreach (Statement statement in statements)
+            {
+                // ignore statements without heads (constraints) as they are not taken into consideration
+                // while generating dual rules.
+                if (statement.Head == null)
+                {
+                    continue;
+                }
+
+                StatementGroup? matchingGroup = groups.Find(g => equilizer.AreEqual(statement.Head, g.ReferenceLiteral));
+
+                // if a matching group was found add statment to group.
+                if (matchingGroup != null)
+                {
+                    matchingGroup.Statements.Add(statement);
+                }
+                else
+                {
+                    // if no matching group was found create a new one with this statement.
+                    groups.Add(new StatementGroup(statement));
+                }
+            }
+
+            return groups;
+        }
+
+        private List<DualRule> GenerateDualRulesForGroup(StatementGroup group)
+        {
+            List<DualRule> dualRules = new();
+            string? statementName = group.Statements[0].Head?.Atom.Name;
+
+            int index = 0;
+            foreach (Statement statement in group.Statements)
+            {
+                // create dual rules for each statment
+                // the names of the rules just get appended by their index.
+                string rulename = $"_{statementName}{index}";
+
+                // check if we need to build a forall clause or not
+                List<DualRule> rules = this.GenerateDualRulesFor(rulename, statement);
+                dualRules.AddRange(rules);
+
+                index++;
+            }
+
+            // if no dual rules where created return empty array.
+            if (dualRules.Count == 0)
+            {
+                return dualRules;
+            }
+
+            // build overarching rule for all created dual rules.
+            DualRule overarchingRule = this.GenerateOverarchingRule(group.Statements[0], dualRules);
+            dualRules.Add(overarchingRule);
+
+            return dualRules;
+        }
+
+        private DualRule GenerateOverarchingRule(Statement exampleStatement, IEnumerable<DualRule> dualRules)
+        {
+            if (exampleStatement.Head == null)
+            {
+                throw new ArgumentNullException(nameof(exampleStatement), "Head of example is not alled to be null");
+            }
+
+            AtomParam[] paramList = exampleStatement.Head.Atom.ParamList.Select((p, index) => new AtomParam(null, new Term($"V/{index}"))).ToArray();
+
+            List<BodyPart> body = new();
+            foreach (DualRule rule in dualRules)
+            {
+                if (rule.Head == null)
+                {
+                    throw new NullReferenceException("Head of rule is not allowed to be null");
+                }
+
+                if (rule.Head.Atom.ParamList.Length != exampleStatement.Head.Atom.ParamList.Length)
+                {
+                    // this rule is part of an forall rule and has gotten its own overarching rule.
+                    continue;
+                }
+
+                // if this rule head is already in the body skip it.
+                if (body.Where(bp => bp.Literal?.Atom.Name == rule.Head.Atom.Name).Any())
+                {
+                    continue;
+                }
+
+                body.Add(
+                    new BodyPart(
+                        new Literal(
+                            new Atom(
+                                rule.Head.Atom.Name,
+                                paramList),
+                            true,
+                            rule.Head.IsNegative),
+                        null));
+            }
+
+            return new DualRule(
+                new Literal(
+                    new Atom(exampleStatement.Head.Atom.Name, paramList),
+                    true,
+                    exampleStatement.Head.IsNegative),
+                body.ToArray());
+        }
+
+        private List<DualRule> GenerateDualRulesFor(string ruleName, Statement statement)
+        {
+            if (statement.Head == null)
+            {
+                throw new ArgumentNullException(nameof(statement), "Head of statement is not allowed to be null in Dual Rule generation");
+            }
+
+            List<DualRule> rules = new();
+            List<Term> linkingVariables = this.GetAllVariablesNotInHead(statement);
+            Statement processedStatement = this.MoveAtomsFromHeadToBody(statement, linkingVariables);
+            if (processedStatement.Head == null)
+            {
+                throw new ArgumentNullException(nameof(processedStatement), "Head of statement is not allowed to be null in Dual Rule generation");
+            }
+
+            processedStatement.Head.IsNAF = true;
+            processedStatement.Head.Atom.Name = ruleName;
+
+            for (int i = 0; i < processedStatement.Body.Length; i++)
+            {
+                // Generate the body of the rules.
+                BodyPart[] ruleBody = new BodyPart[i + 1];
+                for (int x = 0; x <= i; x++)
+                {
+                    ruleBody[x] = (BodyPart)processedStatement.Body[x].Clone();
+
+                    // if we are in the last body part we need to generate switch the NAF
+                    if (x == i)
+                    {
+                        this.SwitchNegation(ruleBody[x]);
+                    }
+                }
+
+                rules.Add(new DualRule(processedStatement.Head, ruleBody.ToArray()));
+            }
+
+            if (linkingVariables.Count() > 0)
+            {
+                // generate forall rule
+                BodyPart body = this.BuildForAllBody(processedStatement.Head, linkingVariables);
+                Literal newHead = (Literal)statement.Head.Clone();
+                newHead.IsNAF = true;
+                newHead.Atom.Name = ruleName;
+                rules.Add(new DualRule(newHead, new BodyPart[] { body }));
+            }
+
+            return rules;
         }
     }
 }

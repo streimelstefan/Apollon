@@ -1,20 +1,22 @@
-﻿using Apollon.Lib.Rules;
-using Apollon.Lib.Unification.Substitutioners;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="IDocumentation.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace Apollon.Lib.Docu
 {
+    using System.Text;
+    using Apollon.Lib.Unification.Substitutioners;
+
     /// <summary>
     /// Represents a part of a <see cref="Program"/> that can be documented.
     /// </summary>
     public interface IDocumentation
     {
         /// <summary>
-        /// The literal the docuemtation is based on.
+        /// Gets the literal the docuemtation is based on.
         /// </summary>
         Literal Literal { get; }
 
@@ -24,6 +26,5 @@ namespace Apollon.Lib.Docu
         /// <param name="sub">The substituion to build the documentation with.</param>
         /// <returns>The string representing the generated documentation.</returns>
         StringBuilder GetDokuFor(Substitution sub);
-
     }
 }

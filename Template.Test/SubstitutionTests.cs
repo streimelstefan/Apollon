@@ -1,39 +1,35 @@
-﻿using Apollon.Lib;
-using Apollon.Lib.Atoms;
-using Apollon.Lib.Rules;
-using Apollon.Lib.Unification;
-using Apollon.Lib.Unification.Substitutioners;
-using AppollonParser;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Apollon.Test
+﻿namespace Apollon.Test
 {
+    using Apollon.Lib;
+    using Apollon.Lib.Atoms;
+    using Apollon.Lib.Rules;
+    using Apollon.Lib.Unification;
+    using Apollon.Lib.Unification.Substitutioners;
+    using AppollonParser;
+    using NUnit.Framework;
+    using System.Collections.Generic;
+    using System.Linq;
+
     [TestFixture]
     public class SubstitutionTests
     {
-        private Substitution _sub = new Substitution();
-        private ApollonParser _parser = new ApollonParser();
+        private Substitution sub = new();
+        private ApollonParser parser = new();
 
         [SetUp]
         public void Setup()
         {
-            _sub = new Substitution();
-            _parser = new ApollonParser();
+            this.sub = new Substitution();
+            this.parser = new ApollonParser();
         }
 
-
-        [Test] 
+        [Test]
         public void ShouldSubstitueXCorrectly()
         {
-            _sub.Add(new Term("X"), new AtomParam(new Term("stefan")));
+            this.sub.Add(new Term("X"), new AtomParam(new Term("stefan")));
             Statement statement = new Rule(new Literal(new Atom("likes", new AtomParam(new Term("X"))), false, false));
 
-            var substituted = _sub.Apply(statement);
+            Statement substituted = this.sub.Apply(statement);
             Assert.IsNotNull(substituted);
             Assert.AreEqual("stefan", substituted.Head.Atom.ParamList[0].Term.Value);
         }
@@ -41,10 +37,10 @@ namespace Apollon.Test
         [Test]
         public void ShouldSubstitueYWithAtom()
         {
-            _sub.Add(new Term("Y"), new AtomParam(new Literal(new Atom("best", new AtomParam(new Term("test"))), false, false)));
+            this.sub.Add(new Term("Y"), new AtomParam(new Literal(new Atom("best", new AtomParam(new Term("test"))), false, false)));
             Statement statement = new Rule(new Literal(new Atom("likes", new AtomParam(new Term("Y"))), false, false));
-            
-            var substituted = _sub.Apply(statement);
+
+            Statement substituted = this.sub.Apply(statement);
 
             Assert.IsNotNull(substituted);
             Assert.AreEqual("best", substituted.Head.Atom.ParamList[0].Literal.Atom.Name);
@@ -54,12 +50,12 @@ namespace Apollon.Test
         [Test]
         public void ShouldSubstituteXInBodyWithTerm()
         {
-            var code = "likes(X) :- not likes(X).";
-            var program = _parser.ParseFromString(code);
-            var rule = program.RuleList.First();
-            _sub.Add(new Term("X"), new AtomParam(new Term("stefan")));
+            string code = "likes(X) :- not likes(X).";
+            Program program = this.parser.ParseFromString(code);
+            Rule rule = program.RuleList.First();
+            this.sub.Add(new Term("X"), new AtomParam(new Term("stefan")));
 
-            var substituted = _sub.Apply(rule);
+            Statement substituted = this.sub.Apply(rule);
 
             Assert.IsNotNull(substituted);
             Assert.AreEqual("likes(stefan) :- not likes(stefan).", substituted.ToString());
@@ -68,12 +64,12 @@ namespace Apollon.Test
         [Test]
         public void ShouldSubstituteXInBodyWithAtom()
         {
-            var code = "likes(X) :- not likes(X).";
-            var program = _parser.ParseFromString(code);
-            var rule = program.RuleList.First();
-            _sub.Add(new Term("X"), new AtomParam(new Literal(new Atom("hates", new AtomParam(new Term("stefan"))), false, false)));
+            string code = "likes(X) :- not likes(X).";
+            Program program = this.parser.ParseFromString(code);
+            Rule rule = program.RuleList.First();
+            this.sub.Add(new Term("X"), new AtomParam(new Literal(new Atom("hates", new AtomParam(new Term("stefan"))), false, false)));
 
-            var substituted = _sub.Apply(rule);
+            Statement substituted = this.sub.Apply(rule);
 
             Assert.IsNotNull(substituted);
             Assert.AreEqual("likes(hates(stefan)) :- not likes(hates(stefan)).", substituted.ToString());
@@ -82,12 +78,12 @@ namespace Apollon.Test
         [Test]
         public void ShouldSubstituteXInBodyWithNegativeLiteral()
         {
-            var code = "likes(X) :- not likes(X).";
-            var program = _parser.ParseFromString(code);
-            var rule = program.RuleList.First();
-            _sub.Add(new Term("X"), new AtomParam(new Literal(new Atom("hates", new AtomParam(new Term("stefan"))), false, true)));
+            string code = "likes(X) :- not likes(X).";
+            Program program = this.parser.ParseFromString(code);
+            Rule rule = program.RuleList.First();
+            this.sub.Add(new Term("X"), new AtomParam(new Literal(new Atom("hates", new AtomParam(new Term("stefan"))), false, true)));
 
-            var substituted = _sub.Apply(rule);
+            Statement substituted = this.sub.Apply(rule);
 
             Assert.IsNotNull(substituted);
             Assert.AreEqual("likes(-hates(stefan)) :- not likes(-hates(stefan)).", substituted.ToString());
@@ -96,12 +92,12 @@ namespace Apollon.Test
         [Test]
         public void ShouldSubstituteXInOperation()
         {
-            var code = "likes(X) :- X != 0.";
-            var program = _parser.ParseFromString(code);
-            var rule = program.RuleList.First();
-            _sub.Add(new Term("X"), new AtomParam(new Literal(new Atom("hates", new AtomParam(new Term("stefan"))), false, true)));
+            string code = "likes(X) :- X != 0.";
+            Program program = this.parser.ParseFromString(code);
+            Rule rule = program.RuleList.First();
+            this.sub.Add(new Term("X"), new AtomParam(new Literal(new Atom("hates", new AtomParam(new Term("stefan"))), false, true)));
 
-            var substituted = _sub.Apply(rule);
+            Statement substituted = this.sub.Apply(rule);
 
             Assert.IsNotNull(substituted);
             Assert.AreEqual("likes(-hates(stefan)) :- -hates(stefan) != 0.", substituted.ToString());
@@ -110,12 +106,12 @@ namespace Apollon.Test
         [Test]
         public void ShouldSubstituteXAsTermInOperation()
         {
-            var code = "likes(X) :- X != 0.";
-            var program = _parser.ParseFromString(code);
-            var rule = program.RuleList.First();
-            _sub.Add(new Term("X"), new AtomParam(new Term("0")));
+            string code = "likes(X) :- X != 0.";
+            Program program = this.parser.ParseFromString(code);
+            Rule rule = program.RuleList.First();
+            this.sub.Add(new Term("X"), new AtomParam(new Term("0")));
 
-            var substituted = _sub.Apply(rule);
+            Statement substituted = this.sub.Apply(rule);
 
             Assert.IsNotNull(substituted);
             Assert.AreEqual("likes(0) :- 0 != 0.", substituted.ToString());
@@ -124,16 +120,16 @@ namespace Apollon.Test
         [Test]
         public void ShouldBackPropagateSimpleMappings()
         {
-            var newSub = new Substitution();
+            Substitution newSub = new();
             newSub.Add(new Term("X"), new AtomParam(new Literal(new Atom("a"), false, false)));
 
-            _sub.Add(new Term("Y"), new AtomParam(new Term("X")));
+            this.sub.Add(new Term("Y"), new AtomParam(new Term("X")));
 
-            _sub.BackPropagate(newSub);
+            this.sub.BackPropagate(newSub);
 
-            var mappings = _sub.Mappings;
+            IEnumerable<Mapping> mappings = this.sub.Mappings;
             Assert.AreEqual(1, mappings.Count());
-            var mapping = mappings.First();
+            Mapping mapping = mappings.First();
 
             Assert.IsNotNull(mapping);
             Assert.AreEqual(true, mapping.MapsTo.IsLiteral);
@@ -143,16 +139,16 @@ namespace Apollon.Test
         [Test]
         public void ShouldShouldUnionPVLsWhenBackPropagating()
         {
-            var newSub = new Substitution();
-            newSub.Add(new Term("X"), new AtomParam(new Term("Y", new PVL(new AtomParam[] {new AtomParam(new Term("a"))}))));
+            Substitution newSub = new();
+            newSub.Add(new Term("X"), new AtomParam(new Term("Y", new PVL(new AtomParam[] { new(new Term("a")) }))));
 
-            _sub.Add(new Term("Y"), new AtomParam(new Term("X")));
+            this.sub.Add(new Term("Y"), new AtomParam(new Term("X")));
 
-            _sub.BackPropagate(newSub);
+            this.sub.BackPropagate(newSub);
 
-            var mappings = _sub.Mappings;
+            IEnumerable<Mapping> mappings = this.sub.Mappings;
             Assert.AreEqual(1, mappings.Count());
-            var mapping = mappings.First();
+            Mapping mapping = mappings.First();
 
             Assert.IsNotNull(mapping);
             Assert.AreEqual("Y - {\\a} -> X - {\\a}", mapping.ToString());
@@ -161,16 +157,16 @@ namespace Apollon.Test
         [Test]
         public void ShouldAddVariablesThatAreNotInduced()
         {
-            var newSub = new Substitution();
-            newSub.Add(new Term("B"), new AtomParam(new Term("a", new PVL(new AtomParam[] { new AtomParam(new Term("a")) }))));
+            Substitution newSub = new();
+            newSub.Add(new Term("B"), new AtomParam(new Term("a", new PVL(new AtomParam[] { new(new Term("a")) }))));
 
-            _sub.Add(new Term("Y"), new AtomParam(new Term("X")));
+            this.sub.Add(new Term("Y"), new AtomParam(new Term("X")));
 
-            _sub.BackPropagate(newSub);
+            this.sub.BackPropagate(newSub);
 
-            var mappings = _sub.Mappings;
+            IEnumerable<Mapping> mappings = this.sub.Mappings;
             Assert.AreEqual(2, mappings.Count());
-            var mapping = mappings.First();
+            Mapping mapping = mappings.First();
 
             Assert.IsNotNull(mapping);
             Assert.AreEqual("Y -> X", mapping.ToString());
@@ -180,12 +176,12 @@ namespace Apollon.Test
         [Test]
         public void ShouldContractIfThereAreLists()
         {
-            _sub.Add(new Term("X"), new AtomParam(new Term("Y")));
-            _sub.Add(new Term("Y"), new AtomParam(new Term("a")));
+            this.sub.Add(new Term("X"), new AtomParam(new Term("Y")));
+            this.sub.Add(new Term("Y"), new AtomParam(new Term("a")));
 
-            _sub.Contract();
+            this.sub.Contract();
 
-            var mappings = _sub.Mappings;
+            IEnumerable<Mapping> mappings = this.sub.Mappings;
 
             Assert.AreEqual(1, mappings.Count());
             Assert.AreEqual("X -> a", mappings.First().ToString());
@@ -194,13 +190,13 @@ namespace Apollon.Test
         [Test]
         public void ShouldContractIfThereAreListsWithMoreThenTwoElements()
         {
-            _sub.Add(new Term("X"), new AtomParam(new Term("Y")));
-            _sub.Add(new Term("Y"), new AtomParam(new Term("Z")));
-            _sub.Add(new Term("Z"), new AtomParam(new Term("a")));
+            this.sub.Add(new Term("X"), new AtomParam(new Term("Y")));
+            this.sub.Add(new Term("Y"), new AtomParam(new Term("Z")));
+            this.sub.Add(new Term("Z"), new AtomParam(new Term("a")));
 
-            _sub.Contract();
+            this.sub.Contract();
 
-            var mappings = _sub.Mappings;
+            IEnumerable<Mapping> mappings = this.sub.Mappings;
 
             Assert.AreEqual(1, mappings.Count());
             Assert.AreEqual("X -> a", mappings.First().ToString());
@@ -209,12 +205,12 @@ namespace Apollon.Test
         [Test]
         public void ShouldDoNothingIfThereAreNoLists()
         {
-            _sub.Add(new Term("X"), new AtomParam(new Term("Y")));
-            _sub.Add(new Term("Z"), new AtomParam(new Term("a")));
+            this.sub.Add(new Term("X"), new AtomParam(new Term("Y")));
+            this.sub.Add(new Term("Z"), new AtomParam(new Term("a")));
 
-            _sub.Contract();
+            this.sub.Contract();
 
-            var mappings = _sub.Mappings;
+            IEnumerable<Mapping> mappings = this.sub.Mappings;
 
             Assert.AreEqual(2, mappings.Count());
             Assert.AreEqual("X -> Y", mappings.First().ToString());
@@ -224,9 +220,9 @@ namespace Apollon.Test
         [Test]
         public void ShouldDoNothingIfTheSubIsEmpty()
         {
-            _sub.Contract();
+            this.sub.Contract();
 
-            var mappings = _sub.Mappings;
+            IEnumerable<Mapping> mappings = this.sub.Mappings;
 
             Assert.AreEqual(0, mappings.Count());
         }
@@ -234,20 +230,19 @@ namespace Apollon.Test
         [Test]
         public void ShouldAddValueTermEvenIfItIsTheSameAsTheVariable()
         {
-            _sub.Add(new Term("X"), new AtomParam(new Term("X")));
+            this.sub.Add(new Term("X"), new AtomParam(new Term("X")));
 
-            var mappings = _sub.Mappings;
+            IEnumerable<Mapping> mappings = this.sub.Mappings;
 
             Assert.AreEqual(1, mappings.Count());
         }
 
-
         [Test]
         public void ShouldAddValueTermIfThePVLsAreDifferent()
         {
-            _sub.Add(new Term("X"), new AtomParam(new Term("X", new PVL(new AtomParam[] {new AtomParam(new Term("a"))}))));
+            this.sub.Add(new Term("X"), new AtomParam(new Term("X", new PVL(new AtomParam[] { new(new Term("a")) }))));
 
-            var mappings = _sub.Mappings;
+            IEnumerable<Mapping> mappings = this.sub.Mappings;
 
             Assert.AreEqual(1, mappings.Count());
         }

@@ -1,9 +1,9 @@
-﻿using Apollon.Lib.Graph;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="LiteralParamCountEqualizer.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace Apollon.Lib.Graph
 {
@@ -22,7 +22,6 @@ namespace Apollon.Lib.Graph
     /// </summary>
     public class LiteralParamCountEqualizer : IEqualizer<Literal>
     {
-
         /// <summary>
         /// Compares two objects of type T and returns whether they are equal.
         /// </summary>
@@ -31,7 +30,7 @@ namespace Apollon.Lib.Graph
         /// <returns>Whether or not the objects are equal.</returns>
         public bool AreEqual(Literal first, Literal second)
         {
-            return first.Atom.Name == second.Atom.Name && 
+            return first.Atom.Name == second.Atom.Name &&
                 first.Atom.ParamList.Length == second.Atom.ParamList.Length &&
                 first.IsNegative == second.IsNegative;
         }

@@ -1,22 +1,17 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Apollon.Lib;
-using Apollon.Lib.Atoms;
-
-namespace Template.Test
+﻿namespace Template.Test
 {
+    using Apollon.Lib;
+    using Apollon.Lib.Atoms;
+    using NUnit.Framework;
+
     [TestFixture]
     public class LiteralTests
     {
         [Test]
         public void LiteralShouldCorrectlyConvertIntoString()
         {
-            var atom = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
-            var literal = new Literal(atom, false, false);
+            Atom atom = new("reached", new AtomParam[] { new(null, new Term("V")) });
+            Literal literal = new(atom, false, false);
 
             Assert.AreEqual("reached(V)", literal.ToString());
         }
@@ -24,8 +19,8 @@ namespace Template.Test
         [Test]
         public void LiteralShouldCorrectlyConvertIntoStringWhenUsingNAF()
         {
-            var atom = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
-            var literal = new Literal(atom, true, false);
+            Atom atom = new("reached", new AtomParam[] { new(null, new Term("V")) });
+            Literal literal = new(atom, true, false);
 
             Assert.AreEqual("not reached(V)", literal.ToString());
         }
@@ -33,8 +28,8 @@ namespace Template.Test
         [Test]
         public void LiteralShouldCorrectlyConvertIntoStringWhenUsingNegation()
         {
-            var atom = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
-            var literal = new Literal(atom, false, true);
+            Atom atom = new("reached", new AtomParam[] { new(null, new Term("V")) });
+            Literal literal = new(atom, false, true);
 
             Assert.AreEqual("-reached(V)", literal.ToString());
         }
@@ -42,8 +37,8 @@ namespace Template.Test
         [Test]
         public void LiteralShouldCorrectlyConvertIntoStringWhenUsingNAFandNegation()
         {
-            var atom = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
-            var literal = new Literal(atom, true, true);
+            Atom atom = new("reached", new AtomParam[] { new(null, new Term("V")) });
+            Literal literal = new(atom, true, true);
 
             Assert.AreEqual("not -reached(V)", literal.ToString());
         }
@@ -51,10 +46,10 @@ namespace Template.Test
         [Test]
         public void ShouldBeEqual()
         {
-            var atom1 = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
-            var atom2 = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
-            var literal1 = new Literal(atom1, true, true);
-            var literal2 = new Literal(atom2, true, true);
+            Atom atom1 = new("reached", new AtomParam[] { new(null, new Term("V")) });
+            Atom atom2 = new("reached", new AtomParam[] { new(null, new Term("V")) });
+            Literal literal1 = new(atom1, true, true);
+            Literal literal2 = new(atom2, true, true);
 
             Assert.IsTrue(literal1.Equals(literal2));
         }
@@ -62,10 +57,10 @@ namespace Template.Test
         [Test]
         public void ShouldNotBeEqual()
         {
-            var atom1 = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
-            var atom2 = new Atom("reached", new AtomParam[] { new AtomParam(null, new Term("V")) });
-            var literal1 = new Literal(atom1, true, true);
-            var literal2 = new Literal(atom2, true, false);
+            Atom atom1 = new("reached", new AtomParam[] { new(null, new Term("V")) });
+            Atom atom2 = new("reached", new AtomParam[] { new(null, new Term("V")) });
+            Literal literal1 = new(atom1, true, true);
+            Literal literal2 = new(atom2, true, false);
 
             Assert.IsFalse(literal1.Equals(literal2));
         }

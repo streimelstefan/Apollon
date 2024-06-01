@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Rules
+﻿//-----------------------------------------------------------------------
+// <copyright file="BodyPart.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Rules
 {
     using Apollon.Lib.Rules.Operations;
 
@@ -113,46 +120,22 @@
         /// <summary>
         /// Gets a value indicating whether the body part is a literal.
         /// </summary>
-        public bool IsLiteral
-        {
-            get
-            {
-                return this.Literal != null;
-            }
-        }
+        public bool IsLiteral => this.Literal != null;
 
         /// <summary>
         /// Gets a value indicating whether the body part is an operation.
         /// </summary>
-        public bool IsOperation
-        {
-            get
-            {
-                return this.Operation != null;
-            }
-        }
+        public bool IsOperation => this.Operation != null;
 
         /// <summary>
         /// Gets a value indicating whether the body part is a forall.
         /// </summary>
-        public bool IsForAll
-        {
-            get
-            {
-                return this.ForAll != null;
-            }
-        }
+        public bool IsForAll => this.ForAll != null;
 
         /// <summary>
         /// Gets a value indicating whether the body part has a child.
         /// </summary>
-        public bool HasChild
-        {
-            get
-            {
-                return this.Child != null;
-            }
-        }
+        public bool HasChild => this.Child != null;
 
         /// <summary>
         /// Checks whether the current body part is equal to the given body part.
@@ -161,37 +144,11 @@
         /// <returns>Returns a value indicating whether the current body part is equal to the given body part.</returns>
         public bool Equals(BodyPart? other)
         {
-            if (other == null)
-            {
-                return false;
-            }
-
-            if (this == other)
-            {
-                return true;
-            }
-
-            if (other.IsLiteral && !this.IsLiteral)
-            {
-                return false;
-            }
-
-            if (other.IsOperation && !this.IsOperation)
-            {
-                return false;
-            }
-
-            if (this.Literal != null)
-            {
-                return this.Literal.Equals(other.Literal);
-            }
-
-            if (this.Operation != null)
-            {
-                return this.Operation.Equals(other.Operation);
-            }
-
-            return false;
+            return other != null
+&& (this == other
+|| ((!other.IsLiteral || this.IsLiteral)
+&& (!other.IsOperation || this.IsOperation)
+&& (this.Literal != null ? this.Literal.Equals(other.Literal) : this.Operation != null && this.Operation.Equals(other.Operation))));
         }
 
         /// <summary>
@@ -200,22 +157,9 @@
         /// <returns>Returns a string representing a body part.</returns>
         public override string ToString()
         {
-            if (this.ForAll != null)
-            {
-                return $"forall({this.ForAll}, {(this.Child == null ? this.Literal : this.Child)})";
-            }
-
-            if (this.Literal != null)
-            {
-                return this.Literal.ToString();
-            }
-
-            if (this.Operation != null)
-            {
-                return this.Operation.ToString();
-            }
-
-            return string.Empty;
+            return this.ForAll != null
+                ? $"forall({this.ForAll}, {(this.Child == null ? this.Literal : this.Child)})"
+                : this.Literal != null ? this.Literal.ToString() : this.Operation != null ? this.Operation.ToString() : string.Empty;
         }
 
         /// <summary>

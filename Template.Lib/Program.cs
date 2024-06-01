@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib
+﻿//-----------------------------------------------------------------------
+// <copyright file="Program.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib
 {
     using Apollon.Lib.Docu;
     using Apollon.Lib.Rules;
@@ -54,40 +61,24 @@
         /// <summary>
         /// Gets an Enumerable of all RuleTypes as Statements.
         /// </summary>
-        public IEnumerable<Statement> RuleTypesAsStatements
-        {
-            get
-            {
-                return this.RuleList.Select(r => r as Statement)
+        public IEnumerable<Statement> RuleTypesAsStatements => this.RuleList.Select(r => r as Statement)
                     .Union(this.ConstraintList.Select(c => c as Statement));
-            }
-        }
 
         /// <summary>
         /// Gets an Enumerable of all Statements in the Program.
         /// </summary>
-        public IEnumerable<Statement> Statements
-        {
-            get
-            {
-                return this.LiteralList.Select(l => new Statement(l, new BodyPart[0]))
+        public IEnumerable<Statement> Statements => this.LiteralList.Select(l => new Statement(l, new BodyPart[0]))
                     .Union(this.RuleTypesAsStatements);
-            }
-        }
 
         /// <summary>
         /// Gets an Enumerable of all Literals in the Program.
         /// </summary>
-        public IEnumerable<Literal> AllLiterals
-        {
-            get
-            {
+        public IEnumerable<Literal> AllLiterals =>
 #pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
-                return this.Statements
+                this.Statements
                     .SelectMany(s => s.Body.Where(b => b.Literal != null).Select(b => b.Literal))
                     .Union(this.Statements.Where(s => s.Head != null).Select(s => s.Head));
 #pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
-            }
-        }
+
     }
 }

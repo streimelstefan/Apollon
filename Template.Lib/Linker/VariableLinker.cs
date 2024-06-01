@@ -1,14 +1,16 @@
-﻿using Apollon.Lib.Atoms;
-using Apollon.Lib.Rules;
-using Apollon.Lib.Rules.Operations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="VariableLinker.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace Apollon.Lib.Linker
 {
+    using Apollon.Lib.Atoms;
+    using Apollon.Lib.Rules;
+    using Apollon.Lib.Rules.Operations;
+
     /// <summary>
     /// A linker that links all the variables in a statement.
     /// </summary>
@@ -21,14 +23,15 @@ namespace Apollon.Lib.Linker
         /// <returns>The new statment where the variables are linked.</returns>
         public Statement LinkVariables(Statement statement)
         {
-            var variableTable = new Dictionary<string, Term>();
+            Dictionary<string, Term> variableTable = new();
             if (statement.Head != null)
             {
-                LinkInAtom(statement.Head.Atom, variableTable);
+                this.LinkInAtom(statement.Head.Atom, variableTable);
             }
-            foreach (var bodyPart in statement.Body)
+
+            foreach (BodyPart bodyPart in statement.Body)
             {
-                LinkInBodyPart(bodyPart, variableTable);
+                this.LinkInBodyPart(bodyPart, variableTable);
             }
 
             return statement;
@@ -38,27 +41,30 @@ namespace Apollon.Lib.Linker
         {
             if (bodyPart.Literal != null)
             {
-                LinkInAtom(bodyPart.Literal.Atom, variableTable);
+                this.LinkInAtom(bodyPart.Literal.Atom, variableTable);
             }
+
             if (bodyPart.ForAll != null)
             {
-                bodyPart.ForAll = ReplaceTermIfNeeded(bodyPart.ForAll, variableTable);
+                bodyPart.ForAll = this.ReplaceTermIfNeeded(bodyPart.ForAll, variableTable);
             }
+
             if (bodyPart.Child != null)
             {
-                LinkInBodyPart(bodyPart.Child, variableTable);
+                this.LinkInBodyPart(bodyPart.Child, variableTable);
             }
+
             if (bodyPart.Operation != null)
             {
-                LinkInOperation(bodyPart.Operation, variableTable);
+                this.LinkInOperation(bodyPart.Operation, variableTable);
             }
         }
 
         private void LinkInAtom(Atom atom, Dictionary<string, Term> variableTable)
         {
-            foreach (var param in atom.ParamList)
+            foreach (AtomParam param in atom.ParamList)
             {
-                LinkInAtomParam(param, variableTable);
+                this.LinkInAtomParam(param, variableTable);
             }
         }
 
@@ -66,11 +72,12 @@ namespace Apollon.Lib.Linker
         {
             if (atomParam.Term != null)
             {
-                atomParam.Term = ReplaceTermIfNeeded(atomParam.Term, variableTable);
+                atomParam.Term = this.ReplaceTermIfNeeded(atomParam.Term, variableTable);
             }
+
             if (atomParam.Literal != null)
             {
-                LinkInAtom(atomParam.Literal.Atom, variableTable);
+                this.LinkInAtom(atomParam.Literal.Atom, variableTable);
             }
         }
 
@@ -78,10 +85,11 @@ namespace Apollon.Lib.Linker
         {
             if (operation.OutputtingVariable != null)
             {
-                operation.OutputtingVariable = ReplaceTermIfNeeded(operation.OutputtingVariable, variableTable);
+                operation.OutputtingVariable = this.ReplaceTermIfNeeded(operation.OutputtingVariable, variableTable);
             }
-            LinkInAtomParam(operation.Variable, variableTable);
-            LinkInAtomParam(operation.Condition, variableTable);
+
+            this.LinkInAtomParam(operation.Variable, variableTable);
+            this.LinkInAtomParam(operation.Condition, variableTable);
         }
 
         private Term ReplaceTermIfNeeded(Term term, Dictionary<string, Term> variableTable)

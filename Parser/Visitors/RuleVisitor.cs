@@ -1,20 +1,22 @@
-﻿using Apollon.Lib;
-using Apollon.Lib.Rules;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="RuleVisitor.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace AppollonParser.Visitors
 {
+    using Apollon.Lib;
+    using Apollon.Lib.Rules;
+
     /// <summary>
     /// A visitor that generates <see cref="Rule"/>s.
     /// </summary>
     public class RuleVisitor : apollonBaseVisitor<Rule>
     {
-        private readonly LiteralVisitor _literalVisitor = new LiteralVisitor();
-        private static readonly BodyPartVisitor _bodyPartVisitor = new BodyPartVisitor();
+        private readonly LiteralVisitor literalVisitor = new();
+        private static readonly BodyPartVisitor BodyPartVisitor = new();
 
         /// <summary>
         /// Generates a new <see cref="Rule"/>.
@@ -23,17 +25,16 @@ namespace AppollonParser.Visitors
         /// <returns>The new rule.</returns>
         public override Rule VisitRule(apollonParser.RuleContext context)
         {
-            var headContext = context.head().literal();
-            var head = _literalVisitor.VisitLiteral(headContext);
-            var bodyParts = new List<BodyPart>();
-            
-            foreach (var bodyPart in context.body().body_part())
+            apollonParser.LiteralContext headContext = context.head().literal();
+            Literal head = this.literalVisitor.VisitLiteral(headContext);
+            List<BodyPart> bodyParts = new();
+
+            foreach (apollonParser.Body_partContext? bodyPart in context.body().body_part())
             {
-                bodyParts.Add(_bodyPartVisitor.VisitBody_part(bodyPart));
+                bodyParts.Add(BodyPartVisitor.VisitBody_part(bodyPart));
             }
 
             return new Rule(head, bodyParts.ToArray());
         }
-
     }
 }

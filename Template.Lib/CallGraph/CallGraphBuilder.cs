@@ -1,7 +1,12 @@
-﻿
-using Apollon.Lib.Rules;
+﻿//-----------------------------------------------------------------------
+// <copyright file="CallGraphBuilder.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace Apollon.Lib.Graph;
+using Apollon.Lib.Rules;
 
 /// <summary>
 /// This class is responsible for building the CallGraph from a given Program.
@@ -9,18 +14,18 @@ namespace Apollon.Lib.Graph;
 public class CallGraphBuilder
 {
     /// <summary>
-    /// Gets or sets the CallGraph that is being built.
-    /// </summary>
-    private CallGraph CallGraph { get; set; }
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="CallGraphBuilder"/> class.
     /// </summary>
     /// <param name="equalizer">The equalizer to use to build the callgraph.</param>
     public CallGraphBuilder(IEqualizer<Literal> equalizer)
     {
-        CallGraph = new CallGraph(equalizer);
+        this.CallGraph = new CallGraph(equalizer);
     }
+
+    /// <summary>
+    /// Gets or sets the CallGraph that is being built.
+    /// </summary>
+    private CallGraph CallGraph { get; set; }
 
     /// <summary>
     /// Builds and returns the CallGraph from the given Program.
@@ -29,15 +34,18 @@ public class CallGraphBuilder
     /// <returns>The CallGraph of the Program.</returns>
     public CallGraph BuildCallGraph(Program program)
     {
-        if (program == null) throw new ArgumentNullException(nameof(program));
+        if (program == null)
+        {
+            throw new ArgumentNullException(nameof(program));
+        }
 
-        CallGraph = new CallGraph(CallGraph.Equalizer);
+        this.CallGraph = new CallGraph(this.CallGraph.Equalizer);
 
-        var statements = program.RuleTypesAsStatements;
-        CreateNodes(program.LiteralList);
-        CreateEdges(statements.ToArray());
+        IEnumerable<Statement> statements = program.RuleTypesAsStatements;
+        this.CreateNodes(program.LiteralList);
+        this.CreateEdges(statements.ToArray());
 
-        return CallGraph;
+        return this.CallGraph;
     }
 
     /// <summary>
@@ -46,9 +54,9 @@ public class CallGraphBuilder
     /// <param name="literalList">The List of all Literals.</param>
     private void CreateNodes(Literal[] literalList)
     {
-        foreach(var literal in literalList)
+        foreach (Literal literal in literalList)
         {
-            FindOrAddNodeOfLiteral(literal);
+            _ = this.FindOrAddNodeOfLiteral(literal);
         }
     }
 
@@ -60,24 +68,24 @@ public class CallGraphBuilder
     /// <exception cref="ArgumentException">Is Thrown if a Rule is invalid due to it having an unknown body or head.</exception>
     private void CreateEdges(Statement[] ruleList)
     {
-        foreach(var rule in ruleList)
+        foreach (Statement rule in ruleList)
         {
             CallGraphNode? head = null;
             if (rule.Head != null)
             {
-                head = FindOrAddNodeOfLiteral(rule.Head);
+                head = this.FindOrAddNodeOfLiteral(rule.Head);
             }
 
-
-            foreach (var bodyPart in rule.Body)
+            foreach (BodyPart bodyPart in rule.Body)
             {
                 if (bodyPart.Literal == null)
                 {
                     continue;
                 }
-                var target = FindOrAddNodeOfLiteral(bodyPart.Literal);
 
-                CallGraph.AddEdge(head, target, bodyPart.Literal.IsNAF, rule);
+                CallGraphNode target = this.FindOrAddNodeOfLiteral(bodyPart.Literal);
+
+                _ = this.CallGraph.AddEdge(head, target, bodyPart.Literal.IsNAF, rule);
             }
         }
     }
@@ -90,15 +98,10 @@ public class CallGraphBuilder
             useLiteral = new Literal(literal.Atom, false, literal.IsNegative);
         }
 
-        var node = CallGraph.GetNode(useLiteral);
+        CallGraphNode? node = this.CallGraph.GetNode(useLiteral);
 
-        if (node == null)
-        {
-            node = CallGraph.AddNode(useLiteral);
-        }
+        node ??= this.CallGraph.AddNode(useLiteral);
 
         return node;
     }
-
-    
 }

@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Rules.Operations
+﻿//-----------------------------------------------------------------------
+// <copyright file="Operator.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Rules.Operations
 {
     /// <summary>
     /// An Enum that represents the different Operators that can be used in a Operation.

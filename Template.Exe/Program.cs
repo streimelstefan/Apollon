@@ -1,40 +1,52 @@
-﻿using System.CommandLine;
-using Apollon.Lib;
-using AppollonParser;
-using Apollon.Lib.Graph;
-using Apollon.Lib.OLON;
-using Apollon.Lib.Rules;
-using Apollon.Lib.NMRCheck;
-using Apollon.Lib.DualRules;
-using Apollon.Lib.Docu;
+﻿//-----------------------------------------------------------------------
+// <copyright file="Program.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+using System.CommandLine;
 using System.CommandLine.Parsing;
-using Antlr4.Runtime;
+using Apollon.Lib;
+using Apollon.Lib.Docu;
 using Apollon.Lib.Logging;
+using Apollon.Lib.Rules;
+using AppollonParser;
 
-var fileArgument = new Argument<string>("file", "The path to the file that will be parsed.");
+Argument<string> fileArgument = new("file", "The path to the file that will be parsed.");
 
-var queryOption = new Option<string>("--query", "The query that will be executed on the parsed file.");
+Option<string> queryOption = new("--query", "The query that will be executed on the parsed file.");
+
 queryOption.AddAlias("-q");
 
-var loggingOption = new Option<LogLevel>("--logging-level", "The Logging Level that the program should execute with.");
+Option<LogLevel> loggingOption = new("--logging-level", "The Logging Level that the program should execute with.");
+
 loggingOption.AddAlias("-l");
+
 loggingOption.SetDefaultValue(LogLevel.NoLogging);
 
-var interactiveOption = new Option<bool>("--interactive", "The specified file will be read and preprocessed. After that interactive querries can be made.");
+Option<bool> interactiveOption = new("--interactive", "The specified file will be read and preprocessed. After that interactive querries can be made.");
+
 interactiveOption.AddAlias("-i");
 
-var parseOnlyOption = new Option<bool>("--parse-only", "The specified file will only checked for syntactical and grammatical correctness.");
+Option<bool> parseOnlyOption = new("--parse-only", "The specified file will only checked for syntactical and grammatical correctness.");
 
-var generateDocuOption = new Option<bool>("--generate-documentation", "Generates the documentation for the file loaded.");
+Option<bool> generateDocuOption = new("--generate-documentation", "Generates the documentation for the file loaded.");
+
 generateDocuOption.AddAlias("-d");
 
-var rootCommand = new RootCommand("Parser for s(ASP).");
+RootCommand rootCommand = new("Parser for s(ASP).");
 
 rootCommand.AddArgument(fileArgument);
+
 rootCommand.AddOption(queryOption);
+
 rootCommand.AddOption(interactiveOption);
+
 rootCommand.AddOption(parseOnlyOption);
+
 rootCommand.AddOption(loggingOption);
+
 rootCommand.AddOption(generateDocuOption);
 
 rootCommand.AddValidator(result =>
@@ -45,6 +57,7 @@ rootCommand.AddValidator(result =>
         result.ErrorMessage = $"You must use either interactive Mode or specify a query!";
     }
 });
+
 fileArgument.AddValidator(result =>
 {
     if (!System.IO.File.Exists(result.Tokens[0].Value))
@@ -56,9 +69,9 @@ fileArgument.AddValidator(result =>
 rootCommand.SetHandler(
     (file, query, interactive, parseOnly, logLevel, genDocu) =>
 {
-    var parser = new ApollonParser();
+    ApollonParser parser = new();
 
-    var program = parser.ParseFromFile(file);
+    Apollon.Lib.Program program = parser.ParseFromFile(file);
 
     if (parseOnly)
     {
@@ -67,7 +80,7 @@ rootCommand.SetHandler(
 
     if (genDocu)
     {
-        var dokuGenerator = new DocumentationGenerator();
+        DocumentationGenerator dokuGenerator = new();
 
         Console.WriteLine(dokuGenerator.GenerateDokumentationFor(program));
         return;
@@ -75,7 +88,7 @@ rootCommand.SetHandler(
 
     if (interactive)
     {
-        var solver = new Solver();
+        Solver solver = new();
         solver.Load(program);
 
         string? input = string.Empty;
@@ -91,13 +104,13 @@ rootCommand.SetHandler(
                 break;
             }
 
-            var goals = parser.ParseQueryFromString(input);
+            BodyPart[] goals = parser.ParseQueryFromString(input);
 
-            var results = solver.Solve(goals);
+            IEnumerable<Apollon.Lib.Resolution.ResolutionResult> results = solver.Solve(goals);
 
-            var resultBuilder = new ResultStringBuilder();
+            ResultStringBuilder resultBuilder = new();
 
-            foreach (var result in results)
+            foreach (Apollon.Lib.Resolution.ResolutionResult result in results)
             {
                 Console.WriteLine(resultBuilder.CreateResultString(result));
             }
@@ -106,17 +119,17 @@ rootCommand.SetHandler(
     }
     else
     {
-        var goals = parser.ParseQueryFromString(query);
+        BodyPart[] goals = parser.ParseQueryFromString(query);
 
-        var solver = new Solver();
+        Solver solver = new();
         solver.Logger.Level = logLevel;
         solver.Load(program);
 
-        var results = solver.Solve(goals);
+        IEnumerable<Apollon.Lib.Resolution.ResolutionResult> results = solver.Solve(goals);
 
-        var resultBuilder = new ResultStringBuilder();
+        ResultStringBuilder resultBuilder = new();
 
-        foreach (var result in results)
+        foreach (Apollon.Lib.Resolution.ResolutionResult result in results)
         {
             Console.WriteLine(resultBuilder.CreateResultString(result));
         }

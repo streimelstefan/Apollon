@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Rules.Operations
+﻿//-----------------------------------------------------------------------
+// <copyright file="Operation.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Rules.Operations
 {
     using Apollon.Lib.Atoms;
 
@@ -83,15 +90,10 @@
         /// <returns>A string representing the operation.</returns>
         public override string ToString()
         {
-            var operationString = this.Operator.ToFriendlyString();
-            if (this.OutputtingVariable == null)
-            {
-                return $"{this.Variable} {operationString} {this.Condition}";
-            }
-            else
-            {
-                return $"{(this.IsNAF ? "not " : string.Empty)}{this.OutputtingVariable} is {this.Variable} {operationString} {this.Condition}";
-            }
+            string operationString = this.Operator.ToFriendlyString();
+            return this.OutputtingVariable == null
+                ? $"{this.Variable} {operationString} {this.Condition}"
+                : $"{(this.IsNAF ? "not " : string.Empty)}{this.OutputtingVariable} is {this.Variable} {operationString} {this.Condition}";
         }
 
         /// <summary>
@@ -101,19 +103,11 @@
         /// <returns>A boolean indicating whether this operation is equal to the given operation.</returns>
         public bool Equals(Operation? other)
         {
-            if (other == null)
-            {
-                return false;
-            }
-
-            if (other == this)
-            {
-                return true;
-            }
-
-            return this.Variable.Equals(other.Variable) &&
+            return other != null
+&& (other == this
+|| (this.Variable.Equals(other.Variable) &&
                 this.Operator == other.Operator &&
-                this.Condition.Equals(other.Condition);
+                this.Condition.Equals(other.Condition)));
         }
 
         /// <summary>
@@ -128,8 +122,10 @@
             }
             else
             {
-                var op = new Operation((Term)this.OutputtingVariable.Clone(), (AtomParam)this.Variable.Clone(), this.Operator, (Term)this.Condition.Term.Clone());
-                op.IsNAF = this.IsNAF;
+                Operation op = new((Term)this.OutputtingVariable.Clone(), (AtomParam)this.Variable.Clone(), this.Operator, (Term)this.Condition.Term!.Clone())
+                {
+                    IsNAF = this.IsNAF,
+                };
                 return op;
             }
         }

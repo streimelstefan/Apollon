@@ -1,17 +1,17 @@
-﻿using Antlr4.Runtime;
-using Antlr4.Runtime.Tree;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
-using Apollon.Lib;
-using AppollonParser.Visitors;
-using Apollon.Lib.Rules;
+﻿//-----------------------------------------------------------------------
+// <copyright file="ApollonParser.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace AppollonParser
 {
+    using Antlr4.Runtime;
+    using Apollon.Lib;
+    using Apollon.Lib.Rules;
+    using AppollonParser.Visitors;
+
     /// <summary>
     /// The high level class that handles all the logic of parsing an apollo program.
     /// </summary>
@@ -35,27 +35,28 @@ namespace AppollonParser
         /// <exception cref="ArgumentException">Is thrown if the filepath is not valid.</exception>
         public Program ParseFromFile(string filePath)
         {
-            string fullPath; 
+            string fullPath;
             try
             {
                 fullPath = Path.GetFullPath(filePath);
-            } catch (Exception e) 
-            { 
+            }
+            catch (Exception e)
+            {
                 throw new ArgumentException("Given path is not valid", nameof(filePath), e);
             }
 
-            var code = File.ReadAllText(fullPath);
+            string code = File.ReadAllText(fullPath);
 
             return this.ParseFromString(code);
         }
 
         private Program ParseFromStream(ICharStream stream)
         {
-            var lexer = new apollonLexer(stream);
-            var tokens = new CommonTokenStream(lexer);
-            var parser = new apollonParser(tokens);
-            var tree = parser.program();
-            
+            apollonLexer lexer = new(stream);
+            CommonTokenStream tokens = new(lexer);
+            apollonParser parser = new(tokens);
+            apollonParser.ProgramContext tree = parser.program();
+
             return tree.Accept(new ProgramVisitor());
         }
 
@@ -66,18 +67,17 @@ namespace AppollonParser
         /// <returns>The parsed query.</returns>
         public BodyPart[] ParseQueryFromString(string query)
         {
-            return ParseQueryFromStream(CharStreams.fromString(query));
+            return this.ParseQueryFromStream(CharStreams.fromString(query));
         }
 
         private BodyPart[] ParseQueryFromStream(ICharStream stream)
         {
-            var lexer = new apollonLexer(stream);
-            var tokens = new CommonTokenStream(lexer);
-            var parser = new apollonParser(tokens);
-            var tree = parser.query();
+            apollonLexer lexer = new(stream);
+            CommonTokenStream tokens = new(lexer);
+            apollonParser parser = new(tokens);
+            apollonParser.QueryContext tree = parser.query();
 
             return tree.Accept(new QueryVisitor());
         }
-
     }
 }

@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Rules
+﻿//-----------------------------------------------------------------------
+// <copyright file="Rule.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Rules
 {
     /// <summary>
     /// A Rule is a Statement with a Head and a Body.

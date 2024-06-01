@@ -1,19 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Apollon.Lib.Atoms;
-using Apollon.Lib;
+﻿//-----------------------------------------------------------------------
+// <copyright file="AtomVisitor.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace AppollonParser.Visitors
 {
+    using Apollon.Lib.Atoms;
+
     /// <summary>
     /// A visitor that creates <see cref="Atom"/>s.
     /// </summary>
     internal class AtomVisitor : apollonBaseVisitor<Atom>
     {
-        private static readonly AtomParamVisitor _paramVisitor = new AtomParamVisitor();
+        private static readonly AtomParamVisitor ParamVisitor = new();
 
         /// <summary>
         /// Creates a new <see cref="Atom"/> from the given context.
@@ -22,16 +23,15 @@ namespace AppollonParser.Visitors
         /// <returns>The new atom.</returns>
         public override Atom VisitAtom(apollonParser.AtomContext context)
         {
-            var head = context.CLASICAL_TERM().GetText();
-            var paramList = new List<AtomParam>();
+            string head = context.CLASICAL_TERM().GetText();
+            List<AtomParam> paramList = new();
 
-            foreach (var param in context.atom_param_part())
+            foreach (apollonParser.Atom_param_partContext? param in context.atom_param_part())
             {
-                paramList.Add(_paramVisitor.VisitAtom_param_part(param));
+                paramList.Add(ParamVisitor.VisitAtom_param_part(param));
             }
 
             return new Atom(head, paramList.ToArray());
         }
-
     }
 }

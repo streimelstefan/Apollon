@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Resolution.CoSLD
+﻿//-----------------------------------------------------------------------
+// <copyright file="OperationResolver.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Resolution.CoSLD
 {
     using Apollon.Lib.Atoms;
     using Apollon.Lib.Extensions;
@@ -12,9 +19,9 @@
     /// </summary>
     public class OperationResolver
     {
-        private Dictionary<Operator, Func<Operation, ResolutionBaseState, CoResolutionResult>> resolvers;
+        private readonly Dictionary<Operator, Func<Operation, ResolutionBaseState, CoResolutionResult>> resolvers;
 
-        private IUnifier constructiveUnifier = new ConstructiveUnifier();
+        private readonly IUnifier constructiveUnifier = new ConstructiveUnifier();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationResolver"/> class.
@@ -39,11 +46,11 @@
                 throw new NotSupportedException("The resolution of naf negated operations is not supported yet.");
             }
 
-            var resolver = this.resolvers[operation.Operator];
+            Func<Operation, ResolutionBaseState, CoResolutionResult> resolver = this.resolvers[operation.Operator];
 
             try
             {
-                var res = resolver(operation, state);
+                CoResolutionResult res = resolver(operation, state);
 
                 state.Logger.Silly($"Operation {operation} {(res.Success ? "succeeded" : "failed")}");
                 res.State.LogState();
@@ -76,14 +83,14 @@
         {
             this.ThrowIfGeneratingOperation(operation);
 
-            var op = state.Substitution.Apply(operation);
+            Operation op = state.Substitution.Apply(operation);
             op.Condition.ConvertToTermIfPossible();
             op.Variable.ConvertToTermIfPossible();
 
-            var condition = new Literal(new Atom("tmp", op.Condition), false, false);
-            var variable = new Literal(new Atom("tmp", op.Variable), false, false);
+            Literal condition = new(new Atom("tmp", op.Condition), false, false);
+            Literal variable = new(new Atom("tmp", op.Variable), false, false);
 
-            var unificationRes = this.constructiveUnifier.Unify(condition, variable);
+            UnificationResult unificationRes = this.constructiveUnifier.Unify(condition, variable);
 
             return new CoResolutionResult(unificationRes.IsSuccess, unificationRes.Value ?? new Substitution(), state);
         }
@@ -98,11 +105,11 @@
 
             operation.Variable.Term.ProhibitedValues.AddValue(operation.Condition);
 
-            var op = state.Substitution.Apply(operation);
-            var condition = this.ExtractAsLiteral(op.Condition, state);
-            var variable = this.ExtractAsLiteral(op.Variable, state);
+            Operation op = state.Substitution.Apply(operation);
+            Literal condition = this.ExtractAsLiteral(op.Condition, state);
+            Literal variable = this.ExtractAsLiteral(op.Variable, state);
 
-            var areEqual = condition.Equals(variable);
+            bool areEqual = condition.Equals(variable);
             return new CoResolutionResult(!areEqual, state.Substitution, state);
         }
 
@@ -129,17 +136,14 @@
         private CoResolutionResult ConditionalOperationBase(Operation operation, ResolutionBaseState state, Func<int, int, bool> executor)
         {
             this.ThrowIfGeneratingOperation(operation);
-            var sub = state.Substitution.Apply(operation);
+            Operation sub = state.Substitution.Apply(operation);
 
-            var variable = this.ExtractAsNumberOrThrow(sub.Variable, state);
-            var condition = this.ExtractAsNumberOrThrow(sub.Condition, state);
+            int variable = this.ExtractAsNumberOrThrow(sub.Variable, state);
+            int condition = this.ExtractAsNumberOrThrow(sub.Condition, state);
 
-            if (executor(variable, condition))
-            {
-                return new CoResolutionResult(true, state.Substitution, state);
-            }
-
-            return new CoResolutionResult(false, new Substitution(), state);
+            return executor(variable, condition)
+                ? new CoResolutionResult(true, state.Substitution, state)
+                : new CoResolutionResult(false, new Substitution(), state);
         }
 
         private CoResolutionResult ResolvePlus(Operation operation, ResolutionBaseState state)
@@ -165,18 +169,20 @@
         private CoResolutionResult GeneratingOperationBase(Operation operation, ResolutionBaseState state, Func<int, int, int> executor)
         {
             this.ThrowIfInlineOperation(operation);
-            var sub = state.Substitution.Apply(operation);
+            Operation sub = state.Substitution.Apply(operation);
 
-            var variable = this.ExtractAsNumberOrThrow(sub.Variable, state);
-            var condition = this.ExtractAsNumberOrThrow(sub.Condition, state);
-            var output = sub.OutputtingVariable;
+            int variable = this.ExtractAsNumberOrThrow(sub.Variable, state);
+            int condition = this.ExtractAsNumberOrThrow(sub.Condition, state);
+            Term? output = sub.OutputtingVariable;
 
             int res = executor(variable, condition);
 
             state.Logger.Silly($"Operation {sub} resulted in {res}");
 
-            var stateCopy = (ResolutionBaseState)state.Clone();
-            stateCopy.Substitution.Add(output, new Term(res.ToString()));
+            ResolutionBaseState stateCopy = (ResolutionBaseState)state.Clone();
+
+            // warning can be ignored here since it is check in the first function call.
+            stateCopy.Substitution.Add(output!, new Term(res.ToString()));
 
             return new CoResolutionResult(true, stateCopy.Substitution, stateCopy);
         }
@@ -201,29 +207,19 @@
         {
             if (param.Term != null)
             {
-                var newLiteral = new Literal(new Atom(param.Term.Value), false, false);
+                Literal newLiteral = new(new Atom(param.Term.Value), false, false);
                 state.Logger.Silly($"Converted term {param} to literal {newLiteral}.");
                 return newLiteral;
             }
 
-            if (param.Literal != null)
-            {
-                return param.Literal;
-            }
-
-            throw new NotImplementedException($"Unahndled case for extraction as literal of {param}");
+            return param.Literal ?? throw new NotImplementedException($"Unahndled case for extraction as literal of {param}");
         }
 
         private int ExtractAsNumberOrThrow(AtomParam param, ResolutionBaseState state)
         {
-            var term = this.ExtractAsTermOrThrow(param, state);
+            Term term = this.ExtractAsTermOrThrow(param, state);
 
-            if (!term.IsNumber())
-            {
-                throw new InvalidOperationException($"Unable to convert term {term} to a number");
-            }
-
-            return int.Parse(term.Value);
+            return !term.IsNumber() ? throw new InvalidOperationException($"Unable to convert term {term} to a number") : int.Parse(term.Value);
         }
 
         private Term ExtractAsTermOrThrow(AtomParam param, ResolutionBaseState state)
@@ -240,7 +236,7 @@
                     throw new InvalidOperationException($"Unable to convert literal {param} to term.");
                 }
 
-                var newTerm = new Term(param.Literal.Atom.Name);
+                Term newTerm = new(param.Literal.Atom.Name);
 
                 state.Logger.Silly($"Converted literal {param.Literal} to term {newTerm}");
                 return newTerm;

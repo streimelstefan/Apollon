@@ -1,31 +1,25 @@
-﻿using AppollonParser;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Template.Test.Parser
+﻿namespace Template.Test.Parser
 {
+    using AppollonParser;
+    using NUnit.Framework;
+
     [TestFixture]
     public class ParserTests
     {
-
-        private ApollonParser _parser = new ApollonParser();
+        private ApollonParser parser = new();
 
         [SetUp]
         public void SetUp()
         {
-            _parser = new ApollonParser();
+            this.parser = new ApollonParser();
         }
 
         [Test]
         public void SouldParseAndReturnAProgramThatIsNotNull()
         {
-            var input = "";
+            string input = string.Empty;
 
-            var program = _parser.ParseFromString(input);
+            Apollon.Lib.Program program = this.parser.ParseFromString(input);
 
             Assert.IsNotNull(program);
         }
@@ -33,7 +27,7 @@ namespace Template.Test.Parser
         [Test]
         public void ShouldParseTwoFacts()
         {
-            var program = _parser.ParseFromFile("../../../TestPrograms/BasicFacts.apo");
+            Apollon.Lib.Program program = this.parser.ParseFromFile("../../../TestPrograms/BasicFacts.apo");
 
             Assert.IsNotNull(program);
             Assert.AreEqual(2, program.LiteralList.Length);
@@ -51,7 +45,7 @@ namespace Template.Test.Parser
         [Test]
         public void ShouldParseABasicRule()
         {
-            var program = _parser.ParseFromFile("../../../TestPrograms/BasicRule.apo");
+            Apollon.Lib.Program program = this.parser.ParseFromFile("../../../TestPrograms/BasicRule.apo");
 
             Assert.IsNotNull(program);
             Assert.AreEqual(0, program.LiteralList.Length);
@@ -65,7 +59,7 @@ namespace Template.Test.Parser
         [Test]
         public void ShouldParseWithComments()
         {
-            var program = _parser.ParseFromFile("../../../TestPrograms/CommentsFactsAndRules.apo");
+            Apollon.Lib.Program program = this.parser.ParseFromFile("../../../TestPrograms/CommentsFactsAndRules.apo");
 
             Assert.IsNotNull(program);
             Assert.AreEqual(1, program.LiteralList.Length);
@@ -80,7 +74,7 @@ namespace Template.Test.Parser
         [Test]
         public void ShouldParseNAFAndNegationCorrectly()
         {
-            var program = _parser.ParseFromFile("../../../TestPrograms/NafAndNegation.apo");
+            Apollon.Lib.Program program = this.parser.ParseFromFile("../../../TestPrograms/NafAndNegation.apo");
 
             Assert.IsNotNull(program);
             Assert.AreEqual(2, program.LiteralList.Length);
@@ -102,7 +96,7 @@ namespace Template.Test.Parser
         [Test]
         public void ShouldParseRulesWithVariables()
         {
-            var program = _parser.ParseFromFile("../../../TestPrograms/RulesWithVariablesAndTerms.apo");
+            Apollon.Lib.Program program = this.parser.ParseFromFile("../../../TestPrograms/RulesWithVariablesAndTerms.apo");
 
             Assert.IsNotNull(program);
             Assert.AreEqual(0, program.LiteralList.Length);
@@ -121,7 +115,6 @@ namespace Template.Test.Parser
             Assert.AreEqual("prix", program.RuleList[0].Body[0].Literal.Atom.ParamList[1].Term.Value);
             Assert.IsFalse(program.RuleList[0].Body[0].Literal.Atom.ParamList[1].Term.IsVariable);
 
-
             Assert.AreEqual("hates", program.RuleList[0].Body[1].Literal.Atom.Name);
             Assert.AreEqual(2, program.RuleList[0].Body[1].Literal.Atom.ParamList.Length);
             Assert.AreEqual("X", program.RuleList[0].Body[1].Literal.Atom.ParamList[0].Term.Value);
@@ -133,7 +126,7 @@ namespace Template.Test.Parser
         [Test]
         public void ShouldParseAtomWithTerms()
         {
-            var program = _parser.ParseFromFile("../../../TestPrograms/AtomWithTerms.apo");
+            Apollon.Lib.Program program = this.parser.ParseFromFile("../../../TestPrograms/AtomWithTerms.apo");
 
             Assert.IsNotNull(program);
             Assert.AreEqual(1, program.LiteralList.Length);
@@ -145,11 +138,10 @@ namespace Template.Test.Parser
             Assert.AreEqual("prix", program.LiteralList[0].Atom.ParamList[1].Term.Value);
         }
 
-
         [Test]
         public void ShouldParseAtomWithConstraintRule()
         {
-            var program = _parser.ParseFromFile("../../../TestPrograms/AtomWithConstraintRule.apo");
+            Apollon.Lib.Program program = this.parser.ParseFromFile("../../../TestPrograms/AtomWithConstraintRule.apo");
 
             Assert.IsNotNull(program);
             Assert.AreEqual(1, program.LiteralList.Length);
@@ -165,7 +157,7 @@ namespace Template.Test.Parser
         [Test]
         public void ShouldParseAtomWithConstraintRuleAndNormalRule()
         {
-            var program = _parser.ParseFromFile("../../../TestPrograms/OLONRuleByConstraintRule.apo");
+            Apollon.Lib.Program program = this.parser.ParseFromFile("../../../TestPrograms/OLONRuleByConstraintRule.apo");
 
             Assert.IsNotNull(program);
             Assert.AreEqual(0, program.LiteralList.Length);
@@ -182,22 +174,22 @@ namespace Template.Test.Parser
         [Test]
         public void ShouldParseNestedAtomsCorrectly()
         {
-            var program = _parser.ParseFromFile("../../../TestPrograms/AtomsWithStructures.apo");
-            
+            Apollon.Lib.Program program = this.parser.ParseFromFile("../../../TestPrograms/AtomsWithStructures.apo");
+
             Assert.IsNotNull(program);
             Assert.AreEqual(1, program.LiteralList.Length);
             Assert.AreEqual(0, program.RuleList.Length);
             Assert.AreEqual(0, program.ConstraintList.Length);
 
-            var literal = program.LiteralList[0];
+            Apollon.Lib.Literal literal = program.LiteralList[0];
             Assert.AreEqual("outer", literal.Atom.Name);
 
             Assert.AreEqual(2, literal.Atom.ParamList.Length);
 
-            var innerLiteralParam = literal.Atom.ParamList[0];
+            Apollon.Lib.Atoms.AtomParam innerLiteralParam = literal.Atom.ParamList[0];
             Assert.IsTrue(innerLiteralParam.IsLiteral);
 
-            var innerAtom = innerLiteralParam.Literal;
+            Apollon.Lib.Literal? innerAtom = innerLiteralParam.Literal;
             Assert.AreEqual("inner", innerAtom.Atom.Name);
             Assert.AreEqual(2, innerAtom.Atom.ParamList.Length);
             Assert.IsTrue(innerAtom.Atom.ParamList[0].IsTerm);
@@ -212,7 +204,7 @@ namespace Template.Test.Parser
         [Test]
         public void ShouldParseRulesWithOperationsCorrectly()
         {
-            var program = _parser.ParseFromFile("../../../TestPrograms/RulesWithOperation.apo");
+            Apollon.Lib.Program program = this.parser.ParseFromFile("../../../TestPrograms/RulesWithOperation.apo");
 
             Assert.IsNotNull(program);
             Assert.AreEqual(1, program.LiteralList.Length);
@@ -223,7 +215,7 @@ namespace Template.Test.Parser
         [Test]
         public void ShouldParseQuery()
         {
-            var query = _parser.ParseQueryFromString("a(X).");
+            Apollon.Lib.Rules.BodyPart[] query = this.parser.ParseQueryFromString("a(X).");
 
             Assert.IsNotNull(query);
             Assert.AreEqual(1, query.Length);
@@ -233,7 +225,7 @@ namespace Template.Test.Parser
         [Test]
         public void ShouldParseOperation()
         {
-            var query = _parser.ParseQueryFromString("X = a.");
+            Apollon.Lib.Rules.BodyPart[] query = this.parser.ParseQueryFromString("X = a.");
 
             Assert.IsNotNull(query);
             Assert.AreEqual("X = a", query[0].ToString());
@@ -242,8 +234,8 @@ namespace Template.Test.Parser
         [Test]
         public void ShouldParseForAllAsLiteral()
         {
-            var query = _parser.ParseQueryFromString("forall(X, b(X))."); 
-            
+            Apollon.Lib.Rules.BodyPart[] query = this.parser.ParseQueryFromString("forall(X, b(X)).");
+
             Assert.IsNotNull(query);
             Assert.AreEqual(1, query.Length);
             Assert.IsFalse(query[0].IsForAll);
@@ -253,7 +245,7 @@ namespace Template.Test.Parser
         [Test]
         public void ShouldParseMultiGoalQuery()
         {
-            var query = _parser.ParseQueryFromString("a(X), b(a).");
+            Apollon.Lib.Rules.BodyPart[] query = this.parser.ParseQueryFromString("a(X), b(a).");
 
             Assert.IsNotNull(query);
             Assert.AreEqual(2, query.Length);
@@ -264,7 +256,7 @@ namespace Template.Test.Parser
         [Test]
         public void ShouldParseGoalWithNestedLiteral()
         {
-            var query = _parser.ParseQueryFromString("a(c(X)).");
+            Apollon.Lib.Rules.BodyPart[] query = this.parser.ParseQueryFromString("a(c(X)).");
 
             Assert.IsNotNull(query);
             Assert.AreEqual(1, query.Length);
@@ -274,13 +266,12 @@ namespace Template.Test.Parser
         [Test]
         public void ShouldParseQueryWithOperationsAndLiterals()
         {
-            var query = _parser.ParseQueryFromString("a(X), X = a.");
+            Apollon.Lib.Rules.BodyPart[] query = this.parser.ParseQueryFromString("a(X), X = a.");
 
             Assert.IsNotNull(query);
             Assert.AreEqual(2, query.Length);
             Assert.AreEqual("a(X)", query[0].ToString());
             Assert.AreEqual("X = a", query[1].ToString());
         }
-
     }
 }

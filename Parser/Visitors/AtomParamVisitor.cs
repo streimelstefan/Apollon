@@ -1,19 +1,21 @@
-﻿using Apollon.Lib;
-using Apollon.Lib.Atoms;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="AtomParamVisitor.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace AppollonParser.Visitors
 {
+    using Apollon.Lib;
+    using Apollon.Lib.Atoms;
+
     /// <summary>
     /// A visitor to create <see cref="AtomParam"/>s.
     /// </summary>
     public class AtomParamVisitor : apollonBaseVisitor<AtomParam>
     {
-        private static readonly LiteralVisitor _literalVisitor = new LiteralVisitor();
+        private static readonly LiteralVisitor LiteralVisitor = new();
 
         /// <summary>
         /// Generates a new <see cref="AtomParam"/>.
@@ -25,7 +27,7 @@ namespace AppollonParser.Visitors
         {
             if (context.general_term() != null)
             {
-                var term = context.general_term();
+                apollonParser.General_termContext term = context.general_term();
                 if (term.VARIABLE_TERM() != null)
                 {
                     return new AtomParam(null, new Term(term.VARIABLE_TERM().GetText()));
@@ -34,14 +36,17 @@ namespace AppollonParser.Visitors
                 {
                     return new AtomParam(null, new Term(term.CLASICAL_TERM().GetText()));
                 }
-            } else if (context.literal() != null)
+            }
+            else if (context.literal() != null)
             {
-                var literal = _literalVisitor.VisitLiteral(context.literal());
+                Literal literal = LiteralVisitor.VisitLiteral(context.literal());
                 return new AtomParam(literal, null);
-            } else if (context.NUMBER() != null)
+            }
+            else if (context.NUMBER() != null)
             {
                 return new AtomParam(null, new Term(context.NUMBER().GetText()));
             }
+
             throw new InvalidProgramException("Atom param was neither a general term or an atom. This is an invalid state.");
         }
     }

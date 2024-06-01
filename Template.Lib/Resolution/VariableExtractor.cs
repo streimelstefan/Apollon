@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Resolution
+﻿//-----------------------------------------------------------------------
+// <copyright file="VariableExtractor.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Resolution
 {
     using Apollon.Lib.Atoms;
     using Apollon.Lib.Rules;
@@ -16,7 +23,7 @@
         /// <returns>The extracted variables.</returns>
         public HashSet<Term> ExtractVariablesFrom(Statement statement)
         {
-            var variables = this.ExtractVariablesFrom(statement.Body);
+            HashSet<Term> variables = this.ExtractVariablesFrom(statement.Body);
 
             if (statement.Head != null)
             {
@@ -33,9 +40,9 @@
         /// <returns>The extracted variables.</returns>
         public HashSet<Term> ExtractVariablesFrom(BodyPart[] bodyPart)
         {
-            var variables = new HashSet<Term>();
+            HashSet<Term> variables = new();
 
-            foreach (var part in bodyPart)
+            foreach (BodyPart part in bodyPart)
             {
                 this.ExtractVariablesFrom(part, variables);
             }
@@ -50,7 +57,7 @@
         /// <returns>The extracted variables.</returns>
         public HashSet<Term> ExtractVariablesFrom(Literal literal)
         {
-            var variables = new HashSet<Term>();
+            HashSet<Term> variables = new();
 
             this.ExtractVariablesFrom(literal, variables);
 
@@ -76,7 +83,7 @@
 
         private void ExtractVariablesFrom(Atom atom, HashSet<Term> variables)
         {
-            foreach (var param in atom.ParamList)
+            foreach (AtomParam param in atom.ParamList)
             {
                 this.ExtractVariablesFrom(param, variables);
             }
@@ -92,7 +99,7 @@
             {
                 if (param.Term.IsVariable)
                 {
-                    variables.Add(param.Term);
+                    _ = variables.Add(param.Term);
                 }
             }
         }
@@ -101,12 +108,12 @@
         {
             if (operation.OutputtingVariable != null)
             {
-                variables.Add(operation.OutputtingVariable);
+                _ = variables.Add(operation.OutputtingVariable);
             }
 
             if (operation.Variable.Term != null && operation.Variable.Term.IsVariable)
             {
-                variables.Add(operation.Variable.Term);
+                _ = variables.Add(operation.Variable.Term);
             }
 
             this.ExtractVariablesFrom(operation.Condition, variables);

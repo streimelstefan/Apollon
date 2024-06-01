@@ -1,27 +1,27 @@
-﻿using Apollon.Lib.Rules.Operations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿//-----------------------------------------------------------------------
+// <copyright file="OperationNAFSwitcher.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
 
 namespace Apollon.Lib.DualRules
 {
+    using Apollon.Lib.Rules.Operations;
 
     /// <summary>
     /// A class that switches the NAF of an <see cref="Operation"/>.
     /// </summary>
     public class OperationNAFSwitcher
     {
-
-        private Dictionary<Operator, Operator> operatorSwitches;
+        private readonly Dictionary<Operator, Operator> operatorSwitches;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationNAFSwitcher"/> class.
         /// </summary>
-        public OperationNAFSwitcher() 
+        public OperationNAFSwitcher()
         {
-            operatorSwitches = new Dictionary<Operator, Operator>();
+            this.operatorSwitches = new Dictionary<Operator, Operator>();
             this.PopulateOperatorSwitches();
         }
 
@@ -48,11 +48,10 @@ namespace Apollon.Lib.DualRules
             this.operatorSwitches.Add(Operator.LessThan, Operator.GreaterThanOrEqual);
             this.operatorSwitches.Add(Operator.GreaterThan, Operator.LessThanOrEqual);
 
-            foreach (var mapping in this.operatorSwitches.ToArray())
+            foreach (KeyValuePair<Operator, Operator> mapping in this.operatorSwitches.ToArray())
             {
                 this.operatorSwitches.Add(mapping.Value, mapping.Key);
             }
         }
-
     }
 }

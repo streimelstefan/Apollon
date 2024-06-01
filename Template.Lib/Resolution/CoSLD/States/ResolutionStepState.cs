@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib.Resolution.CoSLD.States
+﻿//-----------------------------------------------------------------------
+// <copyright file="ResolutionStepState.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib.Resolution.CoSLD.States
 {
     using Apollon.Lib.Logging;
     using Apollon.Lib.Resolution.CallStackAndCHS;
@@ -75,7 +82,7 @@
         /// <returns>Returns a new instance.</returns>
         public static ResolutionStepState CloneConstructor(ResolutionBaseState baseState, BodyPart currentGoal)
         {
-            var obj = new ResolutionStepState(baseState, currentGoal);
+            ResolutionStepState obj = new(baseState, currentGoal);
 
             return (ResolutionStepState)obj.Clone();
         }
@@ -89,7 +96,7 @@
         /// <returns>Returns the cloned State.</returns>
         public static ResolutionStepState CloneConstructor(ResolutionBaseState baseState, BodyPart currentGoal, Statement[] statements)
         {
-            var obj = new ResolutionStepState(baseState, currentGoal, statements);
+            ResolutionStepState obj = new(baseState, currentGoal, statements);
 
             return (ResolutionStepState)obj.Clone();
         }
@@ -100,7 +107,7 @@
         /// <returns>A cloned object of this state.</returns>
         public override object Clone()
         {
-            var baseObj = (ResolutionBaseState)base.Clone();
+            ResolutionBaseState baseObj = (ResolutionBaseState)base.Clone();
 
             return new ResolutionStepState(baseObj, (BodyPart)this.CurrentGoal.Clone());
         }

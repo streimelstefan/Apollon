@@ -1,4 +1,11 @@
-﻿namespace Apollon.Lib
+﻿//-----------------------------------------------------------------------
+// <copyright file="Solver.cs" company="Streimel and Prix">
+//     Copyright (c) Streimel and Prix. All rights reserved.
+// </copyright>
+// <author>Stefan Streimel and Alexander Prix</author>
+//-----------------------------------------------------------------------
+
+namespace Apollon.Lib
 {
     using Apollon.Lib.DualRules;
     using Apollon.Lib.Graph;
@@ -57,24 +64,24 @@
         {
             IDualRuleGenerator dualRuleGenerator = new DualRuleGenerator();
 
-            var callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
+            CallGraph callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
             this.LogCallGraphIfNeeded(callGraph);
 
-            var olons = OlonDetector.DetectOlonIn(callGraph);
+            OlonSet olons = OlonDetector.DetectOlonIn(callGraph);
 
-            var rulePreprocessor = new RuleMetadataSetter(callGraph, olons);
-            var processedRules = rulePreprocessor.SetMetadataOn(program.RuleTypesAsStatements.ToArray());
+            RuleMetadataSetter rulePreprocessor = new(callGraph, olons);
+            PreprocessedStatement[] processedRules = rulePreprocessor.SetMetadataOn(program.RuleTypesAsStatements.ToArray());
             this.LogProcessedRulesIfNeeded(processedRules);
 
-            var dualRules = dualRuleGenerator.GenerateDualRules(program.Statements.ToArray());
-            var nmrRules = this.NmrCheckGenerator.GenerateNMRCheckRules(processedRules, program);
+            DualRule[] dualRules = dualRuleGenerator.GenerateDualRules(program.Statements.ToArray());
+            Statement[] nmrRules = this.NmrCheckGenerator.GenerateNMRCheckRules(processedRules, program);
 
             this.NMRCheck = nmrRules.Last();
             this.ProcessedStatements = program.Statements.Union(dualRules).Union(nmrRules).Select(s => (Statement)s.Clone()).Select(s => this.VariableLinker.LinkVariables(s)).ToArray();
             this.LoadedProgram = program;
 
-            var processedStatements = new List<Statement>();
-            var variableExtractor = new VariableExtractor();
+            List<Statement> processedStatements = new();
+            VariableExtractor variableExtractor = new();
 
             // foreach (var s in ProcessedStatments)
             // {
@@ -103,16 +110,16 @@
                 throw new InvalidOperationException("No program loaded.");
             }
 
-            var linkedGoals = this.VariableLinker.LinkVariables(new Statement(null, goals)).Body;
+            BodyPart[] linkedGoals = this.VariableLinker.LinkVariables(new Statement(null, goals)).Body;
 
-            var nMRCheckGoal = new BodyPart(((Statement)this.NMRCheck.Clone()).Head, null);
-            var goalsCopy = linkedGoals.Select(g => (BodyPart)g.Clone())
+            BodyPart nMRCheckGoal = new(((Statement)this.NMRCheck!.Clone()).Head, null);
+            BodyPart[] goalsCopy = linkedGoals.Select(g => (BodyPart)g.Clone())
                 .Append(nMRCheckGoal)
                 .ToArray();
 
-            var results = this.Resolution.Resolute(this.ProcessedStatements.ToArray(), goalsCopy, this.Logger);
+            IEnumerable<ResolutionResult> results = this.Resolution.Resolute(this.ProcessedStatements.ToArray(), goalsCopy, this.Logger);
 
-            foreach (var res in results)
+            foreach (ResolutionResult res in results)
             {
                 yield return this.PostProcessResult(goals, res);
             }
@@ -121,22 +128,22 @@
         private ResolutionResult PostProcessResult(BodyPart[] goals, ResolutionResult res)
         {
             // get the values of the variables of the query. as the result has the variables filled in.
-            var unifier = new Unifier();
-            var variableExtractor = new VariableExtractor();
+            Unifier unifier = new();
+            VariableExtractor variableExtractor = new();
 
             // remove all answers that are not in the original program
-            var final = new List<Literal>();
+            List<Literal> final = new();
 
             // ignore naf negation when selecting literals.
-            var allLiterals = this.LoadedProgram.AllLiterals.Select(l =>
+            Literal[] allLiterals = this.LoadedProgram!.AllLiterals.Select(l =>
             {
                 l.IsNAF = false;
                 return l;
             }).ToArray();
-            foreach (var literal in res.CHS.Literals)
+            foreach (Literal literal in res.CHS.Literals)
             {
                 // if literal exists in programm add it to final
-                var litCopy = (Literal)literal.Clone();
+                Literal litCopy = (Literal)literal.Clone();
                 litCopy.IsNAF = false;
                 if (allLiterals.Where(l => unifier.Unify(l, litCopy).IsSuccess).Any())
                 {
@@ -156,7 +163,7 @@
 
             this.Logger.Debug("Tagged Rules:");
 
-            foreach (var rule in rules)
+            foreach (PreprocessedStatement rule in rules)
             {
                 this.Logger.Debug($"  {rule}");
             }
@@ -171,13 +178,13 @@
 
             this.Logger.Debug("Created Call Graph:");
             this.Logger.Debug("  Nodes:");
-            foreach (var node in callGraph.Nodes)
+            foreach (CallGraphNode node in callGraph.Nodes)
             {
                 this.Logger.Debug($"    {node}");
             }
 
             this.Logger.Debug("  Edges:");
-            foreach (var edge in callGraph.Edges)
+            foreach (CallGraphEdge edge in callGraph.Edges)
             {
                 this.Logger.Debug($"    {edge}");
             }
