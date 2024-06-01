@@ -8,6 +8,7 @@
 namespace Apollon.Lib.Unification.Substitutioners
 {
     using Apollon.Lib.Atoms;
+    using Apollon.Lib.Resolution.CallStackAndCHS;
     using Apollon.Lib.Rules;
     using Apollon.Lib.Rules.Operations;
 
@@ -187,6 +188,18 @@ namespace Apollon.Lib.Unification.Substitutioners
             this.Apply(copy.Atom);
 
             return copy;
+        }
+
+        /// <summary>
+        /// Applies all substitutions an the literals of the given CHS.
+        /// </summary>
+        /// <param name="chs">The CHS to apply the substitutions to.</param>
+        public void ApplyInline(CHS chs)
+        {
+            foreach (var literal in chs.Literals)
+            {
+                this.ApplyInline(literal);
+            }
         }
 
         /// <summary>

@@ -34,11 +34,6 @@ namespace Apollon.Lib.DualRules
             {
                 throw new ArgumentException("Head of a dual rule needs to be NAF.");
             }
-
-            if (this.Body.Length == 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(this.Body), this.Body.Length, "Body needs to have at least one literal.");
-            }
         }
     }
 }

@@ -47,6 +47,38 @@
         }
 
         [Test]
+        public void ShouldAddLiteralsThatDontHaveANAFRepresentationAndHandleClasicalNegationCorrectly()
+        {
+            var code = "eligible(X) :- highGPA(X).\r\neligible(X) :- special(X), fairGPA(X).\r\n-eligible(X) :- -special(X), -highGPA(X).\r\ninterview(X) :- not eligible(X), not -eligible(X).\r\nfairGPA(john).\r\n-highGPA(john).";
+
+            Lib.Program program = this.parser.ParseFromString(code);
+
+            DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
+
+            Assert.IsNotNull(rules);
+            Assert.IsNotEmpty(rules);
+
+            Assert.AreEqual(17, rules.Length);
+            Assert.AreEqual("not _fairGPA0(V/0) :- V/0 != john().", rules[0].ToString());
+            Assert.AreEqual("not fairGPA(V/0) :- not _fairGPA0(V/0).", rules[1].ToString());
+            Assert.AreEqual("not -_highGPA0(V/0) :- V/0 != john().", rules[2].ToString());
+            Assert.AreEqual("not -highGPA(V/0) :- not -_highGPA0(V/0).", rules[3].ToString());
+            Assert.AreEqual("not _eligible0(X) :- not highGPA(X).", rules[4].ToString());
+            Assert.AreEqual("not _eligible1(X) :- not special(X).", rules[5].ToString());
+            Assert.AreEqual("not _eligible1(X) :- special(X), not fairGPA(X).", rules[6].ToString());
+            Assert.AreEqual("not eligible(V/0) :- not _eligible0(V/0), not _eligible1(V/0).", rules[7].ToString());
+            Assert.AreEqual("not -_eligible0(X) :- not -special(X).", rules[8].ToString());
+            Assert.AreEqual("not -_eligible0(X) :- -special(X), not -highGPA(X).", rules[9].ToString());
+            Assert.AreEqual("not -eligible(V/0) :- not -_eligible0(V/0).", rules[10].ToString());
+            Assert.AreEqual("not _interview0(X) :- eligible(X).", rules[11].ToString());
+            Assert.AreEqual("not _interview0(X) :- not eligible(X), -eligible(X).", rules[12].ToString());
+            Assert.AreEqual("not interview(V/0) :- not _interview0(V/0).", rules[13].ToString());
+            Assert.AreEqual("not highGPA(DV/0) :- .", rules[14].ToString());
+            Assert.AreEqual("not special(DV/0) :- .", rules[15].ToString());
+            Assert.AreEqual("not -special(DV/0) :- .", rules[16].ToString());
+        }
+
+        [Test]
         public void SchouldCreateTwoDualRulesForThisRule()
         {
             string code = "p(X, b) :- q(X).";
@@ -54,10 +86,11 @@
 
             DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
 
-            Assert.AreEqual(3, rules.Length);
+            Assert.AreEqual(4, rules.Length);
             Assert.AreEqual("not _p0(X, V/0) :- V/0 != b().", rules[0].ToString());
             Assert.AreEqual("not _p0(X, V/0) :- V/0 = b(), not q(X).", rules[1].ToString());
             Assert.AreEqual("not p(V/0, V/1) :- not _p0(V/0, V/1).", rules[2].ToString());
+            Assert.AreEqual("not q(DV/0) :- .", rules[3].ToString());
         }
 
         [Test]
@@ -81,7 +114,8 @@
 
             DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
 
-            Assert.AreEqual(0, rules.Length);
+            Assert.AreEqual(1, rules.Length);
+            Assert.AreEqual("not b() :- .", rules[0].ToString());
         }
 
         [Test]
@@ -110,10 +144,12 @@
 
             DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
 
-            Assert.AreEqual(3, rules.Length);
+            Assert.AreEqual(5, rules.Length);
             Assert.AreEqual("not _happy0(X) :- not likes(X, prix).", rules[0].ToString());
             Assert.AreEqual("not _happy0(X) :- likes(X, prix), hates(X, stefan).", rules[1].ToString());
             Assert.AreEqual("not happy(V/0) :- not _happy0(V/0).", rules[2].ToString());
+            Assert.AreEqual("not likes(DV/0, DV/1) :- .", rules[3].ToString());
+            Assert.AreEqual("not hates(DV/0, DV/1) :- .", rules[4].ToString());
         }
 
         [Test]
@@ -124,11 +160,13 @@
 
             DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
 
-            Assert.AreEqual(4, rules.Length);
+            Assert.AreEqual(6, rules.Length);
             Assert.AreEqual("not _a0(X, Y) :- not b(X, Y).", rules[0].ToString());
             Assert.AreEqual("not _a0(X, Y) :- b(X, Y), not c(Y, X).", rules[1].ToString());
             Assert.AreEqual("not _a0(X) :- forall(Y, not _a0(X, Y)).", rules[2].ToString());
             Assert.AreEqual("not a(V/0) :- not _a0(V/0).", rules[3].ToString());
+            Assert.AreEqual("not b(DV/0, DV/1) :- .", rules[4].ToString());
+            Assert.AreEqual("not c(DV/0, DV/1) :- .", rules[5].ToString());
         }
 
         [Test]
@@ -139,10 +177,11 @@
 
             DualRule[] rules = this.generator.GenerateDualRules(program.Statements.ToArray());
 
-            Assert.AreEqual(3, rules.Length);
+            Assert.AreEqual(4, rules.Length);
             Assert.AreEqual("not _a0(X, Y) :- not b(X, Y).", rules[0].ToString());
             Assert.AreEqual("not _a0(X) :- forall(Y, not _a0(X, Y)).", rules[1].ToString());
             Assert.AreEqual("not a(V/0) :- not _a0(V/0).", rules[2].ToString());
+            Assert.AreEqual("not b(DV/0, DV/1) :- .", rules[3].ToString());
         }
 
         [Test]

@@ -68,7 +68,7 @@ namespace Apollon.Lib.Atoms
         /// Gets the literal representation of the parameter.
         /// Is only set if the parameter is a literal.
         /// </summary>
-        public Literal? Literal { get; private set; }
+        public Literal? Literal { get; set; }
 
         /// <summary>
         /// Gets or sets the term representation of the parameter.

@@ -8,10 +8,12 @@
 namespace Apollon.Lib.DualRules
 {
     using Apollon.Lib.Atoms;
+    using Apollon.Lib.Docu;
     using Apollon.Lib.Graph;
     using Apollon.Lib.Resolution;
     using Apollon.Lib.Rules;
     using Apollon.Lib.Rules.Operations;
+    using Apollon.Lib.Unification;
 
     /// <summary>
     /// Generates dual rules from a given set of statements.
@@ -81,6 +83,12 @@ namespace Apollon.Lib.DualRules
             {
                 dualRules.AddRange(this.GenerateDualRulesForGroup(group));
             }
+
+            var allStatements = statements
+                    .Union(dualRules).ToArray();
+
+            var missingLiterals = this.AddAllMissingNAFLiterals(allStatements);
+            dualRules.AddRange(missingLiterals);
 
             return dualRules.ToArray();
         }
@@ -219,6 +227,52 @@ namespace Apollon.Lib.DualRules
             }
 
             return groups;
+        }
+
+        private List<DualRule> AddAllMissingNAFLiterals(Statement[] allStatements)
+        {
+            var allLiterals = allStatements
+                    .SelectMany(s => s.Body.Where(b => b.Literal != null).Select(b => b.Literal))
+                    .Union(allStatements.Where(s => s.Head != null).Select(s => s.Head)).Cast<Literal>().ToArray();
+
+            var statementHeads = allStatements.Select(s => s.Head).Where(l => l != null).ToArray();
+
+            var eqaulizer = new LiteralParamCountEqualizer();
+            var newRules = new List<DualRule>();
+            foreach (Literal literal in allLiterals)
+            {
+                if (literal == null || literal.IsNAF)
+                {
+                    continue;
+                }
+
+                var litCopy = (Literal)literal.Clone();
+                litCopy.IsNAF = true;
+
+                // if there is a naf version of this literal continue.
+                if (statementHeads.Where(lit => eqaulizer.AreEqual(lit!, litCopy)).Any())
+                {
+                    continue;
+                }
+
+                // if the rule already exists
+                if (newRules.Where(rule => eqaulizer.AreEqual(rule.Head!, litCopy)).Any())
+                {
+                    continue;
+                }
+
+                var paramCount = 0;
+                foreach (var param in litCopy.Atom.ParamList)
+                {
+                    param.Term = new Term($"DV/{paramCount}");
+                    param.Literal = null;
+                    paramCount++;
+                }
+
+                newRules.Add(new DualRule(litCopy));
+            }
+
+            return newRules;
         }
 
         private List<DualRule> GenerateDualRulesForGroup(StatementGroup group)
