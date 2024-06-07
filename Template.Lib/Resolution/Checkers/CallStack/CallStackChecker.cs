@@ -7,6 +7,8 @@
 
 namespace Apollon.Lib.Resolution.Checkers.CallStack
 {
+    using Apollon.Lib.Linker;
+    using Apollon.Lib.Rules;
     using Apollon.Lib.Unification;
 
     /// <summary>
@@ -17,6 +19,9 @@ namespace Apollon.Lib.Resolution.Checkers.CallStack
     {
         private readonly IUnifier exactUnifer = new ExactUnifier();
         private readonly IUnifier constructiveUnifier = new ConstructiveUnifier();
+
+        private readonly VariableLinker linker = new VariableLinker();
+        private readonly VariableExtractor extractor = new VariableExtractor();
 
         /// <summary>
         /// Checks the CallStack for loops.
@@ -49,7 +54,18 @@ namespace Apollon.Lib.Resolution.Checkers.CallStack
                 return CheckerResult.Succeed;
             }
 
-            List<Literal> constructiveCallStack = stack.TakeWhile(l => this.constructiveUnifier.Unify(l, literal).IsError).ToList();
+            this.linker.LinkVariables(new Statement(literal));
+            var variables = this.extractor.ExtractVariablesFrom(literal);
+
+            List<Literal> constructiveCallStack = stack.TakeWhile(l => this.constructiveUnifier.Unify(l, literal).IsError)
+                .Where(l =>
+            {
+                this.linker.LinkVariables(new Statement(l));
+                var lVars = this.extractor.ExtractVariablesFrom(literal);
+
+                return !lVars.Where(lv => variables.Where(v => v.Value == lv.Value).Any()).Any();
+            }).ToList();
+
             return this.IsEvenLoop(constructiveCallStack) ? CheckerResult.Succeed : CheckerResult.Continue;
         }
 
