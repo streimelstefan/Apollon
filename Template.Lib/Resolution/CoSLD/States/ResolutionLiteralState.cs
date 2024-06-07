@@ -57,7 +57,7 @@ namespace Apollon.Lib.Resolution.CoSLD.States
         /// <summary>
         /// Gets the Current Goal.
         /// </summary>
-        public Literal CurrentGoal { get; private set; }
+        public Literal CurrentGoal { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ResolutionLiteralState"/> class.

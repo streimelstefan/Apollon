@@ -87,12 +87,17 @@ namespace Apollon.Lib.Resolution
             {
                 this.ExtractVariablesFrom(bodyPart.Literal, variables);
             }
-            else if (bodyPart.Operation != null)
+            if (bodyPart.Operation != null)
             {
                 this.ExtractVariablesFrom(bodyPart.Operation, variables);
-            } else if (bodyPart.ForAll != null)
+            }
+            if (bodyPart.ForAll != null)
             {
                 variables.Add(bodyPart.ForAll);
+            }
+            if (bodyPart.Child != null)
+            {
+                this.ExtractVariablesFrom(bodyPart.Child, variables);
             }
         }
 

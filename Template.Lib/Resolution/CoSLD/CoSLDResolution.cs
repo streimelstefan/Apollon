@@ -113,12 +113,12 @@ namespace Apollon.Lib.Resolution.CoSLD
         public CheckerResult CheckCHSAndCallStack(ResolutionLiteralState state)
         {
             var originalGoal = (Literal)state.CurrentGoal.Clone();
-            CheckerResult chsCheck = this.chsChecker.CheckCHSFor(state.CurrentGoal, state.Chs);
+            CheckerResult chsCheck = this.chsChecker.CheckCHSFor(state.CurrentGoal, state.Chs, (ResolutionLiteralState)state.Clone());
             state.Logger.Trace($"CHS marked goal {state.CurrentGoal} as {chsCheck} using {state.Chs}");
 
             // since pvl entries mean that the variable is implicitly bound to everything but the entries we need to fail if
             // the variable should stay unbound.
-            var sub = this.unifier.Unify(originalGoal, state.CurrentGoal);
+            var sub = this.unifier.Unify(state.Substitution.Apply(originalGoal), state.CurrentGoal);
             if (sub.Value != null)
             {
                 foreach (var unbound in state.KeepUnbound)
@@ -136,7 +136,8 @@ namespace Apollon.Lib.Resolution.CoSLD
             }
 
 
-            CheckerResult callStackCheck = this.callStackChecker.CheckCallStackFor(state.CurrentGoal, state.CallStack);
+
+            CheckerResult callStackCheck = this.callStackChecker.CheckCallStackFor(state.Substitution.Apply(state.CurrentGoal), state.CallStack);
 
             state.Logger.Trace($"CallStack marked goal {state.CurrentGoal} as {callStackCheck} using ({string.Join(", ", state.CallStack)})");
             return callStackCheck;
@@ -162,8 +163,7 @@ namespace Apollon.Lib.Resolution.CoSLD
                 Literal substituted = state.Substitution.Apply(goal.Literal);
                 state.Logger.Info($"Current goal is: {substituted}");
 
-                ResolutionLiteralState nextState = ResolutionLiteralState.CloneConstructor(state, substituted, state.Statements);
-                nextState.Substitution.Clear();
+                ResolutionLiteralState nextState = ResolutionLiteralState.CloneConstructor(state, goal.Literal, state.Statements);
 
                 results = this.ResolveLiteralGoal(nextState);
             }
@@ -304,12 +304,13 @@ namespace Apollon.Lib.Resolution.CoSLD
                 }
 
                 state.Chs = res.CHS;
-                var variableMappings = res.Substitution.Mappings.Where(m => m.Variable.Value == variable.Value || (m.MapsTo.Term != null && m.MapsTo.Term.Value == variable.Value));
 
                 stateCopy = (ResolutionStepState)state.Clone();
                 stateCopy.Substitution.BackPropagate(res.Substitution);
                 stateCopy.Chs = res.CHS;
                 _ = stateCopy.KeepUnbound.Remove(variable);
+
+                var variableMappings = stateCopy.Substitution.Mappings.Where(m => m.Variable.Value == variable.Value || (m.MapsTo.Term != null && m.MapsTo.Term.Value == variable.Value));
 
                 if (variableMappings.Count() == 0)
                 {
@@ -393,7 +394,7 @@ namespace Apollon.Lib.Resolution.CoSLD
             {
                 Literal subbedRealGoal = subToTry.Apply(goal.Literal);
                 state.Logger.Info($"Current Goal is: {subbedRealGoal}");
-                IEnumerable<CoResolutionResult> intimResults = this.ResolveLiteralGoal(ResolutionLiteralState.CloneConstructor(stateClone, subbedRealGoal));
+                IEnumerable<CoResolutionResult> intimResults = this.ResolveLiteralGoal(ResolutionLiteralState.CloneConstructor(stateClone, goal.Literal));
                 results = intimResults.Select(r => new CoResolutionForAllResult(r.Success, r.Substitution, r.State, realGoal));
             }
             else if (goal.Child != null && goal.Child.ForAll != null)
@@ -472,6 +473,7 @@ namespace Apollon.Lib.Resolution.CoSLD
                 yield break;
             }
 
+            state.CurrentGoal = state.Substitution.Apply(state.CurrentGoal);
             state.Logger.Debug($"CallStack adding goal {state.CurrentGoal}");
             state.CallStack.Push(state.CurrentGoal);
             IEnumerable<CoResolutionResult> expansionResults = this.ResolveLiteralGoalByExpansion(state);
@@ -486,11 +488,13 @@ namespace Apollon.Lib.Resolution.CoSLD
                 }
 
                 ResolutionLiteralState stateClone = (ResolutionLiteralState)expandsionRes.State.Clone();
-                Substitution subClone = state.Substitution.Clone();
-                subClone.BackPropagate(expandsionRes.Substitution);
-                subClone.Contract();
+                // Substitution subClone = state.Substitution.Clone();
+                // subClone.BackPropagate(expandsionRes.Substitution);
+                // subClone.Contract();
+                // stateClone.Substitution = subClone;
+                stateClone.Substitution = expandsionRes.Substitution;
 
-                yield return new CoResolutionResult(expandsionRes.Success, subClone, stateClone);
+                yield return new CoResolutionResult(expandsionRes.Success, expandsionRes.Substitution, stateClone);
             }
         }
 

@@ -11,6 +11,7 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
     using Apollon.Lib.Graph;
     using Apollon.Lib.Linker;
     using Apollon.Lib.Resolution.CallStackAndCHS;
+    using Apollon.Lib.Resolution.CoSLD.States;
     using Apollon.Lib.Rules;
     using Apollon.Lib.Unification;
     using Apollon.Lib.Unification.Substitutioners;
@@ -32,24 +33,31 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
         /// <param name="literal">The Literal that the loop should be checked for.</param>
         /// <param name="chs">The stack of all Literals that should be checked.</param>
         /// <returns>Returns an Enumerable containing the Result of the Check.</returns>
-        public CheckerResult CheckCHSFor(Literal literal, CHS chs)
+        public CheckerResult CheckCHSFor(Literal literal, CHS chs, ResolutionLiteralState state)
         {
-            var litCopy = (Literal)literal.Clone();
-            this.ConstraintAgainstCHS(chs, litCopy);
+            state.Substitution.ApplyInline(literal);
 
-            if (this.IsPresentWithNAFSwitch(litCopy, chs))
+            if (this.IsPresentWithNAFSwitch(literal, chs))
             {
                 return CheckerResult.Fail;
             }
 
-            // if the chs contains the literal
-            if (chs.Literals.Where(l => this.unifer.Unify(litCopy, l).IsSuccess).Any())
+            if (chs.Literals.Where(l => this.unifer.Unify(literal, l).IsSuccess).Any())
             {
-                this.ConstraintAgainstCHS(chs, literal);
                 return CheckerResult.Succeed;
             }
 
+            // if the chs contains the literal
             this.ConstraintAgainstCHS(chs, literal);
+            // if (this.IsPresentWithNAFSwitch(literal, chs))
+            // {
+            //     return CheckerResult.Fail;
+            // }
+            // 
+            if (chs.Literals.Where(l => this.unifer.Unify(literal, l).IsSuccess).Any())
+            {
+                return CheckerResult.Succeed;
+            }
 
             return CheckerResult.Continue;
         }
@@ -59,7 +67,7 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
         /// </summary>
         /// <param name="chs"></param>
         /// <param name="goal"></param>
-        private void ConstraintAgainstCHS(CHS chs, Literal goal, bool apply = true)
+        private void ConstraintAgainstCHS(CHS chs, Literal goal)
         {
             Literal goalCopy = (Literal)goal.Clone();
             goalCopy.IsNAF = !goalCopy.IsNAF;
@@ -87,18 +95,11 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
                                 AtomParam mappedVariableCopy = (AtomParam)mapping.MapsTo.Clone();
                                 if (mappedVariableCopy.Term != null && mappedVariableCopy.Term.IsNegativelyConstrained())
                                 {
-                                    if (apply)
-                                    {
-                                        var tmpSub = new Substitution();
-                                        var comparer = new StringComparer();
-                                        tmpSub.Add(goalVariable, mappedVariableCopy.Term.ProhibitedValues.GetValues().OrderBy(t => t.ToString(), comparer).First());
-                                        tmpSub.ApplyInline(goal);
-                                        return;
-                                    }
-                                    else
-                                    {
-                                        mappedVariableCopy.Term.ProhibitedValues.Clear();
-                                    }
+                                    var tmpSub = new Substitution();
+                                    var comparer = new StringComparer();
+                                    tmpSub.Add(goalVariable, mappedVariableCopy.Term.ProhibitedValues.GetValues().OrderBy(t => t.ToString(), comparer).First());
+                                    tmpSub.ApplyInline(goal);
+                                    return;
                                 }
 
                                 if (mapping.MapsTo.Term != null && mapping.MapsTo.Term.IsVariable)
@@ -119,6 +120,7 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
                 }
             }
         }
+
 
         /// <summary>
         ///
