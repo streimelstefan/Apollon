@@ -202,6 +202,14 @@ namespace Apollon.Lib.Unification.Substitutioners
             }
         }
 
+        public void ApplyInline(Stack<Literal> callStack)
+        {
+            foreach (var literal in callStack)
+            {
+                this.ApplyInline(literal);
+            }
+        }
+
         /// <summary>
         /// Applies all the given substitutions on the given object. The object will be altered!.
         /// </summary>

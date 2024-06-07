@@ -534,6 +534,7 @@ namespace Apollon.Lib.Resolution.CoSLD
 
                 ResolutionLiteralState unifiedClone = (ResolutionLiteralState)state.Clone();
                 unificationRes.Value.ApplyInline(unifiedClone.Chs);
+                unificationRes.Value.ApplyInline(unifiedClone.CallStack);
                 this.substitutionGroups.AddAllOf(unificationRes.Value);
 
                 state.Logger.Info($"Unified goal {state.CurrentGoal} with {statement} resulting in {unificationRes.Value}");
