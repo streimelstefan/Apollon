@@ -88,15 +88,7 @@ namespace Apollon.Lib.Rules
                 return true;
             }
 
-            foreach (CallGraphNode node in this.callGraph.GetNodesOfStatement(statement))
-            {
-                if (this.olons.Nodes.Contains(node))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return olons.IsPartOfOlon(callGraph.GetNodeOfLiteral(statement.Head));
         }
     }
 }

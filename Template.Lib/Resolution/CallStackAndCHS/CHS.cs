@@ -57,7 +57,9 @@ public class CHS : ICloneable
         // if there is another literal in the chs that can be unified.
         if (this.Literals.Where(l => this.unifier.Unify(l, literal).IsSuccess).Any())
         {
-            throw new ArgumentException("Literal already in CHS."); // Check is proffiecient, as shown in Tests.
+            // apparently this is only a soft fail
+            // throw new ArgumentException("Literal already in CHS."); // Check is proffiecient, as shown in Tests.
+            return;
         }
 
         this.Literals.Add(literal);

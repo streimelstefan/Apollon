@@ -33,6 +33,23 @@ namespace Apollon.Lib.Resolution
             return variables;
         }
 
+        public HashSet<Term> ExtractAllForAlls(BodyPart forall)
+        {
+            var hashSet = new HashSet<Term>();
+            ExtractAllForAllsRec(forall, hashSet);
+
+            return hashSet;
+        }
+
+        private void ExtractAllForAllsRec(BodyPart forall, HashSet<Term> vairables)
+        {
+            if (forall.ForAll == null) return;
+
+            vairables.Add(forall.ForAll);
+
+            if (forall.Child != null) ExtractAllForAllsRec(forall.Child, vairables);
+        }
+
         /// <summary>
         /// Extracts all Variables from a BodyPart.
         /// </summary>
@@ -73,6 +90,9 @@ namespace Apollon.Lib.Resolution
             else if (bodyPart.Operation != null)
             {
                 this.ExtractVariablesFrom(bodyPart.Operation, variables);
+            } else if (bodyPart.ForAll != null)
+            {
+                variables.Add(bodyPart.ForAll);
             }
         }
 

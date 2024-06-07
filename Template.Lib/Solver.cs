@@ -67,7 +67,7 @@ namespace Apollon.Lib
             CallGraph callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
             this.LogCallGraphIfNeeded(callGraph);
 
-            OlonSet olons = OlonDetector.DetectOlonIn(callGraph);
+            var olons = OlonDetector.DetectOlonIn(callGraph);
 
             RuleMetadataSetter rulePreprocessor = new(callGraph, olons);
             PreprocessedStatement[] processedRules = rulePreprocessor.SetMetadataOn(program.RuleTypesAsStatements.ToArray());

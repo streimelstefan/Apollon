@@ -423,6 +423,40 @@ namespace Apollon.Lib.Unification.Substitutioners
             {
                 this.ApplyOperation(part.Operation);
             }
+            if (part.ForAll != null)
+            {
+                if (this.mappings.ContainsKey(part.ForAll.Value))
+                {
+                    var mapping = this.mappings[part.ForAll.Value];
+                    if (mapping.Term != null)
+                    {
+                        part.ForAll = mapping.Term;
+                    }
+                }
+            }
+        }
+
+        public void RemovePVLFor(Term variable)
+        {
+            if (!this.mappings.ContainsKey(variable.Value)) return; 
+
+            var mapped = this.mappings[variable.Value];
+
+            if (mapped.Term != null)
+            {
+                mapped.Term.ProhibitedValues.Clear();
+            }
+        }
+
+        public void RemovePVLForMapped(Term variable)
+        {
+            foreach (var value in this.mappings.Values)
+            {
+                if (value.Term != null && value.Term.IsVariable && value.Term.Value == variable.Value)
+                {
+                    value.Term.ProhibitedValues.Clear();
+                }
+            }
         }
 
         private void ApplyOperation(Operation copy)
@@ -460,6 +494,21 @@ namespace Apollon.Lib.Unification.Substitutioners
                     // {
                     //     copy.Variable = new AtomParam(new Literal(new Atom(copy.Variable.Term.Value), false, false));
                     // }
+                }
+            }
+
+            if (copy.Condition.Term != null)
+            {
+                if (this.mappings.ContainsKey(copy.Condition.Term.Value))
+                {
+                    AtomParam mapped = this.mappings[copy.Condition.Term.Value];
+
+                    if (mapped.Term != null && mapped.Term.IsVariable)
+                    {
+                        PVL.Union(mapped.Term.ProhibitedValues, copy.Condition.Term.ProhibitedValues);
+                    }
+
+                    copy.Condition = mapped;
                 }
             }
 

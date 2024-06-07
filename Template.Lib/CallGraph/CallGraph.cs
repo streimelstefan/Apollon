@@ -8,6 +8,7 @@
 namespace Apollon.Lib.Graph
 {
     using Apollon.Lib.Rules;
+    using System.Data;
 
     /// <summary>
     /// Represents a CallGraph. A CallGraph is a directed graph that represents the calls between Literals.
@@ -136,6 +137,11 @@ namespace Apollon.Lib.Graph
         public IEnumerable<CallGraphNode> GetNodesOfStatement(Statement rule)
         {
             return this.Nodes.Where(node => this.GetAllEdgesOfNode(node).Where(edge => edge.CreatorRule == rule).Any());
+        }
+
+        public CallGraphNode GetNodeOfLiteral(Literal literal)
+        {
+            return this.Nodes.Where(node => Equalizer.AreEqual(node.Literal, literal)).First();
         }
 
         /// <summary>

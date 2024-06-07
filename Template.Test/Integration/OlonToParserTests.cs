@@ -89,5 +89,24 @@
             Assert.IsNotNull(olonSet);
             Assert.AreEqual(0, olonSet.Nodes.Count);
         }
+
+        [Test]
+        public void ShouldDetectFourRulesAsOlonRules()
+        {
+            var parser = new ApollonParser();
+            var code = "reachable(V) :- chosen(U, V), reachable(U).\r\nreachable(0) :- chosen(V, 0).\r\nother(U, V) :- vertex(U), vertex(V), vertex(W), edge(U, W), V != W, chosen(U, W).\r\nchosen(U, V) :- edge(U, V), not other(U, V).\r\n :- vertex(U), not reachable(U).\r\n :- chosen(U, W), chosen(V, W), U != V.";
+            var program = parser.ParseFromString(code);
+
+            CallGraph callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
+
+            var olonSet = OlonDetector.DetectOlonIn(callGraph);
+
+            PreprocessedStatement[] processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleList);
+
+            Assert.IsNotNull(processedRules);
+
+            Assert.AreEqual(4, processedRules.Length);
+
+        }
     }
 }

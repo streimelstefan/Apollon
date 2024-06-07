@@ -112,13 +112,29 @@ namespace Apollon.Lib.Resolution.CoSLD
         /// <returns>The Result of the Check.</returns>
         public CheckerResult CheckCHSAndCallStack(ResolutionLiteralState state)
         {
+            var originalGoal = (Literal)state.CurrentGoal.Clone();
             CheckerResult chsCheck = this.chsChecker.CheckCHSFor(state.CurrentGoal, state.Chs);
             state.Logger.Trace($"CHS marked goal {state.CurrentGoal} as {chsCheck} using {state.Chs}");
+
+            // since pvl entries mean that the variable is implicitly bound to everything but the entries we need to fail if
+            // the variable should stay unbound.
+            var sub = this.unifier.Unify(originalGoal, state.CurrentGoal);
+            if (sub.Value != null)
+            {
+                foreach (var unbound in state.KeepUnbound)
+                {
+                    if (sub.Value.BoundMappings.Where(m => m.Variable.Value == unbound.Value).Any())
+                    {
+                        return CheckerResult.Fail;
+                    }
+                }
+            }
 
             if (chsCheck != CheckerResult.Continue)
             {
                 return chsCheck;
             }
+
 
             CheckerResult callStackCheck = this.callStackChecker.CheckCallStackFor(state.CurrentGoal, state.CallStack);
 
@@ -139,7 +155,6 @@ namespace Apollon.Lib.Resolution.CoSLD
 
             if (goal.ForAll != null)
             {
-                state.Logger.Info($"Current goal is: {goal} | {state.Substitution}");
                 results = this.ResolveForAllGoal(ResolutionStepState.CloneConstructor(state, goal, state.Statements));
             }
             else if (goal.Literal != null)
@@ -154,7 +169,7 @@ namespace Apollon.Lib.Resolution.CoSLD
             }
             else if (goal.Operation != null)
             {
-                state.Logger.Info($"Current goal is: {goal} | {state.Substitution}");
+                state.Logger.Info($"Current goal is: {state.Substitution.Apply(new Statement(null, goal)).Body[0]}");
                 results = this.ResolveOperation(goal.Operation, (ResolutionBaseState)state.Clone());
             }
 
@@ -220,7 +235,14 @@ namespace Apollon.Lib.Resolution.CoSLD
                 {
                     ResolutionStepState stateCopy = (ResolutionStepState)state.Clone();
                     stateCopy.Chs = res.CHS;
-                    res.Substitution.RemovePVls();
+
+                    this.linker.LinkVariables(new Statement(null, state.CurrentGoal));
+                    var variables = this.variableExtractor.ExtractAllForAlls(state.CurrentGoal);
+                    foreach (var vari in variables)
+                    {
+                        res.Substitution.RemovePVLFor(vari);
+                    }
+
                     stateCopy.Substitution.BackPropagate(res.Substitution);
                     stateCopy.Substitution.Contract();
 
@@ -236,10 +258,12 @@ namespace Apollon.Lib.Resolution.CoSLD
         private IEnumerable<CoResolutionForAllResult> ResolveForAllGoalPart(ResolutionStepState state, BodyPart goal)
         {
             ArgumentNullException.ThrowIfNull(goal.ForAll, nameof(goal.ForAll));
+            state.Logger.Info($"Current goal is: {state.Substitution.Apply(new Statement(null, goal)).Body[0]}");
 
             Term variable = (Term)goal.ForAll.Clone();
             variable.ProhibitedValues.Clear();
             state.KeepUnbound.Add(variable);
+            state.Substitution.RemovePVLForMapped(variable);
 
             ResolutionStepState stateCopy = (ResolutionStepState)state.Clone();
             Literal? realGoal = goal.Literal;
@@ -249,8 +273,17 @@ namespace Apollon.Lib.Resolution.CoSLD
             IEnumerable<CoResolutionForAllResult> results = new CoResolutionForAllResult[0];
             if (goal.Child == null && goal.Literal != null)
             {
-                state.Logger.Info($"Current Goal is {goal.Literal}");
-                IEnumerable<CoResolutionResult> intimResults = this.ResolveLiteralGoal(ResolutionLiteralState.CloneConstructor(state, goal.Literal));
+                var subbedGoal = state.Substitution.Apply(goal.Literal);
+
+                this.linker.LinkVariables(new Statement(subbedGoal));
+                var goalVariables = this.variableExtractor.ExtractVariablesFrom(subbedGoal);
+                foreach (var goalVar in goalVariables)
+                {
+                    goalVar.ProhibitedValues.Clear();
+                }
+
+                state.Logger.Info($"Current Goal is: {subbedGoal}");
+                IEnumerable<CoResolutionResult> intimResults = this.ResolveLiteralGoal(ResolutionLiteralState.CloneConstructor(state, subbedGoal));
                 results = intimResults.Select(r => new CoResolutionForAllResult(r.Success, r.Substitution, r.State, realGoal));
             }
             else if (goal.Child != null && goal.Child.ForAll != null)
@@ -271,13 +304,23 @@ namespace Apollon.Lib.Resolution.CoSLD
                 }
 
                 state.Chs = res.CHS;
-                Mapping variableMapping = res.Substitution.Mappings.Where(m => m.Variable.Value == variable.Value).First();
+                var variableMappings = res.Substitution.Mappings.Where(m => m.Variable.Value == variable.Value || (m.MapsTo.Term != null && m.MapsTo.Term.Value == variable.Value));
 
                 stateCopy = (ResolutionStepState)state.Clone();
                 stateCopy.Substitution.BackPropagate(res.Substitution);
                 stateCopy.Chs = res.CHS;
                 _ = stateCopy.KeepUnbound.Remove(variable);
 
+                if (variableMappings.Count() == 0)
+                {
+                    stateCopy.Logger.Trace($"Forall Variable Part {variable} of {state.CurrentGoal} succeeded because variable is not bound or negativly constraint.");
+                    stateCopy.LogState();
+                    stateCopy.Logger.Silly($"SubTree: {this.substitutionGroups}");
+                    yield return new CoResolutionForAllResult(true, stateCopy.Substitution, stateCopy, res.RealGoal);
+                    yield break;
+                }
+
+                Mapping variableMapping = variableMappings.First();
                 // if variable is unbound return success and is not negativly constraint.
                 if (!variableMapping.MapsTo.Term!.IsNegativelyConstrained())
                 {
@@ -285,6 +328,23 @@ namespace Apollon.Lib.Resolution.CoSLD
                     stateCopy.LogState();
                     stateCopy.Logger.Silly($"SubTree: {this.substitutionGroups}");
                     yield return new CoResolutionForAllResult(true, stateCopy.Substitution, stateCopy, res.RealGoal);
+                    yield break;
+                }
+
+                // if there are other variables that should be kept unbound but are bound other then the one this function hanldes
+                // then let the request bubble up and be handled by a higher function
+                if (
+                    state.KeepUnbound
+                        .Where(t => t.Value != variable.Value)
+                        .Where(t => stateCopy.Substitution.Mappings
+                            .Where(m => m.Variable.Value == t.Value && m.Variable.IsNegativelyConstrained()).Any())
+                        .Any())
+                {
+                    state.Logger.Silly($"ForAll Variable Part {variable} would have failed but there is a higher level function that will fail as well. Letting the failure bubble up.");
+                    // return as if there was no constraint agains the variable.
+                    stateCopy.Substitution.Remove(variable);
+                    yield return new CoResolutionForAllResult(true, stateCopy.Substitution, stateCopy, res.RealGoal);
+                    // abort since whe technically failed.
                     yield break;
                 }
 
@@ -318,8 +378,13 @@ namespace Apollon.Lib.Resolution.CoSLD
 
             // if child of the forall goal is a literal
             // we need to see if the literal resolves. And apply the forall rules accordingly.
-            Substitution subToTry = new();
+
+            var stateClone = (ResolutionStepState)state.Clone();
+            Substitution subToTry = state.Substitution.Clone();
+            subToTry.RemovePVls();
+            subToTry.Remove(variable);
             subToTry.Add(variable, valueToTry);
+            stateClone.Substitution = subToTry;
 
             state.Logger.Info(
                 $"FORALL: Variable to try for {variable}: {valueToTry} - [{string.Join(", ", nextValuesToTry.Select(a => a.ToString()))}] ");
@@ -327,15 +392,13 @@ namespace Apollon.Lib.Resolution.CoSLD
             if (goal.Child == null && goal.Literal != null)
             {
                 Literal subbedRealGoal = subToTry.Apply(goal.Literal);
-                state.Logger.Info($"Current Goal is {subbedRealGoal}");
-                IEnumerable<CoResolutionResult> intimResults = this.ResolveLiteralGoal(ResolutionLiteralState.CloneConstructor(state, subbedRealGoal));
+                state.Logger.Info($"Current Goal is: {subbedRealGoal}");
+                IEnumerable<CoResolutionResult> intimResults = this.ResolveLiteralGoal(ResolutionLiteralState.CloneConstructor(stateClone, subbedRealGoal));
                 results = intimResults.Select(r => new CoResolutionForAllResult(r.Success, r.Substitution, r.State, realGoal));
             }
             else if (goal.Child != null && goal.Child.ForAll != null)
             {
-                stateCopy = (ResolutionStepState)state.Clone();
-                stateCopy.Substitution.BackPropagate(subToTry);
-                results = this.ResolveForAllGoalPart(stateCopy, goal.Child);
+                results = this.ResolveForAllGoalPart(stateClone, goal.Child);
             }
 
             foreach (CoResolutionForAllResult res in results)
@@ -393,11 +456,13 @@ namespace Apollon.Lib.Resolution.CoSLD
         {
             state.LogState();
 
+            var initialGoal = (Literal)state.CurrentGoal.Clone();
+
             // var baseSub = PreprocessLiteralGoal(state.CurrentGoal);
             CheckerResult checkRes = this.CheckCHSAndCallStack(state);
             if (checkRes == CheckerResult.Succeed)
             {
-                yield return new CoResolutionResult(true, new Substitution(), state);
+                yield return new CoResolutionResult(true, this.unifier.Unify(initialGoal, state.CurrentGoal).Value!, state);
                 yield break;
             }
 
@@ -466,24 +531,27 @@ namespace Apollon.Lib.Resolution.CoSLD
                     }
                 }
 
+
+                ResolutionLiteralState unifiedClone = (ResolutionLiteralState)state.Clone();
+                unificationRes.Value.ApplyInline(unifiedClone.Chs);
                 this.substitutionGroups.AddAllOf(unificationRes.Value);
 
                 state.Logger.Info($"Unified goal {state.CurrentGoal} with {statement} resulting in {unificationRes.Value}");
 
                 // we expand the goal with this statment if it succeeds the goal gets added to the chs.
                 IEnumerable<CoResolutionResult> results = this.ResolveAllGoals(
-                    ResolutionRecursionState.CloneConstructor(statement.Body, this.allStatements, state.CallStack, state.Chs, unificationRes.Value, state.KeepUnbound, state.Logger));
+                    ResolutionRecursionState.CloneConstructor(statement.Body, this.allStatements, unifiedClone.CallStack, unifiedClone.Chs, unificationRes.Value, unifiedClone.KeepUnbound, unifiedClone.Logger));
 
                 foreach (CoResolutionResult result in results)
                 {
                     // this rule did not succeed try to find another one.
                     if (!result.Success)
                     {
-                        state.Chs.SafeUnion(result.CHS, this.substitutionGroups);
+                        //state.Chs.SafeUnion(result.CHS, this.substitutionGroups);
                         continue;
                     }
 
-                    ResolutionLiteralState stateClone = (ResolutionLiteralState)state.Clone();
+                    ResolutionLiteralState stateClone = (ResolutionLiteralState)unifiedClone.Clone();
                     UnificationResult reverseUnification = this.unifier.Unify(stateClone.CurrentGoal, statement.Head);
 
                     reverseUnification.Value!.BackPropagate(result.Substitution);

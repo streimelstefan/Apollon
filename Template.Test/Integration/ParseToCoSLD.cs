@@ -134,10 +134,10 @@
             List<Literal> literals = res.CHS.Literals;
             Assert.AreEqual(5, literals.Count());
 
-            // Assert.AreEqual("not q(3)", literals[0].ToString()); // this should be not q(3) but not sure how or if to implement that.
+            Assert.AreEqual("not q(3)", literals[0].ToString()); // this should be not q(3) but not sure how or if to implement that.
             // it should be set to three when a value gets checked in the chs. But we losse al context once a literal enters the chs.
             // so not sure how to fix that currently.
-            // Assert.AreEqual("p(3)", literals[1].ToString()); // this should be p(3) but not sure how or if to implement that.
+            Assert.AreEqual("p(3)", literals[1].ToString()); // this should be p(3) but not sure how or if to implement that.
             Assert.AreEqual("not p(RV/11 - {\\3 \\4})", literals[2].ToString());
             Assert.AreEqual("q(RV/8 - {\\3 \\4})", literals[3].ToString());
             Assert.AreEqual("r(RV/6 - {\\3 \\4})", literals[4].ToString());
@@ -182,6 +182,33 @@
             Assert.AreEqual("q(RV/5 - {\\a})", literals[0].ToString());
             Assert.AreEqual("q(a)", literals[1].ToString());
             Assert.AreEqual("not p()", literals[2].ToString());
+        }
+
+        [Test]
+        public void ShouldRunGPA()
+        {
+            var code = "eligible(X) :- highGPA(X).\r\neligible(X) :- special(X), fairGPA(X).\r\n-eligible(X) :- -special(X), -highGPA(X).\r\ninterview(X) :- not eligible(X), not -eligible(X).\r\nfairGPA(john).\r\n-highGPA(john).";
+            BodyPart[] query = this.parser.ParseQueryFromString("interview(john).");
+            Program program = this.parser.ParseFromString(code);
+            this.solver.Load(program);
+
+            IEnumerable<ResolutionResult> results = this.solver.Solve(query);
+            ResolutionResult res = results.First();
+
+            Assert.IsFalse(res.CHS.IsEmpty);
+
+            List<Literal> literals = res.CHS.Literals;
+            Assert.AreEqual(10, literals.Count());
+            Assert.AreEqual("not highGPA(john)", literals[0].ToString());
+            Assert.AreEqual("not special(john)", literals[1].ToString());
+            Assert.AreEqual("not eligible(john)", literals[2].ToString());
+            Assert.AreEqual("not -special(john)", literals[3].ToString());
+            Assert.AreEqual("not -eligible(john)", literals[4].ToString());
+            Assert.AreEqual("interview(john)", literals[5].ToString());
+            Assert.AreEqual("not -highGPA(RV/19 - {\\john})", literals[6].ToString());
+            Assert.AreEqual("-highGPA(john)", literals[7].ToString());
+            Assert.AreEqual("not -special(RV/29)", literals[8].ToString());
+            Assert.AreEqual("not -eligible(RV/34)", literals[9].ToString());
         }
 
         [Test]

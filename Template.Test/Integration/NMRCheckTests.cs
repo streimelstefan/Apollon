@@ -19,7 +19,7 @@ public class NMRCheckTests
 
         CallGraph callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
 
-        OlonSet olonSet = OlonDetector.DetectOlonIn(callGraph);
+        var olonSet = OlonDetector.DetectOlonIn(callGraph);
 
         PreprocessedStatement[] processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleTypesAsStatements.ToArray());
 
@@ -46,7 +46,7 @@ public class NMRCheckTests
 
         CallGraph callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
 
-        OlonSet olonSet = OlonDetector.DetectOlonIn(callGraph);
+        var olonSet = OlonDetector.DetectOlonIn(callGraph);
 
         PreprocessedStatement[] processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleTypesAsStatements.ToArray());
 
@@ -75,7 +75,7 @@ public class NMRCheckTests
 
         CallGraph callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
 
-        OlonSet olonSet = OlonDetector.DetectOlonIn(callGraph);
+        var olonSet = OlonDetector.DetectOlonIn(callGraph);
 
         PreprocessedStatement[] processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleTypesAsStatements.ToArray());
 
@@ -97,7 +97,7 @@ public class NMRCheckTests
 
         CallGraph callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
 
-        OlonSet olonSet = OlonDetector.DetectOlonIn(callGraph);
+        var olonSet = OlonDetector.DetectOlonIn(callGraph);
 
         PreprocessedStatement[] processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleTypesAsStatements.ToArray());
 
@@ -119,7 +119,7 @@ public class NMRCheckTests
 
         CallGraph callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
 
-        OlonSet olonSet = OlonDetector.DetectOlonIn(callGraph);
+        var olonSet = OlonDetector.DetectOlonIn(callGraph);
 
         PreprocessedStatement[] processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleTypesAsStatements.ToArray());
 
@@ -143,7 +143,7 @@ public class NMRCheckTests
 
         CallGraph callGraph = new CallGraphBuilder(new LiteralParamCountEqualizer()).BuildCallGraph(program);
 
-        OlonSet olonSet = OlonDetector.DetectOlonIn(callGraph);
+        var olonSet = OlonDetector.DetectOlonIn(callGraph);
 
         PreprocessedStatement[] processedRules = new RuleMetadataSetter(callGraph, olonSet).SetMetadataOn(program.RuleTypesAsStatements.ToArray());
 

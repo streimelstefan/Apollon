@@ -103,9 +103,11 @@ namespace Apollon.Lib.Resolution.CoSLD
                 throw new InvalidOperationException("operation variable is not variable...");
             }
 
-            operation.Variable.Term.ProhibitedValues.AddValue(operation.Condition);
-
             Operation op = state.Substitution.Apply(operation);
+
+            operation.Variable.Term.ProhibitedValues.AddValue(op.Condition);
+            state.Substitution.Apply(operation);
+
             Literal condition = this.ExtractAsLiteral(op.Condition, state);
             Literal variable = this.ExtractAsLiteral(op.Variable, state);
 

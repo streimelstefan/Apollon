@@ -26,11 +26,6 @@ namespace Apollon.Lib.Resolution.CoSLD
         public CoResolutionForAllResult(bool success, Substitution substitution, ResolutionBaseState state, Literal? realGoal)
             : base(success, substitution, state)
         {
-            if (success && realGoal == null)
-            {
-                throw new ArgumentNullException(nameof(realGoal));
-            }
-
             this.RealGoal = realGoal;
         }
 

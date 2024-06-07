@@ -30,7 +30,7 @@ public class NMRCheckGenerator : INMRCheckGenerator
     public Statement[] GenerateNMRCheckRules(PreprocessedStatement[] preprocessedStatements, Program program)
     {
         // Can preprocessedStatements be null?
-        List<PreprocessedStatement> olonRules = preprocessedStatements.Where(x => x.IsOlonRule).ToList();
+        List<PreprocessedStatement> olonRules = preprocessedStatements.Where(x => x.IsOlonRule).OrderBy(s => s.Head?.Atom.Name ?? "").OrderBy(s => s.Head != null).ToList();
 
         List<Statement> nmrCheckRules = new();
         List<Statement> generalRules = new();
@@ -169,7 +169,7 @@ public class NMRCheckGenerator : INMRCheckGenerator
         List<AtomParam> atomParamList = new();
         foreach (Term variable in linkingVariables)
         {
-            atomParamList.Add(new Atoms.AtomParam(new Literal(new Atoms.Atom(variable.Value), false, false)));
+            atomParamList.Add(new AtomParam(variable));
         }
 
         Literal ruleHead = new(new Atoms.Atom(placeHolderName + counterIndex.ToString() + counterIndex.ToString(), ruleProcessed.Head?.Atom.ParamList ?? atomParamList.ToArray()), true, false);

@@ -77,7 +77,7 @@ namespace Apollon.Lib.Rules.Operations
         /// <summary>
         /// Gets the condition that is used in the operation.
         /// </summary>
-        public AtomParam Condition { get; private set; }
+        public AtomParam Condition { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the operation is a NAF operation.

@@ -8,10 +8,12 @@
 namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
 {
     using Apollon.Lib.Atoms;
+    using Apollon.Lib.Graph;
     using Apollon.Lib.Linker;
     using Apollon.Lib.Resolution.CallStackAndCHS;
     using Apollon.Lib.Rules;
     using Apollon.Lib.Unification;
+    using Apollon.Lib.Unification.Substitutioners;
 
     /// <summary>
     /// Checks the CHS for conditions that allow to Co SLD resolution to succeed or fail early.
@@ -22,6 +24,7 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
         private readonly IUnifier constructiveUnifier = new ConstructiveUnifier();
         private readonly VariableExtractor extractor = new();
         private readonly VariableLinker linker = new();
+        private readonly IEqualizer<Literal> equalizer = new LiteralParamCountEqualizer();
 
         /// <summary>
         /// Checks the CHS for loops.
@@ -31,14 +34,18 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
         /// <returns>Returns an Enumerable containing the Result of the Check.</returns>
         public CheckerResult CheckCHSFor(Literal literal, CHS chs)
         {
-            if (this.IsPresentWithNAFSwitch(literal, chs))
+            var litCopy = (Literal)literal.Clone();
+            this.ConstraintAgainstCHS(chs, litCopy);
+
+            if (this.IsPresentWithNAFSwitch(litCopy, chs))
             {
                 return CheckerResult.Fail;
             }
 
             // if the chs contains the literal
-            if (chs.Literals.Where(l => this.unifer.Unify(literal, l).IsSuccess).Any())
+            if (chs.Literals.Where(l => this.unifer.Unify(litCopy, l).IsSuccess).Any())
             {
+                this.ConstraintAgainstCHS(chs, literal);
                 return CheckerResult.Succeed;
             }
 
@@ -52,7 +59,7 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
         /// </summary>
         /// <param name="chs"></param>
         /// <param name="goal"></param>
-        private void ConstraintAgainstCHS(CHS chs, Literal goal)
+        private void ConstraintAgainstCHS(CHS chs, Literal goal, bool apply = true)
         {
             Literal goalCopy = (Literal)goal.Clone();
             goalCopy.IsNAF = !goalCopy.IsNAF;
@@ -80,7 +87,18 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
                                 AtomParam mappedVariableCopy = (AtomParam)mapping.MapsTo.Clone();
                                 if (mappedVariableCopy.Term != null && mappedVariableCopy.Term.IsNegativelyConstrained())
                                 {
-                                    mappedVariableCopy.Term.ProhibitedValues.Clear();
+                                    if (apply)
+                                    {
+                                        var tmpSub = new Substitution();
+                                        var comparer = new StringComparer();
+                                        tmpSub.Add(goalVariable, mappedVariableCopy.Term.ProhibitedValues.GetValues().OrderBy(t => t.ToString(), comparer).First());
+                                        tmpSub.ApplyInline(goal);
+                                        return;
+                                    }
+                                    else
+                                    {
+                                        mappedVariableCopy.Term.ProhibitedValues.Clear();
+                                    }
                                 }
 
                                 if (mapping.MapsTo.Term != null && mapping.MapsTo.Term.IsVariable)
@@ -115,5 +133,32 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
 
             return chs.Literals.Where(l => this.unifer.Unify(l, copy).IsSuccess).Any();
         }
+
+        // private bool Constraint(Literal goal, Literal literal)
+        // {
+        //     if (!this.equalizer.AreEqual(goal, literal)) { return false; }
+        // 
+        //     return this.Constraint(goal.Atom, literal.Atom);
+        // }
+        // 
+        // private bool Constraint(Atom goal, Atom atom)
+        // {
+        //     for (int i = 0; i < goal.ParamList.Length; i++)
+        //     {
+        //         if (goal.ParamList[i].Term != null && goal.ParamList[i].Term.IsVariable)
+        //         {
+        //             if (atom.ParamList[i].Term != null && atom.ParamList[i].Term.IsVariable)
+        //             {
+        // 
+        //             }
+        //         }
+        // 
+        //         if (goal.ParamList[i].IsLiteral && atom.ParamList[i].IsLiteral)
+        //         {
+        //             var res = this.Constraint(goal.ParamList[i].Literal, atom.ParamList[i].Literal);
+        //             if (!res) return res;
+        //         }
+        //     }
+        // }
     }
 }
