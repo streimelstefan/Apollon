@@ -59,6 +59,8 @@ namespace Apollon.Lib.Resolution.CoSLD.States
         /// </summary>
         public Literal CurrentGoal { get; set; }
 
+        public Dictionary<string, List<Literal>> BodyOnlyLiteralAndVars { get; set; } = new Dictionary<string, List<Literal>>();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ResolutionLiteralState"/> class.
         /// </summary>
@@ -91,8 +93,13 @@ namespace Apollon.Lib.Resolution.CoSLD.States
         public override object Clone()
         {
             ResolutionBaseState baseObj = (ResolutionBaseState)base.Clone();
+            var boundCopy = new Dictionary<string, List<Literal>>(
+                this.BodyOnlyLiteralAndVars.Select(kv => 
+                new KeyValuePair<string, List<Literal>>(kv.Key, kv.Value.Select(l => (Literal)l.Clone()).ToList())));
 
-            return new ResolutionLiteralState(baseObj, (Literal)this.CurrentGoal.Clone());
+            var res = new ResolutionLiteralState(baseObj, (Literal)this.CurrentGoal.Clone());
+            res.BodyOnlyLiteralAndVars = boundCopy;
+            return res;
         }
     }
 }

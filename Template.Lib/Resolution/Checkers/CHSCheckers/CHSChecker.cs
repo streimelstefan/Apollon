@@ -42,12 +42,11 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
             if (this.IsPresentWithNAFSwitch(literal, chs))
             {
                 // see if there is a literal that unifies with the original
-                var boundConstraint = this.CreateConstraintOfBound(original, chs, literal);
+                var boundConstraint = this.CreateConstraintOfBound(original, chs, literal, state);
 
                 if (boundConstraint != null)
                 {
                     state.CurrentGoal = boundConstraint;
-                    state.Logger.Info($"Current goal is: {state.CurrentGoal}");
                     return CheckerResult.CheckChangedValues;
                 }
 
@@ -133,7 +132,7 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
             }
         }
 
-        private Literal? CreateConstraintOfBound(Literal original, CHS chs, Literal challenge)
+        private Literal? CreateConstraintOfBound(Literal original, CHS chs, Literal challenge, ResolutionLiteralState state)
         {
             var orgCopy = (Literal)original.Clone();
             orgCopy.IsNAF = !orgCopy.IsNAF;
@@ -141,10 +140,36 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
             _ = this.linker.LinkVariables(new Statement(orgCopy));
             HashSet<Term> goalVariables = this.extractor.ExtractVariablesFrom(orgCopy);
 
-            return CreateConstraintOfBoundRec(orgCopy, chs, challenge, goalVariables.ToList());
+            var variablesToCheck = new List<Term>();
+            foreach (var variable in goalVariables)
+            {
+                if (state.BodyOnlyLiteralAndVars.ContainsKey(variable.Value))
+                {
+                    variablesToCheck.Add(variable);
+                } else
+                {
+                    var subCopy = state.Substitution.Clone();
+                    foreach (var mappin in subCopy.Mappings.ToArray())
+                    {
+                        if (mappin.Variable.Value != variable.Value)
+                        {
+                            subCopy.Remove(mappin.Variable);
+                        }
+                    }
+
+                    subCopy.ApplyInline(orgCopy);
+                }
+            }
+
+            if (variablesToCheck.Count == 0)
+            {
+                return null;
+            }
+
+            return CreateConstraintOfBoundRec(orgCopy, chs, challenge, state, variablesToCheck);
         }
 
-        private Literal? CreateConstraintOfBoundRec(Literal original, CHS chs, Literal challenge, List<Term> vars)
+        private Literal? CreateConstraintOfBoundRec(Literal original, CHS chs, Literal challenge, ResolutionLiteralState state, List<Term> vars)
         {
             var orgCopy = (Literal)original.Clone();
 
@@ -178,17 +203,38 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
                                     tmpSub.Add(myVar, value);
                                     tmpSub.ApplyInline(copy2);
 
-                                    var recRes = this.CreateConstraintOfBoundRec(copy2, chs, challenge, vars.Skip(1).ToList());
+                                    var recRes = this.CreateConstraintOfBoundRec(copy2, chs, challenge, state, vars.Skip(1).ToList());
 
                                     if (recRes == null)
                                     {
                                         return null;
                                     }
 
-                                    if (!this.unifer.Unify(recRes, challenge).IsSuccess)
+                                    if (this.unifer.Unify(recRes, challenge).IsSuccess)
                                     {
-                                        return recRes;
+                                        continue;
                                     }
+
+                                    state.Logger.Info($"Current goal is: {recRes}");
+
+                                    var recResCopy = (Literal)recRes.Clone();
+                                    recResCopy.IsNAF = !recResCopy.IsNAF;
+                                    var isInChsAsNot = false;
+                                    foreach (var lit in chs.Literals)
+                                    {
+                                        if (this.unifer.Unify(lit, recResCopy).IsSuccess)
+                                        {
+                                            isInChsAsNot = true;
+                                            break;
+                                        }
+                                    }
+
+                                    if (isInChsAsNot)
+                                    {
+                                        continue;
+                                    }
+
+                                    return recRes;
                                 }
                             }
                         }

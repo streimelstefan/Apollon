@@ -168,6 +168,7 @@ namespace Apollon.Lib.Resolution.CoSLD
                 state.Logger.Info($"Current goal is: {substituted}");
 
                 ResolutionLiteralState nextState = ResolutionLiteralState.CloneConstructor(state, goal.Literal, state.Statements);
+                nextState.BodyOnlyLiteralAndVars = state.BodyOnlyLiteralAndVars;
 
                 results = this.ResolveLiteralGoal(nextState);
             }
@@ -207,7 +208,9 @@ namespace Apollon.Lib.Resolution.CoSLD
                     stateCopy.Logger.Silly($"GoalPart {goal} succeeded. Next goal parts are [{string.Join(", ", nextGoals.Select(g => g.ToString()))}]");
                     stateCopy.LogState();
                     stateCopy.Logger.Silly($"SubTree: {this.substitutionGroups}");
-                    IEnumerable<CoResolutionResult> recurisveResults = this.ResolveAllGoalsPart(ResolutionRecursionState.CloneConstructor(stateCopy, nextGoals));
+                    var nextState = ResolutionRecursionState.CloneConstructor(stateCopy, nextGoals);
+                    nextState.BodyOnlyLiteralAndVars = stateCopy.BodyOnlyLiteralAndVars;
+                    IEnumerable<CoResolutionResult> recurisveResults = this.ResolveAllGoalsPart(nextState);
                     foreach (CoResolutionResult recRes in recurisveResults)
                     {
                         yield return !recRes.Success ? new CoResolutionResult(false, state.Substitution, state) : recRes;
@@ -596,9 +599,39 @@ namespace Apollon.Lib.Resolution.CoSLD
 
                 state.Logger.Info($"Unified goal {state.CurrentGoal} with {statement} resulting in {unificationRes.Value}");
 
+                // get all variables that are no in the head and their literals
+                var recursionState = ResolutionRecursionState.CloneConstructor(statement.Body, this.allStatements, unifiedClone.CallStack, unifiedClone.Chs, unificationRes.Value, unifiedClone.KeepUnbound, unifiedClone.Logger);
+                var statementVariables = this.variableExtractor.ExtractVariablesFrom(statement);
+                var statementHeadVariabels = this.variableExtractor.ExtractVariablesFrom(new Statement(statement.Head));
+
+                foreach (var variable in statementVariables)
+                {
+                    if (statementHeadVariabels.Contains(variable)) continue;
+
+                    List<Literal> literals = recursionState.BodyOnlyLiteralAndVars.GetValueOrDefault(variable.Value, new List<Literal>());
+                    recursionState.BodyOnlyLiteralAndVars.Add(variable.Value, literals);
+
+                    foreach (var literal in statement.Body.Where(b => b.Literal != null && b.ForAll == null).Select(b => b.Literal))
+                    {
+                        var literalVars = this.variableExtractor.ExtractVariablesFrom(new Statement(null, new BodyPart(literal, null)));
+                        var containsNonHeadLit = false;
+                        foreach (var litVar in literalVars)
+                        {
+                            if (litVar.Equals(variable))
+                            {
+                                containsNonHeadLit = true;
+                                break;
+                            }
+                        }
+                        if (containsNonHeadLit)
+                        {
+                            literals.Add(literal);
+                        }
+                    }
+                }
+
                 // we expand the goal with this statment if it succeeds the goal gets added to the chs.
-                IEnumerable<CoResolutionResult> results = this.ResolveAllGoals(
-                    ResolutionRecursionState.CloneConstructor(statement.Body, this.allStatements, unifiedClone.CallStack, unifiedClone.Chs, unificationRes.Value, unifiedClone.KeepUnbound, unifiedClone.Logger));
+                IEnumerable<CoResolutionResult> results = this.ResolveAllGoals(recursionState);
 
                 foreach (CoResolutionResult result in results)
                 {

@@ -113,6 +113,8 @@ rootCommand.SetHandler(
             foreach (Apollon.Lib.Resolution.ResolutionResult result in results)
             {
                 Console.WriteLine(resultBuilder.CreateResultString(result));
+                Console.WriteLine("Press enter to search for the next solution.");
+                Console.ReadLine();
             }
         }
         while (input != "exit");
@@ -132,6 +134,8 @@ rootCommand.SetHandler(
         foreach (Apollon.Lib.Resolution.ResolutionResult result in results)
         {
             Console.WriteLine(resultBuilder.CreateResultString(result));
+            Console.WriteLine("Press enter to search for the next solution.");
+            Console.ReadLine();
         }
     }
 },

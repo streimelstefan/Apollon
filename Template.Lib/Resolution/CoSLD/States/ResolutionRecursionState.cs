@@ -63,6 +63,8 @@ namespace Apollon.Lib.Resolution.CoSLD.States
         /// </summary>
         public BodyPart[] Goals { get; private set; }
 
+        public Dictionary<string, List<Literal>> BodyOnlyLiteralAndVars { get; set; } = new Dictionary<string, List<Literal>>();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ResolutionRecursionState"/> class.
         /// </summary>
@@ -111,6 +113,7 @@ namespace Apollon.Lib.Resolution.CoSLD.States
             return (ResolutionRecursionState)obj.Clone();
         }
 
+
         /// <summary>
         /// Clones the current State.
         /// </summary>
@@ -119,7 +122,14 @@ namespace Apollon.Lib.Resolution.CoSLD.States
         {
             ResolutionBaseState baseObj = (ResolutionBaseState)base.Clone();
 
-            return new ResolutionRecursionState(baseObj, this.Goals.Select(g => (BodyPart)g.Clone()).ToArray());
+            var boundCopy = new Dictionary<string, List<Literal>>(
+                this.BodyOnlyLiteralAndVars.Select(kv =>
+                new KeyValuePair<string, List<Literal>>(kv.Key, kv.Value.Select(l => (Literal)l.Clone()).ToList())));
+
+            var res = new ResolutionRecursionState(baseObj, this.Goals.Select(g => (BodyPart)g.Clone()).ToArray());
+
+            res.BodyOnlyLiteralAndVars = boundCopy;
+            return res;
         }
     }
 }

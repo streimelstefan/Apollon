@@ -255,6 +255,48 @@
             ResolutionResult res = results.First();
 
             Assert.IsNotNull(res);
+            var literals = res.CHS.Literals;
+            Assert.AreEqual(32, literals.Count);
+            Assert.AreEqual("", literals[0].ToString());
+            Assert.AreEqual("", literals[1].ToString());
+            Assert.AreEqual("", literals[2].ToString());
+            Assert.AreEqual("", literals[3].ToString());
+            Assert.AreEqual("", literals[4].ToString());
+            Assert.AreEqual("", literals[5].ToString());
+            Assert.AreEqual("", literals[6].ToString());
+            Assert.AreEqual("", literals[7].ToString());
+            Assert.AreEqual("", literals[8].ToString());
+            Assert.AreEqual("", literals[9].ToString());
+            Assert.AreEqual("", literals[10].ToString());
+            Assert.AreEqual("", literals[11].ToString());
+            Assert.AreEqual("", literals[12].ToString());
+            Assert.AreEqual("", literals[13].ToString());
+            Assert.AreEqual("", literals[14].ToString());
+            Assert.AreEqual("", literals[15].ToString());
+            Assert.AreEqual("", literals[16].ToString());
+            Assert.AreEqual("", literals[17].ToString());
+            Assert.AreEqual("", literals[18].ToString());
+            Assert.AreEqual("", literals[19].ToString());
+            Assert.AreEqual("", literals[20].ToString());
+            Assert.AreEqual("", literals[21].ToString());
+            Assert.AreEqual("", literals[22].ToString());
+            Assert.AreEqual("", literals[23].ToString());
+            Assert.AreEqual("", literals[24].ToString());
+            Assert.AreEqual("", literals[25].ToString());
+            Assert.AreEqual("", literals[26].ToString());
+            Assert.AreEqual("", literals[27].ToString());
+            Assert.AreEqual("", literals[28].ToString());
+            Assert.AreEqual("", literals[29].ToString());
+            Assert.AreEqual("", literals[30].ToString());
+            Assert.AreEqual("", literals[31].ToString());
+            // Assert.AreEqual("", literals[32].ToString());
+            // Assert.AreEqual("", literals[33].ToString());
+            // Assert.AreEqual("", literals[34].ToString());
+            // Assert.AreEqual("", literals[35].ToString());
+            // Assert.AreEqual("", literals[36].ToString());
+            // Assert.AreEqual("", literals[37].ToString());
+            // Assert.AreEqual("", literals[38].ToString());
+            // Assert.AreEqual("", literals[39].ToString());
         }
 
         [Test]

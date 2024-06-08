@@ -210,6 +210,27 @@ namespace Apollon.Lib.Unification.Substitutioners
             }
         }
 
+        public void ApplyInline(Dictionary<string, List<Literal>> things)
+        {
+            foreach (var key in things.Keys.ToArray())
+            {
+                if (this.mappings.ContainsKey(key))
+                {
+                    if (this.mappings[key].IsLiteral || !this.mappings[key].Term.IsVariable)
+                        continue;
+
+                    var newList = new List<Literal>();
+                    foreach (var literal in things[key])
+                    {
+                        newList.Add(this.Apply(literal));
+                    }
+
+                    things.Remove(key);
+                    things.Add(this.mappings[key].Term.Value, newList);
+                }
+            }
+        }
+
         /// <summary>
         /// Applies all the given substitutions on the given object. The object will be altered!.
         /// </summary>
