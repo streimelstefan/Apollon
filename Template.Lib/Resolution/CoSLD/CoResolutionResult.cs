@@ -19,6 +19,8 @@ namespace Apollon.Lib.Resolution.CoSLD
     {
         private ResolutionBaseState state;
 
+        public bool ChangedGoal { get; set; } = false;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CoResolutionResult"/> class.
         /// </summary>

@@ -22,6 +22,8 @@ namespace Apollon.Lib.Resolution.Checkers
         /// </summary>
         Fail,
 
+        CheckChangedValues,
+
         /// <summary>
         /// The Check needs to be continued.
         /// </summary>

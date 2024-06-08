@@ -15,6 +15,7 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
     using Apollon.Lib.Rules;
     using Apollon.Lib.Unification;
     using Apollon.Lib.Unification.Substitutioners;
+    using System.Reflection.Metadata;
 
     /// <summary>
     /// Checks the CHS for conditions that allow to Co SLD resolution to succeed or fail early.
@@ -35,10 +36,21 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
         /// <returns>Returns an Enumerable containing the Result of the Check.</returns>
         public CheckerResult CheckCHSFor(Literal literal, CHS chs, ResolutionLiteralState state)
         {
+            var original = (Literal)literal.Clone();
             state.Substitution.ApplyInline(literal);
 
             if (this.IsPresentWithNAFSwitch(literal, chs))
             {
+                // see if there is a literal that unifies with the original
+                var boundConstraint = this.CreateConstraintOfBound(original, chs, literal);
+
+                if (boundConstraint != null)
+                {
+                    state.CurrentGoal = boundConstraint;
+                    state.Logger.Info($"Current goal is: {state.CurrentGoal}");
+                    return CheckerResult.CheckChangedValues;
+                }
+
                 return CheckerResult.Fail;
             }
 
@@ -67,7 +79,7 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
         /// </summary>
         /// <param name="chs"></param>
         /// <param name="goal"></param>
-        private void ConstraintAgainstCHS(CHS chs, Literal goal)
+        private void ConstraintAgainstCHS(CHS chs, Literal goal, bool subOnly = false)
         {
             Literal goalCopy = (Literal)goal.Clone();
             goalCopy.IsNAF = !goalCopy.IsNAF;
@@ -119,6 +131,71 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
                     }
                 }
             }
+        }
+
+        private Literal? CreateConstraintOfBound(Literal original, CHS chs, Literal challenge)
+        {
+            var orgCopy = (Literal)original.Clone();
+            orgCopy.IsNAF = !orgCopy.IsNAF;
+
+            _ = this.linker.LinkVariables(new Statement(orgCopy));
+            HashSet<Term> goalVariables = this.extractor.ExtractVariablesFrom(orgCopy);
+
+            return CreateConstraintOfBoundRec(orgCopy, chs, challenge, goalVariables.ToList());
+        }
+
+        private Literal? CreateConstraintOfBoundRec(Literal original, CHS chs, Literal challenge, List<Term> vars)
+        {
+            var orgCopy = (Literal)original.Clone();
+
+            if (vars.Count() == 0)
+            {
+                orgCopy.IsNAF = !orgCopy.IsNAF;
+                return orgCopy;
+            }
+
+            var myVar = vars.First();
+
+            foreach (var literal in chs.Literals)
+            {
+                UnificationResult res = this.constructiveUnifier.Unify(orgCopy, literal);
+
+                if (res.Value != null)
+                {
+                    foreach (Mapping mapping in res.Value.Mappings)
+                    {
+                        if (mapping.Variable.Value == myVar.Value)
+                        {
+                            AtomParam mappedVariableCopy = (AtomParam)mapping.MapsTo.Clone();
+                            if (mappedVariableCopy.Term != null && mappedVariableCopy.Term.IsNegativelyConstrained())
+                            {
+                                var comparer = new StringComparer();
+
+                                foreach (var value in mappedVariableCopy.Term.ProhibitedValues.GetValues().OrderBy(t => t.ToString(), comparer))
+                                {
+                                    var copy2 = (Literal)orgCopy.Clone();
+                                    var tmpSub = new Substitution();
+                                    tmpSub.Add(myVar, value);
+                                    tmpSub.ApplyInline(copy2);
+
+                                    var recRes = this.CreateConstraintOfBoundRec(copy2, chs, challenge, vars.Skip(1).ToList());
+
+                                    if (recRes == null)
+                                    {
+                                        return null;
+                                    }
+
+                                    if (!this.unifer.Unify(recRes, challenge).IsSuccess)
+                                    {
+                                        return recRes;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return null;
         }
 
 

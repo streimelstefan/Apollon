@@ -113,7 +113,7 @@ namespace Apollon.Lib.Resolution.CoSLD
         public CheckerResult CheckCHSAndCallStack(ResolutionLiteralState state)
         {
             var originalGoal = (Literal)state.CurrentGoal.Clone();
-            CheckerResult chsCheck = this.chsChecker.CheckCHSFor(state.CurrentGoal, state.Chs, (ResolutionLiteralState)state.Clone());
+            CheckerResult chsCheck = this.chsChecker.CheckCHSFor(state.CurrentGoal, state.Chs, state);
             state.Logger.Trace($"CHS marked goal {state.CurrentGoal} as {chsCheck} using {state.Chs}");
 
             // since pvl entries mean that the variable is implicitly bound to everything but the entries we need to fail if
@@ -130,16 +130,20 @@ namespace Apollon.Lib.Resolution.CoSLD
                 }
             }
 
-            if (chsCheck != CheckerResult.Continue)
+            if (chsCheck != CheckerResult.Continue && chsCheck != CheckerResult.CheckChangedValues)
             {
                 return chsCheck;
             }
 
-
-
             CheckerResult callStackCheck = this.callStackChecker.CheckCallStackFor(state.Substitution.Apply(state.CurrentGoal), state.CallStack);
 
             state.Logger.Trace($"CallStack marked goal {state.CurrentGoal} as {callStackCheck} using ({string.Join(", ", state.CallStack)})");
+            
+            if (callStackCheck == CheckerResult.Continue && chsCheck == CheckerResult.CheckChangedValues)
+            {
+                return chsCheck;
+            }
+
             return callStackCheck;
         }
 
@@ -184,7 +188,17 @@ namespace Apollon.Lib.Resolution.CoSLD
 
                 ResolutionRecursionState stateCopy = (ResolutionRecursionState)state.Clone();
                 stateCopy.Chs = res.State.Chs;
-                stateCopy.Substitution.BackPropagate(res.Substitution);
+                if (!res.ChangedGoal) // if this is true that means a bound mapping has change we need to override the current mappings
+                {
+                    stateCopy.Substitution.BackPropagate(res.Substitution);
+                } else
+                {
+                    // var resUni = this.unifier.Unify(goal.Literal, ((ResolutionLiteralState)res.State).CurrentGoal);
+                    foreach (var mappin in res.Substitution.BoundMappings)
+                    {
+                        stateCopy.Substitution.ForceAdd(mappin.Variable, mappin.MapsTo);
+                    }
+                }
                 stateCopy.Substitution.Contract();
 
                 // if there are other goals that need to be checked.
@@ -226,8 +240,8 @@ namespace Apollon.Lib.Resolution.CoSLD
             // if the variable is negativly constraint (has values in the pvl). Go trough each value of the pvl
             // and try it with a substitution of that. If that succeed add the goal with the substition without the pvl.
             // if the variable is unbound add the goal to the chs.
-            BodyPart subbedGoal = state.Substitution.Apply(new Statement(null, state.CurrentGoal)).Body[0];
-            IEnumerable<CoResolutionForAllResult> results = this.ResolveForAllGoalPart(state, subbedGoal);
+            //BodyPart subbedGoal = state.Substitution.Apply(new Statement(null, state.CurrentGoal)).Body[0];
+            IEnumerable<CoResolutionForAllResult> results = this.ResolveForAllGoalPart(state, state.CurrentGoal);
 
             foreach (CoResolutionForAllResult res in results)
             {
@@ -306,8 +320,21 @@ namespace Apollon.Lib.Resolution.CoSLD
                 state.Chs = res.CHS;
 
                 stateCopy = (ResolutionStepState)state.Clone();
-                stateCopy.Substitution.BackPropagate(res.Substitution);
                 stateCopy.Chs = res.CHS;
+
+                if (!res.ChangedGoal) // if this is true that means a bound mapping has change we need to override the current mappings
+                {
+                    stateCopy.Substitution.BackPropagate(res.Substitution);
+                }
+                else
+                {
+                    // var resUni = this.unifier.Unify(goal.Literal, ((ResolutionLiteralState)res.State).CurrentGoal);
+                    foreach (var mappin in res.Substitution.BoundMappings)
+                    {
+                        stateCopy.Substitution.ForceAdd(mappin.Variable, mappin.MapsTo);
+                    }
+                }
+                stateCopy.Substitution.Contract();
                 _ = stateCopy.KeepUnbound.Remove(variable);
 
                 var variableMappings = stateCopy.Substitution.Mappings.Where(m => m.Variable.Value == variable.Value || (m.MapsTo.Term != null && m.MapsTo.Term.Value == variable.Value));
@@ -413,15 +440,25 @@ namespace Apollon.Lib.Resolution.CoSLD
                     continue;
                 }
 
-                state.Chs = res.CHS;
-                subToTry.BackPropagate(res.Substitution);
-                subToTry.Contract();
+                stateCopy = (ResolutionStepState)state.Clone();
+                stateCopy.Chs = res.CHS;
+                stateCopy.Substitution.BackPropagate(subToTry);
+                if (!res.ChangedGoal) // if this is true that means a bound mapping has change we need to override the current mappings
+                {
+                    stateCopy.Substitution.BackPropagate(res.Substitution);
+                }
+                else
+                {
+                    // var resUni = this.unifier.Unify(goal.Literal, ((ResolutionLiteralState)res.State).CurrentGoal);
+                    foreach (var mappin in res.Substitution.BoundMappings)
+                    {
+                        stateCopy.Substitution.ForceAdd(mappin.Variable, mappin.MapsTo);
+                    }
+                }
+                stateCopy.Substitution.Contract();
+
                 Mapping variableMapping = subToTry.Mappings.Where(m => m.Variable.Value == variable.Value).First();
 
-                stateCopy = (ResolutionStepState)state.Clone();
-                stateCopy.Substitution.BackPropagate(subToTry);
-                stateCopy.Substitution.BackPropagate(res.Substitution);
-                stateCopy.Chs = res.CHS;
                 _ = stateCopy.KeepUnbound.Remove(variable);
 
                 // if variable is unbound return success and is not negativly constraint.
@@ -473,6 +510,12 @@ namespace Apollon.Lib.Resolution.CoSLD
                 yield break;
             }
 
+            var sub = this.unifier.Unify(initialGoal, state.CurrentGoal);
+            foreach (var mappin in sub.Value!.Mappings)
+            {
+                state.Substitution.ForceAdd(mappin.Variable, mappin.MapsTo);
+            }
+
             state.CurrentGoal = state.Substitution.Apply(state.CurrentGoal);
             state.Logger.Debug($"CallStack adding goal {state.CurrentGoal}");
             state.CallStack.Push(state.CurrentGoal);
@@ -492,9 +535,19 @@ namespace Apollon.Lib.Resolution.CoSLD
                 // subClone.BackPropagate(expandsionRes.Substitution);
                 // subClone.Contract();
                 // stateClone.Substitution = subClone;
-                stateClone.Substitution = expandsionRes.Substitution;
+                if (checkRes != CheckerResult.CheckChangedValues)
+                {
+                    stateClone.Substitution = expandsionRes.Substitution;
+                }
+                else
+                {
+                    stateClone.Substitution.BackPropagate(state.Substitution);
+                    stateClone.Substitution.Contract();
+                }
 
-                yield return new CoResolutionResult(expandsionRes.Success, expandsionRes.Substitution, stateClone);
+                var returnValue = new CoResolutionResult(expandsionRes.Success, stateClone.Substitution, stateClone);
+                returnValue.ChangedGoal = checkRes == CheckerResult.CheckChangedValues;
+                yield return returnValue;
             }
         }
 
