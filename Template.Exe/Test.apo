@@ -1,39 +1,19 @@
-component(a).
-component(b).
-component(c).
-component(d).
-component(e).
-component(fire1).
-component(fire2).
 
-functionOf(a, pc).
-functionOf(b, pc).
-functionOf(c, pc).
-functionOf(d, pc).
-functionOf(e, pc).
+city(X) :: @(X) ist eine Stadt.
+city(wien).
+city(wrn).
+city(eisenstadt).
+city(stpoelten).
 
-functionOf(fire1, firewall).
-functionOf(fire2, firewall).
+verbindung(X, Y) :: Es gibt eine Verbindung von @(X) zu @(Y).
+verbindung(wien, wrn).
+verbindung(wrn, eisenstadt).
+verbindung(eisenstadt, wien).
+verbindung(wien, stpoelten).
 
-virus(red).
-virus(blue).
+ist_verbunden(X, Y) :: @(X) ist mit @(Y) verbunden.
+ist_verbunden(X, Y) :- verbindung(X, Y).
+ist_verbunden(X, Y) :- ist_verbunden(X, Z), verbindung(Z, Y).
 
-filter(fire1, red).
-filter(fire2, red).
-filter(fire2, blue).
-
-initial(a, blue).
-initial(a, red).
-
-connection(d, c).
-connection(c, a).
-connection(b, a).
-connection(e, fire1).
-connection(fire1, b).
-connection(g, f).
-connection(f, fire2).
-connection(fire2, a).
-
-infected(C, V) :- functionOf(C, pc), virus(V), initial(C, V).
-infected(C, V) :- functionOf(C, pc), virus(V), connection(C, X), infected(X, V).
-infected(C, V) :- functionOf(C, firewall), virus(V), not filter(C, V), connection(C, X), infected(X, V).
+cyclus(X) :: Es gibt eine Cyclus fuer @(X).
+cyclus(X) :- ist_verbunden(X, X).

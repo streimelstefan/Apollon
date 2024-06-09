@@ -408,15 +408,52 @@ namespace Apollon.Lib.Unification.Substitutioners
                 }
 
                 AtomParam setting = this.mappings[param.Term.Value];
+                if (setting.Term != null)
+                { 
+                    var initMapping = (AtomParam)setting.Clone();
+                    if (setting.Term != null && setting.Term.IsVariable)
+                    {
+                        PVL.Union(setting.Term.ProhibitedValues, param.Term.ProhibitedValues);
+                    }
+                    if (mappings.ContainsKey(setting.Term.Value))
+                    {
+                        setting = mappings[setting.Term.Value];
+                    } else
+                    {
+                        return setting;
+                    }
 
-                if (setting.Term != null && setting.Term.IsVariable)
-                {
-                    PVL.Union(setting.Term.ProhibitedValues, param.Term.ProhibitedValues);
+                    while (true)
+                    {
 
-                    return setting;
+                        if (setting.Term != null && setting.Term.IsVariable)
+                        {
+                            PVL.Union(setting.Term.ProhibitedValues, param.Term.ProhibitedValues);
+                        }
+
+                        if (setting.Term != null) 
+                        {
+                            // we looped
+                            if (setting.Term.Value == initMapping.Term.Value)
+                            {
+                                return setting;
+                            }
+
+                            if (mappings.ContainsKey(setting.Term.Value))
+                            {
+                                setting = mappings[setting.Term.Value];
+                            }
+                            else
+                            {
+                                return setting;
+                            }
+
+                        } else
+                        {
+                            return setting;
+                        }
+                    }
                 }
-
-                return setting;
             }
 
             if (param.Literal != null)
