@@ -1,19 +1,5 @@
+natural(0).
+natural(s(N)):- natural(N).
 
-city(X) :: @(X) ist eine Stadt.
-city(wien).
-city(wrn).
-city(eisenstadt).
-city(stpoelten).
-
-verbindung(X, Y) :: Es gibt eine Verbindung von @(X) zu @(Y).
-verbindung(wien, wrn).
-verbindung(wrn, eisenstadt).
-verbindung(eisenstadt, wien).
-verbindung(wien, stpoelten).
-
-ist_verbunden(X, Y) :: @(X) ist mit @(Y) verbunden.
-ist_verbunden(X, Y) :- verbindung(X, Y).
-ist_verbunden(X, Y) :- ist_verbunden(X, Z), verbindung(Z, Y).
-
-cyclus(X) :: Es gibt eine Cyclus fuer @(X).
-cyclus(X) :- ist_verbunden(X, X).
+add(0,N,N).
+add(s(N), M, s(R)) :- add(N,M,R).

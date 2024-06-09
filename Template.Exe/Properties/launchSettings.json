@@ -2,7 +2,7 @@
   "profiles": {
     "Apollon.Exe": {
       "commandName": "Project",
-      "commandLineArgs": "./Test.apo -q \"cyclus(X).\""
+      "commandLineArgs": "./Test.apo -q \"add(s(s(0)), s(s(s(0))), X).\""
     }
   }
 }

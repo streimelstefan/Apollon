@@ -453,6 +453,9 @@ namespace Apollon.Lib.Unification.Substitutioners
                             return setting;
                         }
                     }
+                } else
+                {
+                    return setting;
                 }
             }
 
