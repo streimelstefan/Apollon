@@ -135,7 +135,7 @@ namespace Apollon.Lib.Resolution.CoSLD
                 return chsCheck;
             }
 
-            CheckerResult callStackCheck = this.callStackChecker.CheckCallStackFor(state.Substitution.Apply(state.CurrentGoal), state.CallStack);
+            CheckerResult callStackCheck = this.callStackChecker.CheckCallStackFor(state.CurrentGoal, state.CallStack, state, this.substitutionGroups);
 
             state.Logger.Trace($"CallStack marked goal {state.CurrentGoal} as {callStackCheck} using ({string.Join(", ", state.CallStack)})");
             
@@ -165,7 +165,7 @@ namespace Apollon.Lib.Resolution.CoSLD
             else if (goal.Literal != null)
             {
                 Literal substituted = state.Substitution.Apply(goal.Literal);
-                state.Logger.Info($"Current goal is: {substituted}");
+                state.Logger.Info($"Current Goal is: {substituted}");
 
                 ResolutionLiteralState nextState = ResolutionLiteralState.CloneConstructor(state, goal.Literal, state.Statements);
                 nextState.BodyOnlyLiteralAndVars = state.BodyOnlyLiteralAndVars;
@@ -174,7 +174,7 @@ namespace Apollon.Lib.Resolution.CoSLD
             }
             else if (goal.Operation != null)
             {
-                state.Logger.Info($"Current goal is: {state.Substitution.Apply(new Statement(null, goal)).Body[0]}");
+                state.Logger.Info($"Current Goal is: {state.Substitution.Apply(new Statement(null, goal)).Body[0]}");
                 results = this.ResolveOperation(goal.Operation, (ResolutionBaseState)state.Clone());
             }
 
@@ -263,6 +263,8 @@ namespace Apollon.Lib.Resolution.CoSLD
                     stateCopy.Substitution.BackPropagate(res.Substitution);
                     stateCopy.Substitution.Contract();
 
+                    stateCopy.Substitution.ApplyInline(stateCopy.Chs);
+
                     yield return new CoResolutionResult(true, stateCopy.Substitution, stateCopy);
                 }
                 else
@@ -275,7 +277,7 @@ namespace Apollon.Lib.Resolution.CoSLD
         private IEnumerable<CoResolutionForAllResult> ResolveForAllGoalPart(ResolutionStepState state, BodyPart goal)
         {
             ArgumentNullException.ThrowIfNull(goal.ForAll, nameof(goal.ForAll));
-            state.Logger.Info($"Current goal is: {state.Substitution.Apply(new Statement(null, goal)).Body[0]}");
+            state.Logger.Info($"Current Goal is: {state.Substitution.Apply(new Statement(null, goal)).Body[0]}");
 
             Term variable = (Term)goal.ForAll.Clone();
             variable.ProhibitedValues.Clear();

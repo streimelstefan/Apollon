@@ -8,6 +8,8 @@
 namespace Apollon.Lib.Resolution.Checkers.CallStack
 {
     using Apollon.Lib.Linker;
+    using Apollon.Lib.Resolution.CoSLD.States;
+    using Apollon.Lib.Resolution.CoSLD;
     using Apollon.Lib.Rules;
     using Apollon.Lib.Unification;
 
@@ -29,39 +31,43 @@ namespace Apollon.Lib.Resolution.Checkers.CallStack
         /// <param name="literal">The Literal that the loop should be checked for.</param>
         /// <param name="stack">The stack of all Literals that should be checked.</param>
         /// <returns>Returns an Enumerable containing the Result of the Check.</returns>
-        public CheckerResult CheckCallStackFor(Literal literal, Stack<Literal> stack)
+        public CheckerResult CheckCallStackFor(Literal literal, Stack<Literal> stack, ResolutionLiteralState state, SubstitutionGroups groups)
         {
+            var goalToCheck = state.Substitution.Apply(literal);
             // if there is no loop continue.
-            if (this.IsPresentWithNAFSwitch(literal, stack))
+            if (this.IsPresentWithNAFSwitch(goalToCheck, stack))
             {
                 return CheckerResult.Fail;
             }
 
-            if (!stack.Where(l => this.constructiveUnifier.Unify(literal, l).IsSuccess).Any())
+            if (!stack.Where(l => this.constructiveUnifier.Unify(goalToCheck, l).IsSuccess).Any())
             {
                 return CheckerResult.Continue;
             }
 
-            List<Literal> exactCallStack = stack.TakeWhile(l => this.exactUnifer.Unify(l, literal).IsError).ToList();
 
-            if (this.IsPositiveLoop(exactCallStack))
+            List<Literal> exactCallStack = stack.TakeWhile(l => this.exactUnifer.Unify(l, goalToCheck).IsError).ToList();
+            if (exactCallStack.Count != stack.Count())
             {
-                return CheckerResult.Fail;
+                if (this.IsPositiveLoop(exactCallStack))
+                {
+                    return CheckerResult.Fail;
+                }
+
+                if (this.IsEvenLoop(exactCallStack))
+                {
+                    return CheckerResult.Succeed;
+                }
             }
 
-            if (this.IsEvenLoop(exactCallStack))
-            {
-                return CheckerResult.Succeed;
-            }
+            this.linker.LinkVariables(new Statement(goalToCheck));
+            var variables = this.extractor.ExtractVariablesFrom(goalToCheck);
 
-            this.linker.LinkVariables(new Statement(literal));
-            var variables = this.extractor.ExtractVariablesFrom(literal);
-
-            List<Literal> constructiveCallStack = stack.TakeWhile(l => this.constructiveUnifier.Unify(l, literal).IsError)
+            List<Literal> constructiveCallStack = stack.TakeWhile(l => this.constructiveUnifier.Unify(l, goalToCheck).IsError)
                 .Where(l =>
             {
                 this.linker.LinkVariables(new Statement(l));
-                var lVars = this.extractor.ExtractVariablesFrom(literal);
+                var lVars = this.extractor.ExtractVariablesFrom(goalToCheck);
 
                 return !lVars.Where(lv => variables.Where(v => v.Value == lv.Value).Any()).Any();
             }).ToList();
@@ -77,7 +83,7 @@ namespace Apollon.Lib.Resolution.Checkers.CallStack
 
         private bool IsPositiveLoop(IEnumerable<Literal> chs)
         {
-            return !chs.Where(l => l.IsNAF).Any() && chs.Count() > 0;
+            return !chs.Where(l => l.IsNAF).Any() && chs.Count() > 1;
         }
 
         private bool IsPresentWithNAFSwitch(Literal literal, IEnumerable<Literal> chs)

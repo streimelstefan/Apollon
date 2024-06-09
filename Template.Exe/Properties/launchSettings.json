@@ -2,7 +2,7 @@
   "profiles": {
     "Apollon.Exe": {
       "commandName": "Project",
-      "commandLineArgs": "./Test.apo -q \"chosen(1, 2).\""
+      "commandLineArgs": "./Test.apo -q \"infected(C, V).\""
     }
   }
 }

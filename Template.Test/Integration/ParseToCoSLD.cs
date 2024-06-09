@@ -256,47 +256,88 @@
 
             Assert.IsNotNull(res);
             var literals = res.CHS.Literals;
-            Assert.AreEqual(32, literals.Count);
-            Assert.AreEqual("", literals[0].ToString());
-            Assert.AreEqual("", literals[1].ToString());
-            Assert.AreEqual("", literals[2].ToString());
-            Assert.AreEqual("", literals[3].ToString());
-            Assert.AreEqual("", literals[4].ToString());
-            Assert.AreEqual("", literals[5].ToString());
-            Assert.AreEqual("", literals[6].ToString());
-            Assert.AreEqual("", literals[7].ToString());
-            Assert.AreEqual("", literals[8].ToString());
-            Assert.AreEqual("", literals[9].ToString());
-            Assert.AreEqual("", literals[10].ToString());
-            Assert.AreEqual("", literals[11].ToString());
-            Assert.AreEqual("", literals[12].ToString());
-            Assert.AreEqual("", literals[13].ToString());
-            Assert.AreEqual("", literals[14].ToString());
-            Assert.AreEqual("", literals[15].ToString());
-            Assert.AreEqual("", literals[16].ToString());
-            Assert.AreEqual("", literals[17].ToString());
-            Assert.AreEqual("", literals[18].ToString());
-            Assert.AreEqual("", literals[19].ToString());
-            Assert.AreEqual("", literals[20].ToString());
-            Assert.AreEqual("", literals[21].ToString());
-            Assert.AreEqual("", literals[22].ToString());
-            Assert.AreEqual("", literals[23].ToString());
-            Assert.AreEqual("", literals[24].ToString());
-            Assert.AreEqual("", literals[25].ToString());
-            Assert.AreEqual("", literals[26].ToString());
-            Assert.AreEqual("", literals[27].ToString());
-            Assert.AreEqual("", literals[28].ToString());
-            Assert.AreEqual("", literals[29].ToString());
-            Assert.AreEqual("", literals[30].ToString());
-            Assert.AreEqual("", literals[31].ToString());
-            // Assert.AreEqual("", literals[32].ToString());
-            // Assert.AreEqual("", literals[33].ToString());
-            // Assert.AreEqual("", literals[34].ToString());
-            // Assert.AreEqual("", literals[35].ToString());
-            // Assert.AreEqual("", literals[36].ToString());
-            // Assert.AreEqual("", literals[37].ToString());
-            // Assert.AreEqual("", literals[38].ToString());
-            // Assert.AreEqual("", literals[39].ToString());
+            Assert.AreEqual(48, literals.Count);
+            Assert.AreEqual("edge(1, 2)", literals[0].ToString());
+            Assert.AreEqual("vertex(1)", literals[1].ToString());
+            Assert.AreEqual("vertex(2)", literals[2].ToString());
+            Assert.AreEqual("not vertex(RV/43 - {\\1 \\2 \\0})", literals[3].ToString());
+            Assert.AreEqual("vertex(0)", literals[4].ToString());
+            Assert.AreEqual("not edge(1, 0)", literals[5].ToString());
+            Assert.AreEqual("not edge(1, 1)", literals[6].ToString());
+            Assert.AreEqual("not other(1, 2)", literals[7].ToString());
+            Assert.AreEqual("chosen(1, 2)", literals[8].ToString());
+            Assert.AreEqual("edge(2, 0)", literals[9].ToString());
+            Assert.AreEqual("not edge(2, 1)", literals[10].ToString());
+            Assert.AreEqual("not edge(2, 2)", literals[11].ToString());
+            Assert.AreEqual("not other(2, 0)", literals[12].ToString());
+            Assert.AreEqual("chosen(2, 0)", literals[13].ToString());
+            Assert.AreEqual("reachable(0)", literals[14].ToString());
+            Assert.AreEqual("edge(0, 1)", literals[15].ToString());
+            Assert.AreEqual("not edge(0, 0)", literals[16].ToString());
+            Assert.AreEqual("not edge(0, 2)", literals[17].ToString());
+            Assert.AreEqual("not other(0, 1)", literals[18].ToString());
+            Assert.AreEqual("chosen(0, 1)", literals[19].ToString());
+            Assert.AreEqual("reachable(1)", literals[20].ToString());
+            Assert.AreEqual("reachable(2)", literals[21].ToString());
+            Assert.AreEqual("not edge(RV/667 - {\\1 \\2 \\0}, RV/668 - {\\2 \\0 \\1})", literals[22].ToString());
+            Assert.AreEqual("not chosen(RV/661 - {\\1 \\2 \\0}, RV/662 - {\\2 \\0 \\1})", literals[23].ToString());
+            Assert.AreEqual("not edge(0, RV/699 - {\\1})", literals[24].ToString());
+            Assert.AreEqual("not chosen(0, RV/693 - {\\1})", literals[25].ToString());
+            Assert.AreEqual("not edge(RV/729 - {\\0 \\1 \\2}, 1)", literals[26].ToString());
+            Assert.AreEqual("not chosen(RV/723 - {\\0 \\1 \\2}, 1)", literals[27].ToString());
+            Assert.AreEqual("not chosen(1, 1)", literals[28].ToString());
+            Assert.AreEqual("not chosen(2, 1)", literals[29].ToString());
+            Assert.AreEqual("not edge(1, RV/804 - {\\2})", literals[30].ToString());
+            Assert.AreEqual("not chosen(1, RV/798 - {\\2})", literals[31].ToString());
+            Assert.AreEqual("not edge(RV/834 - {\\1 \\0 \\2}, 2)", literals[32].ToString());
+            Assert.AreEqual("not chosen(RV/828 - {\\1 \\0 \\2}, 2)", literals[33].ToString());
+            Assert.AreEqual("not chosen(0, 2)", literals[34].ToString());
+            Assert.AreEqual("not chosen(2, 2)", literals[35].ToString());
+            Assert.AreEqual("not edge(2, RV/909 - {\\0})", literals[36].ToString());
+            Assert.AreEqual("not chosen(2, RV/903 - {\\0})", literals[37].ToString());
+            Assert.AreEqual("not edge(RV/939 - {\\2 \\0 \\1}, 0)", literals[38].ToString());
+            Assert.AreEqual("not chosen(RV/933 - {\\2 \\0 \\1}, 0)", literals[39].ToString());
+            Assert.AreEqual("not chosen(0, 0)", literals[40].ToString());
+            Assert.AreEqual("not chosen(1, 0)", literals[41].ToString());
+            Assert.AreEqual("other(0, 0)", literals[42].ToString());
+            Assert.AreEqual("other(0, 2)", literals[43].ToString());
+            Assert.AreEqual("other(1, 0)", literals[44].ToString());
+            Assert.AreEqual("other(1, 1)", literals[45].ToString());
+            Assert.AreEqual("other(2, 1)", literals[46].ToString());
+            Assert.AreEqual("other(2, 2)", literals[47].ToString());
+        }
+
+        [Test]
+        public void ShouldRunInfected()
+        {
+            Program program = this.parser.ParseFromFile("../../../TestPrograms/Infected.apo");
+            BodyPart[] query = this.parser.ParseQueryFromString("infected(C, V).");
+
+            this.solver.Load(program);
+
+            IEnumerable<ResolutionResult> results = this.solver.Solve(query);
+            var res = results.ToArray();
+
+            Assert.AreEqual(res.Length, 10);
+
+            var resultBuilder = new ResultStringBuilder();
+            var resultsStrings = new List<string>();
+            foreach (var result in res)
+            {
+                var stringRes = resultBuilder.CreateResultString(result);
+                resultsStrings.Add(stringRes);
+            }
+
+            Assert.AreEqual("Solution found:\n\r\n{\r\n  functionOf(a, pc)\r\n  virus(red)\r\n  initial(a, red)\r\n  infected(a, red)\r\n}\r\n\r\nC = a\r\nV = red\r\n", resultsStrings[0]);
+            Assert.AreEqual("Solution found:\n\r\n{\r\n  functionOf(a, pc)\r\n  virus(blue)\r\n  initial(a, blue)\r\n  infected(a, blue)\r\n}\r\n\r\nC = a\r\nV = blue\r\n", resultsStrings[1]);
+            Assert.AreEqual("Solution found:\n\r\n{\r\n  functionOf(b, pc)\r\n  virus(red)\r\n  connection(b, a)\r\n  functionOf(a, pc)\r\n  initial(a, red)\r\n  infected(a, red)\r\n  infected(b, red)\r\n}\r\n\r\nC = b\r\nV = red\r\n", resultsStrings[2]);
+            Assert.AreEqual("Solution found:\n\r\n{\r\n  functionOf(b, pc)\r\n  virus(blue)\r\n  connection(b, a)\r\n  functionOf(a, pc)\r\n  initial(a, blue)\r\n  infected(a, blue)\r\n  infected(b, blue)\r\n}\r\n\r\nC = b\r\nV = blue\r\n", resultsStrings[3]);
+            Assert.AreEqual("Solution found:\n\r\n{\r\n  functionOf(c, pc)\r\n  virus(red)\r\n  connection(c, a)\r\n  functionOf(a, pc)\r\n  initial(a, red)\r\n  infected(a, red)\r\n  infected(c, red)\r\n}\r\n\r\nC = c\r\nV = red\r\n", resultsStrings[4]);
+            Assert.AreEqual("Solution found:\n\r\n{\r\n  functionOf(c, pc)\r\n  virus(blue)\r\n  connection(c, a)\r\n  functionOf(a, pc)\r\n  initial(a, blue)\r\n  infected(a, blue)\r\n  infected(c, blue)\r\n}\r\n\r\nC = c\r\nV = blue\r\n", resultsStrings[5]);
+            Assert.AreEqual("Solution found:\n\r\n{\r\n  functionOf(d, pc)\r\n  virus(red)\r\n  connection(d, c)\r\n  functionOf(c, pc)\r\n  connection(c, a)\r\n  functionOf(a, pc)\r\n  initial(a, red)\r\n  infected(a, red)\r\n  infected(c, red)\r\n  infected(d, red)\r\n}\r\n\r\nC = d\r\nV = red\r\n", resultsStrings[6]);
+            Assert.AreEqual("Solution found:\n\r\n{\r\n  functionOf(d, pc)\r\n  virus(blue)\r\n  connection(d, c)\r\n  functionOf(c, pc)\r\n  connection(c, a)\r\n  functionOf(a, pc)\r\n  initial(a, blue)\r\n  infected(a, blue)\r\n  infected(c, blue)\r\n  infected(d, blue)\r\n}\r\n\r\nC = d\r\nV = blue\r\n", resultsStrings[7]);
+            Assert.AreEqual("Solution found:\n\r\n{\r\n  functionOf(e, pc)\r\n  virus(blue)\r\n  connection(e, fire1)\r\n  functionOf(fire1, firewall)\r\n  not filter(fire1, blue)\r\n  connection(fire1, b)\r\n  functionOf(b, pc)\r\n  connection(b, a)\r\n  functionOf(a, pc)\r\n  initial(a, blue)\r\n  infected(a, blue)\r\n  infected(b, blue)\r\n  infected(fire1, blue)\r\n  infected(e, blue)\r\n}\r\n\r\nC = e\r\nV = blue\r\n", resultsStrings[8]);
+            Assert.AreEqual("Solution found:\n\r\n{\r\n  functionOf(fire1, firewall)\r\n  virus(blue)\r\n  not filter(fire1, blue)\r\n  connection(fire1, b)\r\n  functionOf(b, pc)\r\n  connection(b, a)\r\n  functionOf(a, pc)\r\n  initial(a, blue)\r\n  infected(a, blue)\r\n  infected(b, blue)\r\n  infected(fire1, blue)\r\n}\r\n\r\nC = fire1\r\nV = blue\r\n", resultsStrings[9]);
         }
 
         [Test]

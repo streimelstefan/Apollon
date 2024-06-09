@@ -7,6 +7,9 @@
 
 namespace Apollon.Lib.Resolution.Checkers.CallStack
 {
+    using Apollon.Lib.Resolution.CoSLD;
+    using Apollon.Lib.Resolution.CoSLD.States;
+
     /// <summary>
     /// The CallStackChecker checks the CallStack for loops.
     /// </summary>
@@ -18,6 +21,6 @@ namespace Apollon.Lib.Resolution.Checkers.CallStack
         /// <param name="literal">The Literal that should be checked.</param>
         /// <param name="stack">The Stack of Literals that should be checked.</param>
         /// <returns>Returns an Enumerable containing the Result of the Check.</returns>
-        CheckerResult CheckCallStackFor(Literal literal, Stack<Literal> stack);
+        CheckerResult CheckCallStackFor(Literal literal, Stack<Literal> stack, ResolutionLiteralState state, SubstitutionGroups groups);
     }
 }

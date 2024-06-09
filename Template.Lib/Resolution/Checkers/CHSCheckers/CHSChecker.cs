@@ -215,7 +215,7 @@ namespace Apollon.Lib.Resolution.Checkers.CHSCheckers
                                         continue;
                                     }
 
-                                    state.Logger.Info($"Current goal is: {recRes}");
+                                    state.Logger.Info($"Current Goal is: {recRes}");
 
                                     var recResCopy = (Literal)recRes.Clone();
                                     recResCopy.IsNAF = !recResCopy.IsNAF;

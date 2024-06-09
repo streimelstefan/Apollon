@@ -7,7 +7,7 @@ def parseSaspCurrentGoalCommand(log: str):
     return f"{goal.strip()} :Current Goal"
 
 def parseApollonCurrentGoalCommand(log: str):
-    goal = re.sub(r".*current goal is: ", "", log.lower())
+    goal = re.sub(r".*Current Goal is: ", "", log)
     return f"Current Goal: {goal}".strip()
 
 def getSaspCommands(logData):
